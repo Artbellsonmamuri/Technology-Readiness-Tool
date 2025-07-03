@@ -105,6 +105,9 @@ class AssessmentApp {
     async fetchQuestions() {
         try {
             const res = await fetch(`/api/questions/${this.mode}/${this.lang}`);
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
             if (this.mode === "TCP") {
                 this.tcpQuestions = await res.json();
             } else {
@@ -112,6 +115,9 @@ class AssessmentApp {
             }
         } catch (error) {
             console.error('Error loading questions:', error);
+            alert(this.lang === "english" ? 
+                "Error loading questions. Please try again." : 
+                "Error sa pag-load ng mga tanong. Subukan muli.");
         }
     }
 
@@ -183,10 +189,18 @@ class AssessmentApp {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
+            
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            
             this.result = await res.json();
             this.showTCPResults();
         } catch (error) {
             console.error('Error completing TCP assessment:', error);
+            alert(this.lang === "english" ? 
+                "Error completing assessment. Please try again." : 
+                "Error sa pagkumpleto ng assessment. Subukan muli.");
         }
     }
 
@@ -289,6 +303,11 @@ class AssessmentApp {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
+            
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            
             this.result = await res.json();
 
             this.setText("result-level",
@@ -319,39 +338,61 @@ class AssessmentApp {
             this.showStep("results");
         } catch (error) {
             console.error('Error completing assessment:', error);
+            alert(this.lang === "english" ? 
+                "Error completing assessment. Please try again." : 
+                "Error sa pagkumpleto ng assessment. Subukan muli.");
         }
     }
 
     async downloadPDF() {
         try {
-            // Ensure we have a valid result object
-            if (!this.result) {
-                alert(this.lang === "english" ? "No assessment results available" : "Walang available na resulta");
+            // Validate result object
+            if (!this.result || !this.result.mode) {
+                alert(this.lang === "english" ? 
+                    "No assessment results available. Please complete an assessment first." : 
+                    "Walang available na resulta. Kumpletuhin muna ang assessment.");
                 return;
             }
 
+            console.log("Downloading PDF for:", this.result.mode);
+            console.log("Result object:", this.result);
+
             const res = await fetch("/api/generate_pdf", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify(this.result)
             });
 
             if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
+                const errorText = await res.text();
+                console.error("PDF generation failed:", errorText);
+                throw new Error(`HTTP error! status: ${res.status} - ${errorText}`);
             }
 
             const blob = await res.blob();
+            
+            if (blob.size === 0) {
+                throw new Error("Received empty PDF file");
+            }
+            
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
             a.download = `MMSU_${this.result.technology_title}_${this.result.mode}_Assessment.pdf`;
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            
+            console.log("PDF download completed successfully");
+            
         } catch (error) {
             console.error('Error downloading PDF:', error);
             alert(this.lang === "english" ? 
-                "Error downloading PDF. Please try again." : 
-                "Error sa pag-download ng PDF. Subukan muli.");
+                `Error downloading PDF: ${error.message}. Please try again.` : 
+                `Error sa pag-download ng PDF: ${error.message}. Subukan muli.`);
         }
     }
 
