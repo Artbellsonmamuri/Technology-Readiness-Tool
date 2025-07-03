@@ -753,135 +753,295 @@ def generate_pdf():
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=0.5*inch)
     sty = getSampleStyleSheet()
-    
-    title_style = ParagraphStyle("Title", parent=sty["Heading1"], 
-                                fontSize=16, textColor=colors.darkgreen, 
-                                alignment=1, spaceAfter=6)
-    subtitle_style = ParagraphStyle("Subtitle", parent=sty["Normal"], 
-                                   fontSize=10, textColor=colors.darkblue, 
-                                   alignment=1, spaceAfter=12)
-    heading_style = ParagraphStyle("Heading", parent=sty["Heading2"], 
-                                  fontSize=12, textColor=colors.darkgreen)
+
+    # MMSU Branding Styles
+    title_style = ParagraphStyle("Title", parent=sty["Heading1"], fontSize=16, textColor=colors.darkgreen, alignment=1, spaceAfter=6)
+    subtitle_style = ParagraphStyle("Subtitle", parent=sty["Normal"], fontSize=10, textColor=colors.darkblue, alignment=1, spaceAfter=12)
+    heading_style = ParagraphStyle("Heading", parent=sty["Heading2"], fontSize=12, textColor=colors.darkgreen)
+    discussion_style = ParagraphStyle("Discussion", parent=sty["Normal"], fontSize=10, textColor=colors.black, alignment=0, leftIndent=0, spaceBefore=12, spaceAfter=12)
     
     doc_elements = []
-    
+
+    # HEADER
     doc_elements.append(Paragraph("MARANO MARCOS STATE UNIVERSITY", title_style))
     doc_elements.append(Paragraph("Innovation and Technology Support Office", subtitle_style))
     doc_elements.append(Paragraph("Technology Assessment Tool", subtitle_style))
-    doc_elements.append(Spacer(1, 20))
-    
+    doc_elements.append(Spacer(1, 18))
+
     doc_elements.append(Paragraph(f"{data['mode_full']} Assessment Report", heading_style))
-    doc_elements.append(Spacer(1, 12))
-    
+    doc_elements.append(Spacer(1, 10))
+
+    # TECHNOLOGY INFO
     tech_info = [
         ["Technology Title:", data['technology_title']],
         ["Description:", data['description']],
         ["Assessment Date:", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')]
     ]
-    
     if data['mode'] == 'TCP':
         tech_info.append(["Recommended Pathway:", data['recommended_pathway']])
     else:
         tech_info.append(["Assessment Result:", f"{data['mode']} Level {data['level']}"])
-    
+
     tech_table = Table(tech_info, colWidths=[2*inch, 4*inch])
     tech_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
         ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ('GRID', (0, 0), (-1, -1), 1, colors.black)
     ]))
-    
     doc_elements.append(tech_table)
-    doc_elements.append(Spacer(1, 20))
-    
+    doc_elements.append(Spacer(1, 16))
+
+    # MAIN EXPLANATION
     doc_elements.append(Paragraph("Assessment Summary", heading_style))
-    doc_elements.append(Paragraph(data["explanation"], sty["Normal"]))
-    doc_elements.append(Spacer(1, 15))
-    
-    if data['mode'] == 'TCP':
-        generate_tcp_pdf_content(doc_elements, data, sty, heading_style)
+    doc_elements.append(Paragraph(data.get("explanation", ""), sty["Normal"]))
+    doc_elements.append(Spacer(1, 14))
+
+    # ===== TCP-SPECIFIC PDF SECTIONS =====
+    if data["mode"] == "TCP":
+        # Pathways Table
+        doc_elements.append(Paragraph("Commercialization Pathway Scores", heading_style))
+        doc_elements.append(Spacer(1, 8))
+
+        pathway_scores = data.get('pathway_scores', {})
+        score_data = [["Pathway", "Score", "Ranking"]]
+        sorted_pathways = sorted(pathway_scores.items(), key=lambda x: x[1], reverse=True)
+        for rank, (pathway, score) in enumerate(sorted_pathways, 1):
+            score_data.append([pathway, str(score), f"#{rank}"])
+
+        score_table = Table(score_data, colWidths=[2.5*inch, 0.8*inch, 0.7*inch])
+        score_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('ALIGN', (1, 0), (-1, -1), 'CENTER')
+        ]))
+        doc_elements.append(score_table)
+        doc_elements.append(Spacer(1, 12))
+
+        # Detailed Questions and Answers
+        doc_elements.append(Paragraph("Detailed Assessment Responses", heading_style))
+        doc_elements.append(Spacer(1, 8))
+        
+        tcp_data = data.get('tcp_data', {})
+        answers = data.get('answers', [])
+        answer_idx = 0
+        
+        for dimension in tcp_data.get('dimensions', []):
+            doc_elements.append(Paragraph(dimension['name'], sty["Heading3"]))
+            
+            for q_num, question in enumerate(dimension['questions'], 1):
+                if answer_idx < len(answers):
+                    score = answers[answer_idx]
+                    score_text = ["Low (1)", "Medium (2)", "High (3)"][score - 1] if 1 <= score <= 3 else "Not answered"
+                else:
+                    score_text = "Not answered"
+                
+                doc_elements.append(Paragraph(f"Q{answer_idx+1}. {question}", sty["Normal"]))
+                doc_elements.append(Paragraph(f"<b>Response:</b> {score_text}", sty["Normal"]))
+                doc_elements.append(Spacer(1, 6))
+                answer_idx += 1
+            doc_elements.append(Spacer(1, 8))
+
+        # Results and Discussion
+        doc_elements.append(Paragraph("Results and Discussion", heading_style))
+        discussion = tcp_results_and_discussion(data)
+        doc_elements.append(Paragraph(discussion, discussion_style))
+        doc_elements.append(Spacer(1, 10))
+
+        # Recommendations
+        doc_elements.append(Paragraph("Strategic Recommendations", heading_style))
+        recommendations = tcp_strategic_recommendations(data)
+        doc_elements.append(Paragraph(recommendations, discussion_style))
+        doc_elements.append(Spacer(1, 10))
+
     else:
-        generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style)
-    
-    doc_elements.append(Spacer(1, 20))
-    footer_style = ParagraphStyle("Footer", parent=sty["Normal"], 
-                                 fontSize=8, textColor=colors.grey, 
-                                 alignment=1)
-    doc_elements.append(Paragraph("Generated by MMSU Innovation and Technology Support Office", footer_style))
-    doc_elements.append(Paragraph("Technology Assessment Tool", footer_style))
-    
+        # TRL / IRL DETAILED
+        doc_elements.append(Paragraph("Detailed Assessment Results", heading_style))
+        doc_elements.append(Spacer(1, 10))
+        
+        questions = data.get('questions', [])
+        answers = data.get('answers', [])
+        
+        for idx, level in enumerate(questions):
+            level_title = f"{data['mode']} Level {level['level']}: {level['title']}"
+            doc_elements.append(Paragraph(level_title, sty["Heading3"]))
+            
+            if idx < len(answers):
+                level_answers = answers[idx]
+                for q_idx, question in enumerate(level['checks']):
+                    if q_idx < len(level_answers):
+                        answer = "✓ Yes" if level_answers[q_idx] else "✗ No"
+                        answer_color = colors.darkgreen if level_answers[q_idx] else colors.red
+                    else:
+                        answer = "— Not answered"
+                        answer_color = colors.grey
+                    
+                    doc_elements.append(Paragraph(f"Q{q_idx+1}. {question}", sty["Normal"]))
+                    doc_elements.append(Paragraph(f"<b>Answer:</b> <font color='{answer_color.hexval()}'>{answer}</font>", sty["Normal"]))
+                    doc_elements.append(Spacer(1, 4))
+            doc_elements.append(Spacer(1, 8))
+
+    # FOOTER
+    doc_elements.append(Spacer(1, 14))
+    footer_style = ParagraphStyle("Footer", parent=sty["Normal"], fontSize=8, textColor=colors.grey, alignment=1)
+    doc_elements.append(Paragraph("Generated by MMSU Innovation and Technology Support Office<br/>Technology Assessment Tool", footer_style))
+
     doc.build(doc_elements)
     buf.seek(0)
-    return send_file(buf, mimetype="application/pdf",
-                     as_attachment=True,
-                     download_name=f"MMSU_{data['technology_title']}_{data['mode']}_Assessment.pdf")
+    return send_file(buf, mimetype="application/pdf", as_attachment=True, download_name=f"MMSU_{data['technology_title']}_{data['mode']}_Assessment.pdf")
 
-def generate_tcp_pdf_content(doc_elements, data, sty, heading_style):
-    doc_elements.append(Paragraph("Commercialization Pathway Scores", heading_style))
-    doc_elements.append(Spacer(1, 10))
+def tcp_results_and_discussion(data):
+    """Comprehensive results and discussion section for TCP PDF."""
+    recommended = data['recommended_pathway']
+    scores = data['pathway_scores']
     
-    pathway_scores = data.get('pathway_scores', {})
-    score_data = [["Pathway", "Score"]]
-    for pathway, score in sorted(pathway_scores.items(), key=lambda x: x[1], reverse=True):
-        score_data.append([pathway, str(score)])
+    # Analysis of top pathways
+    sorted_pathways = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    top_3 = sorted_pathways[:3]
     
-    score_table = Table(score_data, colWidths=[3*inch, 1*inch])
-    score_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
+    discussion = f"""
+    <b>Assessment Results:</b><br/>
+    The Technology Commercialization Pathway assessment evaluated seven potential pathways for bringing this technology to market. 
+    Based on the multi-dimensional scoring across Technology & Product Readiness, Market & Customer factors, Business & Financial considerations, 
+    Regulatory & Policy environment, Organizational & Team capabilities, and Strategic Fit, the analysis recommends <b>{recommended}</b> 
+    as the primary commercialization strategy.<br/><br/>
     
-    doc_elements.append(score_table)
-    doc_elements.append(Spacer(1, 15))
+    <b>Pathway Rankings:</b><br/>
+    The top three pathways identified are:<br/>
+    1. {top_3[0][0]} (Score: {top_3[0][1]})<br/>
+    2. {top_3[1][0]} (Score: {top_3[1][1]})<br/>
+    3. {top_3[2][0]} (Score: {top_3[2][1]})<br/><br/>
+    
+    <b>Strategic Analysis:</b><br/>
+    The scoring differential between pathways provides insight into the technology's commercialization readiness and organizational capabilities. 
+    A high score for {recommended} suggests strong alignment between the technology characteristics, market conditions, and organizational resources 
+    required for this particular commercialization approach.<br/><br/>
+    
+    <b>Risk Considerations:</b><br/>
+    While {recommended} represents the highest-scoring pathway, organizations should consider implementing a mixed strategy that leverages 
+    multiple pathways sequentially or in parallel, depending on technology maturity, market evolution, and resource availability. 
+    The assessment provides a foundation for strategic decision-making but should be supplemented with detailed market research, 
+    financial modeling, and stakeholder consultations.
+    """
+    
+    return discussion
 
-def generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style):
-    doc_elements.append(Paragraph("Detailed Assessment Results", heading_style))
-    doc_elements.append(Spacer(1, 10))
+def tcp_strategic_recommendations(data):
+    """Strategic recommendations based on TCP assessment results."""
+    recommended = data['recommended_pathway']
     
-    questions = data.get('questions', [])
-    answers = data.get('answers', [])
+    pathway_strategies = {
+        "Direct Sale": """
+        <b>Implementation Strategy:</b><br/>
+        • Develop comprehensive go-to-market strategy with clear value proposition<br/>
+        • Establish direct sales channels and customer support infrastructure<br/>
+        • Invest in marketing and brand development for market penetration<br/>
+        • Ensure adequate manufacturing and fulfillment capabilities<br/>
+        • Consider pilot customers and case studies for market validation<br/><br/>
+        
+        <b>Critical Success Factors:</b><br/>
+        • Strong internal sales and marketing capabilities<br/>
+        • Sufficient capital for market development<br/>
+        • Clear competitive differentiation<br/>
+        • Scalable operations and quality assurance processes
+        """,
+        
+        "Licensing": """
+        <b>Implementation Strategy:</b><br/>
+        • Strengthen intellectual property protection and documentation<br/>
+        • Identify and evaluate potential licensees with market presence<br/>
+        • Develop comprehensive licensing packages including technical support<br/>
+        • Negotiate favorable terms including royalties and milestone payments<br/>
+        • Establish ongoing relationship management and quality control<br/><br/>
+        
+        <b>Critical Success Factors:</b><br/>
+        • Strong IP portfolio and legal protection<br/>
+        • Proven technology performance and reliability<br/>
+        • Partner selection with complementary capabilities<br/>
+        • Clear licensing terms and performance metrics
+        """,
+        
+        "Startup/Spin-out": """
+        <b>Implementation Strategy:</b><br/>
+        • Assemble experienced management team with relevant industry expertise<br/>
+        • Develop comprehensive business plan with clear market opportunity<br/>
+        • Secure initial funding through grants, angel investors, or venture capital<br/>
+        • Establish legal structure and intellectual property ownership<br/>
+        • Build minimum viable product and validate market assumptions<br/><br/>
+        
+        <b>Critical Success Factors:</b><br/>
+        • Strong entrepreneurial team with execution capabilities<br/>
+        • Significant market opportunity and growth potential<br/>
+        • Access to patient capital and strategic investors<br/>
+        • Clear path to profitability and scalability
+        """,
+        
+        "Assignment": """
+        <b>Implementation Strategy:</b><br/>
+        • Conduct thorough valuation of technology assets and IP<br/>
+        • Identify potential acquirers with strategic interest<br/>
+        • Prepare comprehensive technology transfer packages<br/>
+        • Negotiate terms that maximize value while ensuring technology advancement<br/>
+        • Plan for orderly transition and knowledge transfer<br/><br/>
+        
+        <b>Critical Success Factors:</b><br/>
+        • Clear IP ownership and documentation<br/>
+        • Proven technology value and market potential<br/>
+        • Strategic fit with acquirer's capabilities<br/>
+        • Fair valuation and favorable transaction terms
+        """,
+        
+        "Research Collaboration": """
+        <b>Implementation Strategy:</b><br/>
+        • Identify research partners with complementary expertise and resources<br/>
+        • Develop joint research proposals and funding applications<br/>
+        • Establish clear IP ownership and commercialization agreements<br/>
+        • Create project governance and milestone tracking systems<br/>
+        • Plan for eventual technology transition and commercialization<br/><br/>
+        
+        <b>Critical Success Factors:</b><br/>
+        • Strong research partnerships and collaboration agreements<br/>
+        • Access to additional funding and resources<br/>
+        • Clear development roadmap and success metrics<br/>
+        • Eventual commercialization pathway identification
+        """,
+        
+        "Open Source": """
+        <b>Implementation Strategy:</b><br/>
+        • Develop open source licensing strategy and community governance<br/>
+        • Create comprehensive documentation and developer resources<br/>
+        • Build community engagement and contribution frameworks<br/>
+        • Identify service revenue opportunities and business models<br/>
+        • Establish thought leadership and market presence<br/><br/>
+        
+        <b>Critical Success Factors:</b><br/>
+        • Strong community building and engagement capabilities<br/>
+        • Clear service-based revenue model<br/>
+        • Sustainable development and support resources<br/>
+        • Strategic advantage through ecosystem development
+        """,
+        
+        "Government Procurement": """
+        <b>Implementation Strategy:</b><br/>
+        • Understand government procurement processes and requirements<br/>
+        • Ensure compliance with relevant regulations and standards<br/>
+        • Develop relationships with government agencies and prime contractors<br/>
+        • Prepare for lengthy sales cycles and bureaucratic processes<br/>
+        • Consider SBIR/STTR and other government funding opportunities<br/><br/>
+        
+        <b>Critical Success Factors:</b><br/>
+        • Technology alignment with government mission needs<br/>
+        • Regulatory compliance and security clearances<br/>
+        • Patience for extended procurement timelines<br/>
+        • Strong government relations and proposal capabilities
+        """
+    }
     
-    for idx, level in enumerate(questions):
-        level_title = f"{data['mode']} Level {level['level']}: {level['title']}"
-        doc_elements.append(Paragraph(level_title, ParagraphStyle("LevelTitle", 
-                                    parent=sty["Heading3"], fontSize=11, 
-                                    textColor=colors.darkblue)))
-        
-        if idx < len(answers):
-            level_answers = answers[idx]
-            for q_idx, question in enumerate(level['checks']):
-                if q_idx < len(level_answers):
-                    answer = "✓ Yes" if level_answers[q_idx] else "✗ No"
-                    answer_color = colors.darkgreen if level_answers[q_idx] else colors.red
-                else:
-                    answer = "— Not answered"
-                    answer_color = colors.grey
-                
-                qa_data = [[f"Q{q_idx+1}:", question, answer]]
-                qa_table = Table(qa_data, colWidths=[0.4*inch, 4.6*inch, 1*inch])
-                qa_table.setStyle(TableStyle([
-                    ('FONTSIZE', (0, 0), (-1, -1), 9),
-                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                    ('LEFTPADDING', (0, 0), (-1, -1), 6),
-                    ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-                    ('TOPPADDING', (0, 0), (-1, -1), 3),
-                    ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
-                    ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                    ('TEXTCOLOR', (2, 0), (2, -1), answer_color),
-                    ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
-                ]))
-                doc_elements.append(qa_table)
-        
-        doc_elements.append(Spacer(1, 10))
+    return pathway_strategies.get(recommended, "Strategic recommendations are being developed for this pathway.")
 
 if __name__ == "__main__":
     app.run(debug=True)
