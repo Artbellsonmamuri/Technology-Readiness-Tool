@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRL/IRL Assessment Tool</title>
+    <title>MMSU Technology Assessment Tool</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Technology & Investment Readiness Assessment</h1>
-            <p>Evaluate your technology's maturity and investment potential</p>
+            <div class="mmsu-brand">
+                <h1>MARANO MARCOS STATE UNIVERSITY</h1>
+                <h2>Innovation and Technology Support Office</h2>
+                <h3>Technology Assessment Tool</h3>
+            </div>
+            <p>Comprehensive Technology Readiness Level (TRL) and Investment Readiness Level (IRL) Assessment</p>
         </header>
 
         <!-- Language Selection -->
@@ -29,10 +33,12 @@
                 <button onclick="selectMode('TRL')" class="btn btn-secondary">
                     <strong>TRL</strong>
                     <span id="trl-description">Technology Readiness Level</span>
+                    <small>Levels 0-9 Assessment</small>
                 </button>
                 <button onclick="selectMode('IRL')" class="btn btn-secondary">
                     <strong>IRL</strong>
                     <span id="irl-description">Investment Readiness Level</span>
+                    <small>Levels 1-9 Assessment</small>
                 </button>
             </div>
         </div>
