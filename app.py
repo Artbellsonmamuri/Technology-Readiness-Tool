@@ -9,7 +9,7 @@ import io
 
 app = Flask(__name__)
 
-# Complete TRL Questions Database (0-9 with multiple checks per level)
+# TRL Questions Database (unchanged)
 TRL_QUESTIONS = {
     "english": [
         {   # TRL-0: Pre-concept
@@ -219,7 +219,7 @@ TRL_QUESTIONS = {
     ]
 }
 
-# Complete IRL Questions Database (1-9 with multiple checks per level)
+# IRL Questions Database (unchanged from previous version)
 IRL_QUESTIONS = {
     "english": [
         {   # IRL-1: Initial Concept
@@ -425,6 +425,182 @@ IRL_QUESTIONS = {
     ]
 }
 
+# TCP Questions Database
+TCP_QUESTIONS = {
+    "english": {
+        "dimensions": [
+            {
+                "name": "Technology & Product Readiness",
+                "questions": [
+                    "Is the technology fully developed and ready for market deployment?",
+                    "Does it have a clear, unique value proposition compared to existing solutions?",
+                    "Is the technology protected by IP (patents, copyrights, trade secrets)?"
+                ]
+            },
+            {
+                "name": "Market & Customer",
+                "questions": [
+                    "Is there a well-defined target market with demonstrated demand?",
+                    "Are there existing competitors, and how strong is the competitive advantage?",
+                    "Is the market size sufficient for the pathway (e.g., niche vs. mass market)?"
+                ]
+            },
+            {
+                "name": "Business & Financial",
+                "questions": [
+                    "Does your organization have the resources to manufacture, market, and sell directly?",
+                    "Is external investment required, and is it accessible?",
+                    "Are there established channels for reaching customers (direct, partners, government)?"
+                ]
+            },
+            {
+                "name": "Regulatory & Policy",
+                "questions": [
+                    "Are there significant regulatory hurdles for this technology?",
+                    "Is the policy environment supportive or restrictive for commercialization?"
+                ]
+            },
+            {
+                "name": "Organizational & Team",
+                "questions": [
+                    "Does your team have experience in product development, sales, and scaling?",
+                    "Is there interest or capacity to form a new company (for spin-out/startup)?"
+                ]
+            },
+            {
+                "name": "Strategic Fit",
+                "questions": [
+                    "Is the technology core to your organization's mission, or better suited for external partners?",
+                    "Would open-source release accelerate adoption or create value through services?"
+                ]
+            }
+        ],
+        "pathways": [
+            {
+                "name": "Direct Sale",
+                "description": "Selling the technology directly to end users or customers",
+                "criteria": ["High technology readiness", "Strong internal resources", "Established market channels"]
+            },
+            {
+                "name": "Licensing",
+                "description": "Licensing the technology to other companies for commercialization",
+                "criteria": ["Strong IP protection", "Market demand", "Limited internal resources"]
+            },
+            {
+                "name": "Startup/Spin-out",
+                "description": "Creating a new company to commercialize the technology",
+                "criteria": ["High innovation potential", "Entrepreneurial team", "Growth market"]
+            },
+            {
+                "name": "Assignment",
+                "description": "Selling or transferring technology rights to another organization",
+                "criteria": ["Valuable IP", "Low internal interest", "Better suited for others"]
+            },
+            {
+                "name": "Research Collaboration",
+                "description": "Partnering with other organizations for further development",
+                "criteria": ["Early-stage technology", "Need for development", "Research partnerships"]
+            },
+            {
+                "name": "Open Source",
+                "description": "Releasing technology as open source for broad adoption",
+                "criteria": ["Broad adoption potential", "Service-based value", "Community building"]
+            },
+            {
+                "name": "Government Procurement",
+                "description": "Targeting government agencies as primary customers",
+                "criteria": ["Public sector relevance", "Regulatory compliance", "Government needs"]
+            }
+        ]
+    },
+    "filipino": {
+        "dimensions": [
+            {
+                "name": "Technology at Product Readiness",
+                "questions": [
+                    "Handa na ba ang teknolohiya para sa market deployment?",
+                    "May malinaw at natatanging value proposition ba kumpara sa mga existing solutions?",
+                    "Protektado ba ng IP ang teknolohiya (patents, copyrights, trade secrets)?"
+                ]
+            },
+            {
+                "name": "Market at Customer",
+                "questions": [
+                    "May well-defined target market ba na may demonstrated demand?",
+                    "May existing competitors ba, at gaano kalakas ang competitive advantage?",
+                    "Sapat ba ang market size para sa pathway (hal. niche vs. mass market)?"
+                ]
+            },
+            {
+                "name": "Business at Financial",
+                "questions": [
+                    "May resources ba ang inyong organisasyon para mag-manufacture, mag-market, at mag-sell directly?",
+                    "Kailangan ba ng external investment, at accessible ba ito?",
+                    "May established channels ba para maabot ang customers (direct, partners, government)?"
+                ]
+            },
+            {
+                "name": "Regulatory at Policy",
+                "questions": [
+                    "May significant regulatory hurdles ba para sa teknolohiyang ito?",
+                    "Supportive ba o restrictive ang policy environment para sa commercialization?"
+                ]
+            },
+            {
+                "name": "Organizational at Team",
+                "questions": [
+                    "May experience ba ang inyong team sa product development, sales, at scaling?",
+                    "May interest o capacity ba na bumuo ng bagong company (para sa spin-out/startup)?"
+                ]
+            },
+            {
+                "name": "Strategic Fit",
+                "questions": [
+                    "Core ba ang teknolohiya sa mission ng inyong organisasyon, o mas bagay sa external partners?",
+                    "Makakatulong ba ang open-source release sa adoption o makakagawa ng value through services?"
+                ]
+            }
+        ],
+        "pathways": [
+            {
+                "name": "Direct Sale",
+                "description": "Direktang pagbenta ng teknolohiya sa end users o customers",
+                "criteria": ["Mataas na technology readiness", "Malakas na internal resources", "Established market channels"]
+            },
+            {
+                "name": "Licensing",
+                "description": "Pag-license ng teknolohiya sa ibang companies para sa commercialization",
+                "criteria": ["Malakas na IP protection", "Market demand", "Limited internal resources"]
+            },
+            {
+                "name": "Startup/Spin-out",
+                "description": "Paggawa ng bagong company para i-commercialize ang teknolohiya",
+                "criteria": ["Mataas na innovation potential", "Entrepreneurial team", "Growth market"]
+            },
+            {
+                "name": "Assignment",
+                "description": "Pagbenta o paglilipat ng technology rights sa ibang organisasyon",
+                "criteria": ["Valuable IP", "Mababang internal interest", "Mas bagay sa iba"]
+            },
+            {
+                "name": "Research Collaboration",
+                "description": "Pakikipag-partner sa ibang organisasyon para sa further development",
+                "criteria": ["Early-stage technology", "Pangangailangan ng development", "Research partnerships"]
+            },
+            {
+                "name": "Open Source",
+                "description": "Pag-release ng teknolohiya bilang open source para sa broad adoption",
+                "criteria": ["Broad adoption potential", "Service-based value", "Community building"]
+            },
+            {
+                "name": "Government Procurement",
+                "description": "Pag-target sa government agencies bilang primary customers",
+                "criteria": ["Public sector relevance", "Regulatory compliance", "Government needs"]
+            }
+        ]
+    }
+}
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -433,11 +609,24 @@ def index():
 def get_questions(mode, language):
     if mode.upper() == "TRL":
         return jsonify(TRL_QUESTIONS.get(language.lower(), TRL_QUESTIONS["english"]))
-    return jsonify(IRL_QUESTIONS.get(language.lower(), IRL_QUESTIONS["english"]))
+    elif mode.upper() == "IRL":
+        return jsonify(IRL_QUESTIONS.get(language.lower(), IRL_QUESTIONS["english"]))
+    elif mode.upper() == "TCP":
+        return jsonify(TCP_QUESTIONS.get(language.lower(), TCP_QUESTIONS["english"]))
+    return jsonify([])
 
 @app.route("/api/assess", methods=["POST"])
 def assess_technology():
     data = request.json
+    mode = data["mode"]
+    language = data["language"]
+    
+    if mode.upper() == "TCP":
+        return assess_tcp(data)
+    else:
+        return assess_trl_irl(data)
+
+def assess_trl_irl(data):
     mode = data["mode"]
     language = data["language"]
     answers = data["answers"]
@@ -464,6 +653,77 @@ def assess_technology():
         "timestamp": datetime.utcnow().isoformat()
     }
     return jsonify(result)
+
+def assess_tcp(data):
+    language = data["language"]
+    answers = data["answers"]  # This will be a flat list of scores (1-3)
+    tcp_data = TCP_QUESTIONS[language.lower()]
+    
+    # Calculate pathway scores
+    pathway_scores = calculate_pathway_scores(answers, tcp_data)
+    
+    # Get recommended pathway
+    recommended_pathway = max(pathway_scores, key=pathway_scores.get)
+    
+    result = {
+        "mode": "TCP",
+        "mode_full": "Technology Commercialization Pathway",
+        "technology_title": data["technology_title"],
+        "description": data["description"],
+        "answers": answers,
+        "tcp_data": tcp_data,
+        "pathway_scores": pathway_scores,
+        "recommended_pathway": recommended_pathway,
+        "explanation": generate_tcp_explanation(pathway_scores, recommended_pathway, language),
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    return jsonify(result)
+
+def calculate_pathway_scores(answers, tcp_data):
+    """Calculate scores for each commercialization pathway based on answers"""
+    # Pathway scoring logic based on the provided framework
+    pathways = {pathway["name"]: 0 for pathway in tcp_data["pathways"]}
+    
+    # Technology & Product Readiness (questions 0-2)
+    tech_score = sum(answers[0:3])
+    
+    # Market & Customer (questions 3-5)
+    market_score = sum(answers[3:6])
+    
+    # Business & Financial (questions 6-8)
+    business_score = sum(answers[6:9])
+    
+    # Regulatory & Policy (questions 9-10)
+    regulatory_score = sum(answers[9:11])
+    
+    # Organizational & Team (questions 11-12)
+    team_score = sum(answers[11:13])
+    
+    # Strategic Fit (questions 13-14)
+    strategic_score = sum(answers[13:15])
+    
+    # Scoring logic for each pathway
+    pathways["Direct Sale"] = tech_score + business_score + market_score
+    pathways["Licensing"] = tech_score + market_score + (9 - business_score)  # Lower business resources favor licensing
+    pathways["Startup/Spin-out"] = tech_score + team_score + market_score
+    pathways["Assignment"] = tech_score + (9 - strategic_score)  # Lower strategic fit favors assignment
+    pathways["Research Collaboration"] = (9 - tech_score) + team_score + strategic_score  # Early stage tech
+    pathways["Open Source"] = strategic_score + market_score + (9 - regulatory_score)
+    pathways["Government Procurement"] = tech_score + regulatory_score + market_score
+    
+    return pathways
+
+def generate_tcp_explanation(pathway_scores, recommended_pathway, language):
+    if language == "filipino":
+        text = f"Batay sa assessment, ang pinakarekomendadong commercialization pathway para sa inyong teknolohiya ay ang {recommended_pathway}. "
+        text += f"Ang pathway na ito ay nakakuha ng pinakamataas na score sa evaluation. "
+        text += "Dapat isaalang-alang ang mga strengths at weaknesses ng inyong teknolohiya sa pagpili ng final strategy."
+    else:
+        text = f"Based on the assessment, the most recommended commercialization pathway for your technology is {recommended_pathway}. "
+        text += f"This pathway scored highest in the evaluation criteria. "
+        text += "Consider your technology's specific strengths and organizational capabilities when finalizing your commercialization strategy."
+    
+    return text
 
 def generate_explanation(lvl, mode, lang, qset):
     if lang == "filipino":
@@ -539,9 +799,13 @@ def generate_pdf():
     tech_info = [
         ["Technology Title:", data['technology_title']],
         ["Description:", data['description']],
-        ["Assessment Date:", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')],
-        ["Assessment Result:", f"{data['mode']} Level {data['level']}"]
+        ["Assessment Date:", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')]
     ]
+    
+    if data['mode'] == 'TCP':
+        tech_info.append(["Recommended Pathway:", data['recommended_pathway']])
+    else:
+        tech_info.append(["Assessment Result:", f"{data['mode']} Level {data['level']}"])
     
     tech_table = Table(tech_info, colWidths=[2*inch, 4*inch])
     tech_table.setStyle(TableStyle([
@@ -562,7 +826,88 @@ def generate_pdf():
     doc_elements.append(Paragraph(data["explanation"], sty["Normal"]))
     doc_elements.append(Spacer(1, 15))
     
-    # Detailed Assessment Results
+    # Generate specific content based on assessment type
+    if data['mode'] == 'TCP':
+        generate_tcp_pdf_content(doc_elements, data, sty, heading_style)
+    else:
+        generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style)
+    
+    # Footer
+    doc_elements.append(Spacer(1, 20))
+    footer_style = ParagraphStyle("Footer", parent=sty["Normal"], 
+                                 fontSize=8, textColor=colors.grey, 
+                                 alignment=1)
+    doc_elements.append(Paragraph("Generated by MMSU Innovation and Technology Support Office", footer_style))
+    doc_elements.append(Paragraph("Technology Assessment Tool", footer_style))
+    
+    doc.build(doc_elements)
+    buf.seek(0)
+    return send_file(buf, mimetype="application/pdf",
+                     as_attachment=True,
+                     download_name=f"MMSU_{data['technology_title']}_{data['mode']}_Assessment.pdf")
+
+def generate_tcp_pdf_content(doc_elements, data, sty, heading_style):
+    """Generate PDF content specific to TCP assessment"""
+    # Pathway scores
+    doc_elements.append(Paragraph("Commercialization Pathway Scores", heading_style))
+    doc_elements.append(Spacer(1, 10))
+    
+    pathway_scores = data.get('pathway_scores', {})
+    score_data = [["Pathway", "Score"]]
+    for pathway, score in sorted(pathway_scores.items(), key=lambda x: x[1], reverse=True):
+        score_data.append([pathway, str(score)])
+    
+    score_table = Table(score_data, colWidths=[3*inch, 1*inch])
+    score_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    
+    doc_elements.append(score_table)
+    doc_elements.append(Spacer(1, 15))
+    
+    # Detailed scoring breakdown
+    doc_elements.append(Paragraph("Detailed Assessment Responses", heading_style))
+    doc_elements.append(Spacer(1, 10))
+    
+    tcp_data = data.get('tcp_data', {})
+    answers = data.get('answers', [])
+    
+    answer_idx = 0
+    for dimension in tcp_data.get('dimensions', []):
+        doc_elements.append(Paragraph(dimension['name'], 
+                                    ParagraphStyle("DimTitle", parent=sty["Heading3"], 
+                                                 fontSize=11, textColor=colors.darkblue)))
+        
+        for question in dimension['questions']:
+            if answer_idx < len(answers):
+                score = answers[answer_idx]
+                score_text = ["Low", "Medium", "High"][score - 1] if 1 <= score <= 3 else "Not answered"
+                qa_data = [[f"Q{answer_idx+1}:", question, score_text]]
+                qa_table = Table(qa_data, colWidths=[0.4*inch, 4.6*inch, 1*inch])
+                qa_table.setStyle(TableStyle([
+                    ('FONTSIZE', (0, 0), (-1, -1), 9),
+                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                    ('LEFTPADDING', (0, 0), (-1, -1), 6),
+                    ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+                    ('TOPPADDING', (0, 0), (-1, -1), 3),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+                    ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                    ('TEXTCOLOR', (2, 0), (2, -1), colors.darkblue),
+                    ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+                ]))
+                doc_elements.append(qa_table)
+                answer_idx += 1
+        
+        doc_elements.append(Spacer(1, 10))
+
+def generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style):
+    """Generate PDF content specific to TRL/IRL assessment"""
     doc_elements.append(Paragraph("Detailed Assessment Results", heading_style))
     doc_elements.append(Spacer(1, 10))
     
@@ -604,20 +949,6 @@ def generate_pdf():
                 doc_elements.append(qa_table)
         
         doc_elements.append(Spacer(1, 10))
-    
-    # Footer
-    doc_elements.append(Spacer(1, 20))
-    footer_style = ParagraphStyle("Footer", parent=sty["Normal"], 
-                                 fontSize=8, textColor=colors.grey, 
-                                 alignment=1)
-    doc_elements.append(Paragraph("Generated by MMSU Innovation and Technology Support Office", footer_style))
-    doc_elements.append(Paragraph("Technology Assessment Tool", footer_style))
-    
-    doc.build(doc_elements)
-    buf.seek(0)
-    return send_file(buf, mimetype="application/pdf",
-                     as_attachment=True,
-                     download_name=f"MMSU_{data['technology_title']}_{data['mode']}_Assessment.pdf")
 
 if __name__ == "__main__":
     app.run(debug=True)
