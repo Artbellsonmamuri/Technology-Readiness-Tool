@@ -122,10 +122,7 @@ class AssessmentApp {
         const qtext = lvl.checks[this.cix];
         this.setText("question-text", qtext);
 
-        const progressDesc = this.mode === 'IRL' ? 
-            `${lvl.title} — ${this.lang==='english'?'Check':'Tanong'} ${this.cix + 1}/${lvl.checks.length}` :
-            `${lvl.title} — ${this.cix + 1}/${lvl.checks.length}`;
-
+        const progressDesc = `${lvl.title} — ${this.lang==='english'?'Check':'Tanong'} ${this.cix + 1}/${lvl.checks.length}`;
         this.setText("question-description", progressDesc);
 
         const done = this.answers.flat().length;
@@ -188,8 +185,16 @@ class AssessmentApp {
             const badge = document.getElementById("result-badge");
             if (badge) {
                 badge.textContent = `${this.lang === "english" ? "Level" : "Antas"} ${this.result.level}`;
-                badge.style.background = this.result.level <= 3 ? "#FEE2E2" : this.result.level <= 6 ? "#FEF9C3" : "#DCFCE7";
-                badge.style.color = this.result.level <= 3 ? "#991B1B" : this.result.level <= 6 ? "#92400E" : "#065F46";
+                if (this.result.level <= 3) {
+                    badge.style.background = "#FEE2E2";
+                    badge.style.color = "#991B1B";
+                } else if (this.result.level <= 6) {
+                    badge.style.background = "#FEF9C3";
+                    badge.style.color = "#92400E";
+                } else {
+                    badge.style.background = "#DCFCE7";
+                    badge.style.color = "#065F46";
+                }
             }
 
             this.showStep("results");
@@ -209,7 +214,7 @@ class AssessmentApp {
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `${this.result.technology_title}_${this.result.mode}.pdf`;
+            a.download = `MMSU_${this.result.technology_title}_${this.result.mode}_Assessment.pdf`;
             a.click();
             URL.revokeObjectURL(url);
         } catch (error) {
