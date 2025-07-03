@@ -9,10 +9,10 @@ import io
 
 app = Flask(__name__)
 
-# TRL Questions Database (unchanged)
+# Complete TRL Questions Database (0-9)
 TRL_QUESTIONS = {
     "english": [
-        {   # TRL-0: Pre-concept
+        {
             "level": 0,
             "title": "Pre-Concept / Exploration",
             "checks": [
@@ -23,7 +23,7 @@ TRL_QUESTIONS = {
                 "Is any form of intellectual-property strategy (trade secret or early disclosure) in place?"
             ]
         },
-        {   # TRL-1: Basic principles observed
+        {
             "level": 1,
             "title": "Basic Principles Observed",
             "checks": [
@@ -33,7 +33,7 @@ TRL_QUESTIONS = {
                 "Is there preliminary evidence or data supporting the stated principles?"
             ]
         },
-        {   # TRL-2: Concept formulated
+        {
             "level": 2,
             "title": "Technology Concept Formulated",
             "checks": [
@@ -43,7 +43,7 @@ TRL_QUESTIONS = {
                 "Is the concept documented in a white-paper, preprint or equivalent outlet?"
             ]
         },
-        {   # TRL-3: Proof of concept
+        {
             "level": 3,
             "title": "Experimental Proof of Concept",
             "checks": [
@@ -53,7 +53,7 @@ TRL_QUESTIONS = {
                 "Have safety, ethical or regulatory constraints been identified at this stage?"
             ]
         },
-        {   # TRL-4: Lab validation
+        {
             "level": 4,
             "title": "Technology Validated in Laboratory",
             "checks": [
@@ -63,7 +63,7 @@ TRL_QUESTIONS = {
                 "Is a preliminary risk register available for the validated subsystem?"
             ]
         },
-        {   # TRL-5: Relevant-environment validation
+        {
             "level": 5,
             "title": "Technology Validated in Relevant Environment",
             "checks": [
@@ -73,7 +73,7 @@ TRL_QUESTIONS = {
                 "Is an updated risk mitigation plan in place reflecting test outcomes?"
             ]
         },
-        {   # TRL-6: Prototype demonstrated
+        {
             "level": 6,
             "title": "Prototype Demonstrated in Relevant Environment",
             "checks": [
@@ -83,7 +83,7 @@ TRL_QUESTIONS = {
                 "Is a V&V (verification & validation) report available for this prototype?"
             ]
         },
-        {   # TRL-7: System prototype in operational environment
+        {
             "level": 7,
             "title": "System Prototype Demonstrated in Operational Environment",
             "checks": [
@@ -93,7 +93,7 @@ TRL_QUESTIONS = {
                 "Is the supply-chain or manufacturing route for key components identified?"
             ]
         },
-        {   # TRL-8: Qualified through test & demo
+        {
             "level": 8,
             "title": "System Complete and Qualified",
             "checks": [
@@ -103,7 +103,7 @@ TRL_QUESTIONS = {
                 "Have pilot customers or early adopters signed off on performance KPIs?"
             ]
         },
-        {   # TRL-9: Proven in mission operations
+        {
             "level": 9,
             "title": "Actual System Proven in Operational Environment",
             "checks": [
@@ -115,7 +115,7 @@ TRL_QUESTIONS = {
         }
     ],
     "filipino": [
-        {   # TRL-0
+        {
             "level": 0,
             "title": "Pre-Konsepto / Eksplorasyon",
             "checks": [
@@ -126,7 +126,7 @@ TRL_QUESTIONS = {
                 "May estratehiya na ba ukol sa proteksyon ng intelektuwal na ari-arian (hal. trade secret o maagang paglalathala)?"
             ]
         },
-        {   # TRL-1
+        {
             "level": 1,
             "title": "Pangunahing Prinsipyo na-obserbahan",
             "checks": [
@@ -136,7 +136,7 @@ TRL_QUESTIONS = {
                 "May paunang ebidensiya o datos ba na sumusuporta sa mga prinsipyong ito?"
             ]
         },
-        {   # TRL-2
+        {
             "level": 2,
             "title": "Nabuo ang Konsepto ng Teknolohiya",
             "checks": [
@@ -146,7 +146,7 @@ TRL_QUESTIONS = {
                 "Nakadokumento ba ang konsepto sa white-paper, preprint o katumbas?"
             ]
         },
-        {   # TRL-3
+        {
             "level": 3,
             "title": "Eksperimental na Patunay ng Konsepto",
             "checks": [
@@ -156,7 +156,7 @@ TRL_QUESTIONS = {
                 "Natukoy na ba ang mga usaping pangkaligtasan, etikal o regulasyon sa yugtong ito?"
             ]
         },
-        {   # TRL-4
+        {
             "level": 4,
             "title": "Na-validate ang Teknolohiya sa Laboratoryo",
             "checks": [
@@ -166,7 +166,7 @@ TRL_QUESTIONS = {
                 "May paunang talaan ba ng panganib para sa na-validate na subsystem?"
             ]
         },
-        {   # TRL-5
+        {
             "level": 5,
             "title": "Na-validate sa Kaugnay na Kapaligiran",
             "checks": [
@@ -176,7 +176,7 @@ TRL_QUESTIONS = {
                 "Na-update ba ang risk mitigation plan batay sa resulta ng tests?"
             ]
         },
-        {   # TRL-6
+        {
             "level": 6,
             "title": "Prototype na Naipakita sa Kaugnay na Kapaligiran",
             "checks": [
@@ -186,7 +186,7 @@ TRL_QUESTIONS = {
                 "May verification at validation report ba para sa prototype?"
             ]
         },
-        {   # TRL-7
+        {
             "level": 7,
             "title": "Prototype ng Sistema sa Operasyonal na Kapaligiran",
             "checks": [
@@ -196,7 +196,7 @@ TRL_QUESTIONS = {
                 "Natukoy na ba ang supply-chain o ruta ng pagmamanupaktura para sa mahahalagang bahagi?"
             ]
         },
-        {   # TRL-8
+        {
             "level": 8,
             "title": "Kumpleto at Na-qualify ang Sistema",
             "checks": [
@@ -206,7 +206,7 @@ TRL_QUESTIONS = {
                 "May pilot customers o early adopters ba na nag-sign-off sa performance KPIs?"
             ]
         },
-        {   # TRL-9
+        {
             "level": 9,
             "title": "Aktwal na Sistemang Napatunayan sa Operasyon",
             "checks": [
@@ -219,10 +219,10 @@ TRL_QUESTIONS = {
     ]
 }
 
-# IRL Questions Database (unchanged from previous version)
+# Complete IRL Questions Database (1-9)
 IRL_QUESTIONS = {
     "english": [
-        {   # IRL-1: Initial Concept
+        {
             "level": 1,
             "title": "Initial Concept",
             "checks": [
@@ -233,7 +233,7 @@ IRL_QUESTIONS = {
                 "Have you identified the core value proposition of your technology?"
             ]
         },
-        {   # IRL-2: Market & Competitive Analysis
+        {
             "level": 2,
             "title": "Market & Competitive Analysis",
             "checks": [
@@ -244,7 +244,7 @@ IRL_QUESTIONS = {
                 "Are key market trends and opportunities documented?"
             ]
         },
-        {   # IRL-3: Problem/Solution Validation
+        {
             "level": 3,
             "title": "Problem/Solution Validation",
             "checks": [
@@ -255,7 +255,7 @@ IRL_QUESTIONS = {
                 "Have you validated key assumptions about customer pain points?"
             ]
         },
-        {   # IRL-4: Prototype/Minimum Viable Product (MVP)
+        {
             "level": 4,
             "title": "Prototype/Minimum Viable Product (MVP)",
             "checks": [
@@ -266,7 +266,7 @@ IRL_QUESTIONS = {
                 "Have you established success criteria and KPIs for the MVP?"
             ]
         },
-        {   # IRL-5: Product/Market Fit Validation
+        {
             "level": 5,
             "title": "Product/Market Fit Validation",
             "checks": [
@@ -277,7 +277,7 @@ IRL_QUESTIONS = {
                 "Have you demonstrated customer retention and engagement metrics?"
             ]
         },
-        {   # IRL-6: Business Model Validation
+        {
             "level": 6,
             "title": "Business Model Validation",
             "checks": [
@@ -288,7 +288,7 @@ IRL_QUESTIONS = {
                 "Have you demonstrated scalability of the business model with growth projections?"
             ]
         },
-        {   # IRL-7: Investment Ready / Early Commercial
+        {
             "level": 7,
             "title": "Investment Ready / Early Commercial",
             "checks": [
@@ -299,7 +299,7 @@ IRL_QUESTIONS = {
                 "Have you achieved initial commercial sales or revenue milestones?"
             ]
         },
-        {   # IRL-8: Commercial Scaling
+        {
             "level": 8,
             "title": "Commercial Scaling",
             "checks": [
@@ -310,7 +310,7 @@ IRL_QUESTIONS = {
                 "Is there evidence of market traction and competitive positioning?"
             ]
         },
-        {   # IRL-9: Market Leadership / Expansion
+        {
             "level": 9,
             "title": "Market Leadership / Expansion",
             "checks": [
@@ -323,7 +323,7 @@ IRL_QUESTIONS = {
         }
     ],
     "filipino": [
-        {   # IRL-1: Initial Concept
+        {
             "level": 1,
             "title": "Pangunahing Konsepto",
             "checks": [
@@ -334,7 +334,7 @@ IRL_QUESTIONS = {
                 "Natukoy na ba ang core value proposition ng inyong teknolohiya?"
             ]
         },
-        {   # IRL-2: Market & Competitive Analysis
+        {
             "level": 2,
             "title": "Market at Competitive Analysis",
             "checks": [
@@ -345,7 +345,7 @@ IRL_QUESTIONS = {
                 "Nakadokumento ba ang mga key market trends at opportunities?"
             ]
         },
-        {   # IRL-3: Problem/Solution Validation
+        {
             "level": 3,
             "title": "Problem/Solution Validation",
             "checks": [
@@ -356,7 +356,7 @@ IRL_QUESTIONS = {
                 "Na-validate na ba ang mga key assumptions tungkol sa customer pain points?"
             ]
         },
-        {   # IRL-4: Prototype/Minimum Viable Product (MVP)
+        {
             "level": 4,
             "title": "Prototype/Minimum Viable Product (MVP)",
             "checks": [
@@ -367,7 +367,7 @@ IRL_QUESTIONS = {
                 "Naitakda na ba ang success criteria at KPIs para sa MVP?"
             ]
         },
-        {   # IRL-5: Product/Market Fit Validation
+        {
             "level": 5,
             "title": "Product/Market Fit Validation",
             "checks": [
@@ -378,7 +378,7 @@ IRL_QUESTIONS = {
                 "Naipakita na ba ang customer retention at engagement metrics?"
             ]
         },
-        {   # IRL-6: Business Model Validation
+        {
             "level": 6,
             "title": "Business Model Validation",
             "checks": [
@@ -389,7 +389,7 @@ IRL_QUESTIONS = {
                 "Naipakita na ba ang scalability ng business model kasama ang growth projections?"
             ]
         },
-        {   # IRL-7: Investment Ready / Early Commercial
+        {
             "level": 7,
             "title": "Handa sa Investment / Early Commercial",
             "checks": [
@@ -400,7 +400,7 @@ IRL_QUESTIONS = {
                 "Nakamit na ba ang initial commercial sales o revenue milestones?"
             ]
         },
-        {   # IRL-8: Commercial Scaling
+        {
             "level": 8,
             "title": "Commercial Scaling",
             "checks": [
@@ -411,7 +411,7 @@ IRL_QUESTIONS = {
                 "May ebidensya ba ng market traction at competitive positioning?"
             ]
         },
-        {   # IRL-9: Market Leadership / Expansion
+        {
             "level": 9,
             "title": "Market Leadership / Expansion",
             "checks": [
@@ -619,7 +619,6 @@ def get_questions(mode, language):
 def assess_technology():
     data = request.json
     mode = data["mode"]
-    language = data["language"]
     
     if mode.upper() == "TCP":
         return assess_tcp(data)
@@ -656,13 +655,10 @@ def assess_trl_irl(data):
 
 def assess_tcp(data):
     language = data["language"]
-    answers = data["answers"]  # This will be a flat list of scores (1-3)
+    answers = data["answers"]
     tcp_data = TCP_QUESTIONS[language.lower()]
     
-    # Calculate pathway scores
     pathway_scores = calculate_pathway_scores(answers, tcp_data)
-    
-    # Get recommended pathway
     recommended_pathway = max(pathway_scores, key=pathway_scores.get)
     
     result = {
@@ -680,34 +676,20 @@ def assess_tcp(data):
     return jsonify(result)
 
 def calculate_pathway_scores(answers, tcp_data):
-    """Calculate scores for each commercialization pathway based on answers"""
-    # Pathway scoring logic based on the provided framework
     pathways = {pathway["name"]: 0 for pathway in tcp_data["pathways"]}
     
-    # Technology & Product Readiness (questions 0-2)
     tech_score = sum(answers[0:3])
-    
-    # Market & Customer (questions 3-5)
     market_score = sum(answers[3:6])
-    
-    # Business & Financial (questions 6-8)
     business_score = sum(answers[6:9])
-    
-    # Regulatory & Policy (questions 9-10)
     regulatory_score = sum(answers[9:11])
-    
-    # Organizational & Team (questions 11-12)
     team_score = sum(answers[11:13])
-    
-    # Strategic Fit (questions 13-14)
     strategic_score = sum(answers[13:15])
     
-    # Scoring logic for each pathway
     pathways["Direct Sale"] = tech_score + business_score + market_score
-    pathways["Licensing"] = tech_score + market_score + (9 - business_score)  # Lower business resources favor licensing
+    pathways["Licensing"] = tech_score + market_score + (9 - business_score)
     pathways["Startup/Spin-out"] = tech_score + team_score + market_score
-    pathways["Assignment"] = tech_score + (9 - strategic_score)  # Lower strategic fit favors assignment
-    pathways["Research Collaboration"] = (9 - tech_score) + team_score + strategic_score  # Early stage tech
+    pathways["Assignment"] = tech_score + (9 - strategic_score)
+    pathways["Research Collaboration"] = (9 - tech_score) + team_score + strategic_score
     pathways["Open Source"] = strategic_score + market_score + (9 - regulatory_score)
     pathways["Government Procurement"] = tech_score + regulatory_score + market_score
     
@@ -746,7 +728,6 @@ def generate_explanation(lvl, mode, lang, qset):
         
         return text
     
-    # English
     if lvl < 0:
         text = f"Your technology has not yet satisfied the basic requirements for {mode} level 1."
     else:
@@ -773,7 +754,6 @@ def generate_pdf():
     doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=0.5*inch)
     sty = getSampleStyleSheet()
     
-    # Custom styles with MMSU branding
     title_style = ParagraphStyle("Title", parent=sty["Heading1"], 
                                 fontSize=16, textColor=colors.darkgreen, 
                                 alignment=1, spaceAfter=6)
@@ -785,17 +765,14 @@ def generate_pdf():
     
     doc_elements = []
     
-    # Header with MMSU branding
     doc_elements.append(Paragraph("MARANO MARCOS STATE UNIVERSITY", title_style))
     doc_elements.append(Paragraph("Innovation and Technology Support Office", subtitle_style))
     doc_elements.append(Paragraph("Technology Assessment Tool", subtitle_style))
     doc_elements.append(Spacer(1, 20))
     
-    # Assessment type and result
     doc_elements.append(Paragraph(f"{data['mode_full']} Assessment Report", heading_style))
     doc_elements.append(Spacer(1, 12))
     
-    # Technology Information
     tech_info = [
         ["Technology Title:", data['technology_title']],
         ["Description:", data['description']],
@@ -821,18 +798,15 @@ def generate_pdf():
     doc_elements.append(tech_table)
     doc_elements.append(Spacer(1, 20))
     
-    # Assessment Summary
     doc_elements.append(Paragraph("Assessment Summary", heading_style))
     doc_elements.append(Paragraph(data["explanation"], sty["Normal"]))
     doc_elements.append(Spacer(1, 15))
     
-    # Generate specific content based on assessment type
     if data['mode'] == 'TCP':
         generate_tcp_pdf_content(doc_elements, data, sty, heading_style)
     else:
         generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style)
     
-    # Footer
     doc_elements.append(Spacer(1, 20))
     footer_style = ParagraphStyle("Footer", parent=sty["Normal"], 
                                  fontSize=8, textColor=colors.grey, 
@@ -847,8 +821,6 @@ def generate_pdf():
                      download_name=f"MMSU_{data['technology_title']}_{data['mode']}_Assessment.pdf")
 
 def generate_tcp_pdf_content(doc_elements, data, sty, heading_style):
-    """Generate PDF content specific to TCP assessment"""
-    # Pathway scores
     doc_elements.append(Paragraph("Commercialization Pathway Scores", heading_style))
     doc_elements.append(Spacer(1, 10))
     
@@ -870,44 +842,8 @@ def generate_tcp_pdf_content(doc_elements, data, sty, heading_style):
     
     doc_elements.append(score_table)
     doc_elements.append(Spacer(1, 15))
-    
-    # Detailed scoring breakdown
-    doc_elements.append(Paragraph("Detailed Assessment Responses", heading_style))
-    doc_elements.append(Spacer(1, 10))
-    
-    tcp_data = data.get('tcp_data', {})
-    answers = data.get('answers', [])
-    
-    answer_idx = 0
-    for dimension in tcp_data.get('dimensions', []):
-        doc_elements.append(Paragraph(dimension['name'], 
-                                    ParagraphStyle("DimTitle", parent=sty["Heading3"], 
-                                                 fontSize=11, textColor=colors.darkblue)))
-        
-        for question in dimension['questions']:
-            if answer_idx < len(answers):
-                score = answers[answer_idx]
-                score_text = ["Low", "Medium", "High"][score - 1] if 1 <= score <= 3 else "Not answered"
-                qa_data = [[f"Q{answer_idx+1}:", question, score_text]]
-                qa_table = Table(qa_data, colWidths=[0.4*inch, 4.6*inch, 1*inch])
-                qa_table.setStyle(TableStyle([
-                    ('FONTSIZE', (0, 0), (-1, -1), 9),
-                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                    ('LEFTPADDING', (0, 0), (-1, -1), 6),
-                    ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-                    ('TOPPADDING', (0, 0), (-1, -1), 3),
-                    ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
-                    ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                    ('TEXTCOLOR', (2, 0), (2, -1), colors.darkblue),
-                    ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
-                ]))
-                doc_elements.append(qa_table)
-                answer_idx += 1
-        
-        doc_elements.append(Spacer(1, 10))
 
 def generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style):
-    """Generate PDF content specific to TRL/IRL assessment"""
     doc_elements.append(Paragraph("Detailed Assessment Results", heading_style))
     doc_elements.append(Spacer(1, 10))
     
@@ -915,13 +851,11 @@ def generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style):
     answers = data.get('answers', [])
     
     for idx, level in enumerate(questions):
-        # Level header
         level_title = f"{data['mode']} Level {level['level']}: {level['title']}"
         doc_elements.append(Paragraph(level_title, ParagraphStyle("LevelTitle", 
                                     parent=sty["Heading3"], fontSize=11, 
                                     textColor=colors.darkblue)))
         
-        # Questions and answers for this level
         if idx < len(answers):
             level_answers = answers[idx]
             for q_idx, question in enumerate(level['checks']):
@@ -932,7 +866,6 @@ def generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style):
                     answer = "— Not answered"
                     answer_color = colors.grey
                 
-                # Create table for question and answer
                 qa_data = [[f"Q{q_idx+1}:", question, answer]]
                 qa_table = Table(qa_data, colWidths=[0.4*inch, 4.6*inch, 1*inch])
                 qa_table.setStyle(TableStyle([
