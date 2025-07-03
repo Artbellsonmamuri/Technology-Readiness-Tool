@@ -6,6 +6,7 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from datetime import datetime
 import io
+import traceback
 
 app = Flask(__name__)
 
@@ -658,8 +659,17 @@ def assess_tcp(data):
     answers = data["answers"]
     tcp_data = TCP_QUESTIONS[language.lower()]
     
+    # Ensure we have exactly 15 answers
+    if len(answers) < 15:
+        answers = answers + [1] * (15 - len(answers))
+    elif len(answers) > 15:
+        answers = answers[:15]
+    
     pathway_scores = calculate_pathway_scores(answers, tcp_data)
     recommended_pathway = max(pathway_scores, key=pathway_scores.get)
+    
+    # Generate detailed analysis
+    detailed_analysis = generate_tcp_detailed_analysis(answers, tcp_data, pathway_scores, recommended_pathway, language)
     
     result = {
         "mode": "TCP",
@@ -671,44 +681,185 @@ def assess_tcp(data):
         "pathway_scores": pathway_scores,
         "recommended_pathway": recommended_pathway,
         "explanation": generate_tcp_explanation(pathway_scores, recommended_pathway, language),
-        "timestamp": datetime.utcnow().isoformat()
+        "detailed_analysis": detailed_analysis,
+        "timestamp": datetime.utcnow().isoformat(),
+        # Add these for PDF compatibility
+        "level": None,
+        "questions": None
     }
     return jsonify(result)
 
 def calculate_pathway_scores(answers, tcp_data):
+    """Calculate scores for each commercialization pathway"""
     pathways = {pathway["name"]: 0 for pathway in tcp_data["pathways"]}
     
-    # Ensure we have enough answers
-    if len(answers) < 15:
-        # Pad with zeros if not enough answers
-        answers = answers + [0] * (15 - len(answers))
+    # Calculate dimension scores
+    tech_score = sum(answers[0:3])          # Technology & Product Readiness
+    market_score = sum(answers[3:6])        # Market & Customer
+    business_score = sum(answers[6:9])      # Business & Financial
+    regulatory_score = sum(answers[9:11])   # Regulatory & Policy
+    team_score = sum(answers[11:13])        # Organizational & Team
+    strategic_score = sum(answers[13:15])   # Strategic Fit
     
-    tech_score = sum(answers[0:3])
-    market_score = sum(answers[3:6])
-    business_score = sum(answers[6:9])
-    regulatory_score = sum(answers[9:11])
-    team_score = sum(answers[11:13])
-    strategic_score = sum(answers[13:15])
-    
+    # Calculate pathway scores based on relevant dimensions
     pathways["Direct Sale"] = tech_score + business_score + market_score
-    pathways["Licensing"] = tech_score + market_score + (9 - business_score)
-    pathways["Startup/Spin-out"] = tech_score + team_score + market_score
-    pathways["Assignment"] = tech_score + (9 - strategic_score)
-    pathways["Research Collaboration"] = (9 - tech_score) + team_score + strategic_score
-    pathways["Open Source"] = strategic_score + market_score + (9 - regulatory_score)
-    pathways["Government Procurement"] = tech_score + regulatory_score + market_score
+    pathways["Licensing"] = tech_score + market_score + (6 - business_score) + regulatory_score
+    pathways["Startup/Spin-out"] = tech_score + team_score + market_score + strategic_score
+    pathways["Assignment"] = tech_score + (6 - strategic_score) + (6 - business_score)
+    pathways["Research Collaboration"] = (9 - tech_score) + team_score + strategic_score + market_score
+    pathways["Open Source"] = strategic_score + market_score + (6 - regulatory_score) + team_score
+    pathways["Government Procurement"] = tech_score + regulatory_score + market_score + business_score
     
     return pathways
 
+def generate_tcp_detailed_analysis(answers, tcp_data, pathway_scores, recommended_pathway, language):
+    """Generate detailed analysis for TCP assessment"""
+    analysis = {}
+    
+    # Dimension scores analysis
+    dimension_scores = {}
+    answer_idx = 0
+    for dimension in tcp_data["dimensions"]:
+        dim_answers = answers[answer_idx:answer_idx + len(dimension["questions"])]
+        dim_score = sum(dim_answers)
+        max_score = len(dimension["questions"]) * 3
+        percentage = (dim_score / max_score) * 100
+        
+        dimension_scores[dimension["name"]] = {
+            "score": dim_score,
+            "max_score": max_score,
+            "percentage": percentage,
+            "level": "High" if percentage >= 75 else "Medium" if percentage >= 50 else "Low"
+        }
+        answer_idx += len(dimension["questions"])
+    
+    # Pathway analysis
+    sorted_pathways = sorted(pathway_scores.items(), key=lambda x: x[1], reverse=True)
+    top_3 = sorted_pathways[:3]
+    
+    # Strengths and weaknesses
+    strengths = []
+    weaknesses = []
+    
+    for dim_name, dim_data in dimension_scores.items():
+        if dim_data["percentage"] >= 75:
+            strengths.append(dim_name)
+        elif dim_data["percentage"] < 50:
+            weaknesses.append(dim_name)
+    
+    analysis = {
+        "dimension_scores": dimension_scores,
+        "top_pathways": top_3,
+        "strengths": strengths,
+        "weaknesses": weaknesses,
+        "overall_readiness": calculate_overall_readiness(dimension_scores),
+        "recommendations": generate_pathway_specific_recommendations(recommended_pathway, dimension_scores, language)
+    }
+    
+    return analysis
+
+def calculate_overall_readiness(dimension_scores):
+    """Calculate overall commercialization readiness"""
+    total_percentage = sum(dim["percentage"] for dim in dimension_scores.values())
+    avg_percentage = total_percentage / len(dimension_scores)
+    
+    if avg_percentage >= 75:
+        return "High"
+    elif avg_percentage >= 50:
+        return "Medium"
+    else:
+        return "Low"
+
+def generate_pathway_specific_recommendations(pathway, dimension_scores, language):
+    """Generate specific recommendations based on pathway and scores"""
+    recommendations = []
+    
+    if language == "filipino":
+        if pathway == "Direct Sale":
+            recommendations = [
+                "Palakasin ang direct sales capabilities at market channels",
+                "Mag-invest sa marketing at brand development",
+                "Siguraduhing may sapat na manufacturing capacity",
+                "Mag-develop ng customer support infrastructure"
+            ]
+        elif pathway == "Licensing":
+            recommendations = [
+                "Palakasin ang IP protection strategy",
+                "Hanapin ang mga potential licensee partners",
+                "Mag-develop ng comprehensive licensing packages",
+                "Mag-negotiate ng favorable licensing terms"
+            ]
+        elif pathway == "Startup/Spin-out":
+            recommendations = [
+                "Bumuo ng experienced management team",
+                "Mag-develop ng detailed business plan",
+                "Maghanap ng initial funding sources",
+                "Mag-establish ng proper legal structure"
+            ]
+        elif pathway == "Government Procurement":
+            recommendations = [
+                "Unawain ang government procurement processes",
+                "Siguraduhing compliant sa lahat ng regulations",
+                "Mag-develop ng government relationships",
+                "Mag-prepare para sa mahabang procurement cycles"
+            ]
+        else:
+            recommendations = [
+                "Mag-develop ng pathway-specific strategy",
+                "Konsultahin ang technology transfer experts",
+                "Mag-conduct ng market validation",
+                "Mag-establish ng strategic partnerships"
+            ]
+    else:
+        if pathway == "Direct Sale":
+            recommendations = [
+                "Strengthen direct sales capabilities and market channels",
+                "Invest in marketing and brand development",
+                "Ensure adequate manufacturing capacity",
+                "Develop customer support infrastructure"
+            ]
+        elif pathway == "Licensing":
+            recommendations = [
+                "Strengthen IP protection strategy",
+                "Identify potential licensee partners",
+                "Develop comprehensive licensing packages",
+                "Negotiate favorable licensing terms"
+            ]
+        elif pathway == "Startup/Spin-out":
+            recommendations = [
+                "Build experienced management team",
+                "Develop detailed business plan",
+                "Secure initial funding sources",
+                "Establish proper legal structure"
+            ]
+        elif pathway == "Government Procurement":
+            recommendations = [
+                "Understand government procurement processes",
+                "Ensure compliance with all regulations",
+                "Develop government relationships",
+                "Prepare for lengthy procurement cycles"
+            ]
+        else:
+            recommendations = [
+                "Develop pathway-specific strategy",
+                "Consult technology transfer experts",
+                "Conduct market validation",
+                "Establish strategic partnerships"
+            ]
+    
+    return recommendations
+
 def generate_tcp_explanation(pathway_scores, recommended_pathway, language):
     if language == "filipino":
-        text = f"Batay sa assessment, ang pinakarekomendadong commercialization pathway para sa inyong teknolohiya ay ang {recommended_pathway}. "
-        text += f"Ang pathway na ito ay nakakuha ng pinakamataas na score sa evaluation. "
-        text += "Dapat isaalang-alang ang mga strengths at weaknesses ng inyong teknolohiya sa pagpili ng final strategy."
+        text = f"Batay sa comprehensive assessment, ang pinakarekomendadong commercialization pathway para sa inyong teknolohiya ay ang {recommended_pathway}. "
+        text += f"Ang pathway na ito ay nakakuha ng pinakamataas na score sa multi-dimensional evaluation. "
+        text += "Ang assessment ay nag-evaluate ng inyong teknolohiya sa anim na kritikong dimensyon: Technology & Product Readiness, Market & Customer factors, Business & Financial capabilities, Regulatory & Policy environment, Organizational & Team strengths, at Strategic Fit. "
+        text += "Ang resulta ay nagbibigay ng data-driven recommendation na makakatulong sa inyong strategic decision-making para sa technology commercialization."
     else:
-        text = f"Based on the assessment, the most recommended commercialization pathway for your technology is {recommended_pathway}. "
-        text += f"This pathway scored highest in the evaluation criteria. "
-        text += "Consider your technology's specific strengths and organizational capabilities when finalizing your commercialization strategy."
+        text = f"Based on comprehensive assessment, the most recommended commercialization pathway for your technology is {recommended_pathway}. "
+        text += f"This pathway scored highest in the multi-dimensional evaluation framework. "
+        text += "The assessment evaluated your technology across six critical dimensions: Technology & Product Readiness, Market & Customer factors, Business & Financial capabilities, Regulatory & Policy environment, Organizational & Team strengths, and Strategic Fit. "
+        text += "The results provide a data-driven recommendation to guide your strategic decision-making for technology commercialization."
     
     return text
 
@@ -756,6 +907,7 @@ def generate_explanation(lvl, mode, lang, qset):
 def generate_pdf():
     try:
         data = request.json
+        print(f"PDF Generation - Received data for mode: {data.get('mode', 'Unknown')}")
         
         # Validate required fields
         if not data or 'mode' not in data:
@@ -834,8 +986,9 @@ def generate_pdf():
         buf.seek(0)
         
         filename = f"MMSU_{data.get('technology_title', 'Assessment')}_{data['mode']}_Assessment.pdf"
-        # Clean filename
         filename = "".join(c for c in filename if c.isalnum() or c in "._- ").strip()
+        
+        print(f"PDF Generation - Successfully generated PDF: {filename}")
         
         return send_file(
             buf, 
@@ -846,35 +999,94 @@ def generate_pdf():
         
     except Exception as e:
         print(f"PDF Generation Error: {str(e)}")
+        print(f"Traceback: {traceback.format_exc()}")
         return jsonify({"error": f"PDF generation failed: {str(e)}"}), 500
 
 def generate_tcp_pdf_content(doc_elements, data, sty, heading_style):
-    """Generate TCP-specific PDF content"""
+    """Generate comprehensive TCP PDF content"""
     
-    # Pathway Scores
+    print("Generating TCP PDF content...")
+    
+    # Overall Assessment Results
+    doc_elements.append(Paragraph("Overall Assessment Results", heading_style))
+    doc_elements.append(Spacer(1, 8))
+    
+    detailed_analysis = data.get('detailed_analysis', {})
+    overall_readiness = detailed_analysis.get('overall_readiness', 'Unknown')
+    
+    doc_elements.append(Paragraph(f"Overall Commercialization Readiness: {overall_readiness}", sty["Normal"]))
+    doc_elements.append(Spacer(1, 12))
+    
+    # Pathway Scores Table
     doc_elements.append(Paragraph("Commercialization Pathway Scores", heading_style))
     doc_elements.append(Spacer(1, 8))
 
     pathway_scores = data.get('pathway_scores', {})
     if pathway_scores:
-        score_data = [["Pathway", "Score", "Ranking"]]
+        score_data = [["Rank", "Pathway", "Score", "Percentage"]]
         sorted_pathways = sorted(pathway_scores.items(), key=lambda x: x[1], reverse=True)
+        max_score = max(pathway_scores.values()) if pathway_scores else 1
+        
         for rank, (pathway, score) in enumerate(sorted_pathways, 1):
-            score_data.append([pathway, str(score), f"#{rank}"])
+            percentage = f"{(score/max_score)*100:.1f}%"
+            score_data.append([f"#{rank}", pathway, str(score), percentage])
 
-        score_table = Table(score_data, colWidths=[2.5*inch, 0.8*inch, 0.7*inch])
+        score_table = Table(score_data, colWidths=[0.6*inch, 2.4*inch, 0.8*inch, 1.2*inch])
         score_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('ALIGN', (2, 0), (-1, -1), 'CENTER')
+        ]))
+        doc_elements.append(score_table)
+    else:
+        doc_elements.append(Paragraph("No pathway scores available.", sty["Normal"]))
+    
+    doc_elements.append(Spacer(1, 15))
+
+    # Dimension Analysis
+    doc_elements.append(Paragraph("Dimensional Analysis", heading_style))
+    doc_elements.append(Spacer(1, 8))
+    
+    dimension_scores = detailed_analysis.get('dimension_scores', {})
+    if dimension_scores:
+        dim_data = [["Dimension", "Score", "Level", "Percentage"]]
+        for dim_name, dim_info in dimension_scores.items():
+            dim_data.append([
+                dim_name,
+                f"{dim_info['score']}/{dim_info['max_score']}",
+                dim_info['level'],
+                f"{dim_info['percentage']:.1f}%"
+            ])
+        
+        dim_table = Table(dim_data, colWidths=[2.2*inch, 0.8*inch, 0.8*inch, 1.2*inch])
+        dim_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
             ('ALIGN', (1, 0), (-1, -1), 'CENTER')
         ]))
-        doc_elements.append(score_table)
-    else:
-        doc_elements.append(Paragraph("No pathway scores available.", sty["Normal"]))
+        doc_elements.append(dim_table)
     
-    doc_elements.append(Spacer(1, 12))
+    doc_elements.append(Spacer(1, 15))
+
+    # Strengths and Weaknesses
+    strengths = detailed_analysis.get('strengths', [])
+    weaknesses = detailed_analysis.get('weaknesses', [])
+    
+    if strengths:
+        doc_elements.append(Paragraph("Key Strengths", heading_style))
+        for strength in strengths:
+            doc_elements.append(Paragraph(f"• {strength}", sty["Normal"]))
+        doc_elements.append(Spacer(1, 10))
+    
+    if weaknesses:
+        doc_elements.append(Paragraph("Areas for Improvement", heading_style))
+        for weakness in weaknesses:
+            doc_elements.append(Paragraph(f"• {weakness}", sty["Normal"]))
+        doc_elements.append(Spacer(1, 10))
 
     # Detailed Responses
     doc_elements.append(Paragraph("Detailed Assessment Responses", heading_style))
@@ -888,7 +1100,7 @@ def generate_tcp_pdf_content(doc_elements, data, sty, heading_style):
         for dimension in tcp_data.get('dimensions', []):
             doc_elements.append(Paragraph(dimension['name'], sty["Heading3"]))
             
-            for question in dimension['questions']:
+            for q_num, question in enumerate(dimension['questions'], 1):
                 if answer_idx < len(answers):
                     score = answers[answer_idx]
                     if score == 1:
@@ -907,14 +1119,17 @@ def generate_tcp_pdf_content(doc_elements, data, sty, heading_style):
                 doc_elements.append(Spacer(1, 6))
                 answer_idx += 1
             doc_elements.append(Spacer(1, 8))
-    else:
-        doc_elements.append(Paragraph("No detailed responses available.", sty["Normal"]))
 
     # Strategic Recommendations
     doc_elements.append(Paragraph("Strategic Recommendations", heading_style))
-    recommended_pathway = data.get('recommended_pathway', '')
-    recommendations = get_pathway_recommendations(recommended_pathway)
-    doc_elements.append(Paragraph(recommendations, sty["Normal"]))
+    recommendations = detailed_analysis.get('recommendations', [])
+    if recommendations:
+        for rec in recommendations:
+            doc_elements.append(Paragraph(f"• {rec}", sty["Normal"]))
+    else:
+        recommended_pathway = data.get('recommended_pathway', '')
+        fallback_recommendations = get_pathway_recommendations(recommended_pathway)
+        doc_elements.append(Paragraph(fallback_recommendations, sty["Normal"]))
 
 def generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style):
     """Generate TRL/IRL-specific PDF content"""
