@@ -671,14 +671,17 @@ def assess_tcp(data):
         "pathway_scores": pathway_scores,
         "recommended_pathway": recommended_pathway,
         "explanation": generate_tcp_explanation(pathway_scores, recommended_pathway, language),
-        "timestamp": datetime.utcnow().isoformat(),
-        "level": None,  # Add for PDF compatibility
-        "questions": None  # Add for PDF compatibility
+        "timestamp": datetime.utcnow().isoformat()
     }
     return jsonify(result)
 
 def calculate_pathway_scores(answers, tcp_data):
     pathways = {pathway["name"]: 0 for pathway in tcp_data["pathways"]}
+    
+    # Ensure we have enough answers
+    if len(answers) < 15:
+        # Pad with zeros if not enough answers
+        answers = answers + [0] * (15 - len(answers))
     
     tech_score = sum(answers[0:3])
     market_score = sum(answers[3:6])
@@ -751,194 +754,215 @@ def generate_explanation(lvl, mode, lang, qset):
 
 @app.route("/api/generate_pdf", methods=["POST"])
 def generate_pdf():
-    data = request.json
-    buf = io.BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=0.5*inch)
-    sty = getSampleStyleSheet()
+    try:
+        data = request.json
+        
+        # Validate required fields
+        if not data or 'mode' not in data:
+            return jsonify({"error": "Invalid data provided"}), 400
+            
+        buf = io.BytesIO()
+        doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=0.5*inch)
+        sty = getSampleStyleSheet()
 
-    # MMSU Branding Styles
-    title_style = ParagraphStyle("Title", parent=sty["Heading1"], fontSize=16, textColor=colors.darkgreen, alignment=1, spaceAfter=6)
-    subtitle_style = ParagraphStyle("Subtitle", parent=sty["Normal"], fontSize=10, textColor=colors.darkblue, alignment=1, spaceAfter=12)
-    heading_style = ParagraphStyle("Heading", parent=sty["Heading2"], fontSize=12, textColor=colors.darkgreen)
+        # Custom styles
+        title_style = ParagraphStyle("Title", parent=sty["Heading1"], 
+                                   fontSize=16, textColor=colors.darkgreen, 
+                                   alignment=1, spaceAfter=6)
+        subtitle_style = ParagraphStyle("Subtitle", parent=sty["Normal"], 
+                                       fontSize=10, textColor=colors.darkblue, 
+                                       alignment=1, spaceAfter=12)
+        heading_style = ParagraphStyle("Heading", parent=sty["Heading2"], 
+                                      fontSize=12, textColor=colors.darkgreen)
+        
+        doc_elements = []
+
+        # Header
+        doc_elements.append(Paragraph("MARANO MARCOS STATE UNIVERSITY", title_style))
+        doc_elements.append(Paragraph("Innovation and Technology Support Office", subtitle_style))
+        doc_elements.append(Paragraph("Technology Assessment Tool", subtitle_style))
+        doc_elements.append(Spacer(1, 18))
+
+        doc_elements.append(Paragraph(f"{data.get('mode_full', data['mode'])} Assessment Report", heading_style))
+        doc_elements.append(Spacer(1, 10))
+
+        # Technology Information
+        tech_info = [
+            ["Technology Title:", data.get('technology_title', 'N/A')],
+            ["Description:", data.get('description', 'N/A')],
+            ["Assessment Date:", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')]
+        ]
+        
+        if data['mode'] == 'TCP':
+            tech_info.append(["Recommended Pathway:", data.get('recommended_pathway', 'N/A')])
+        else:
+            tech_info.append(["Assessment Result:", f"{data['mode']} Level {data.get('level', 'N/A')}"])
+
+        tech_table = Table(tech_info, colWidths=[2*inch, 4*inch])
+        tech_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        
+        doc_elements.append(tech_table)
+        doc_elements.append(Spacer(1, 16))
+
+        # Assessment Summary
+        doc_elements.append(Paragraph("Assessment Summary", heading_style))
+        doc_elements.append(Paragraph(data.get("explanation", "No explanation available."), sty["Normal"]))
+        doc_elements.append(Spacer(1, 14))
+
+        # Mode-specific content
+        if data["mode"] == "TCP":
+            generate_tcp_pdf_content(doc_elements, data, sty, heading_style)
+        else:
+            generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style)
+
+        # Footer
+        doc_elements.append(Spacer(1, 14))
+        footer_style = ParagraphStyle("Footer", parent=sty["Normal"], 
+                                     fontSize=8, textColor=colors.grey, 
+                                     alignment=1)
+        doc_elements.append(Paragraph("Generated by MMSU Innovation and Technology Support Office", footer_style))
+        doc_elements.append(Paragraph("Technology Assessment Tool", footer_style))
+
+        doc.build(doc_elements)
+        buf.seek(0)
+        
+        filename = f"MMSU_{data.get('technology_title', 'Assessment')}_{data['mode']}_Assessment.pdf"
+        # Clean filename
+        filename = "".join(c for c in filename if c.isalnum() or c in "._- ").strip()
+        
+        return send_file(
+            buf, 
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        print(f"PDF Generation Error: {str(e)}")
+        return jsonify({"error": f"PDF generation failed: {str(e)}"}), 500
+
+def generate_tcp_pdf_content(doc_elements, data, sty, heading_style):
+    """Generate TCP-specific PDF content"""
     
-    doc_elements = []
-
-    # HEADER
-    doc_elements.append(Paragraph("MARANO MARCOS STATE UNIVERSITY", title_style))
-    doc_elements.append(Paragraph("Innovation and Technology Support Office", subtitle_style))
-    doc_elements.append(Paragraph("Technology Assessment Tool", subtitle_style))
-    doc_elements.append(Spacer(1, 18))
-
-    doc_elements.append(Paragraph(f"{data['mode_full']} Assessment Report", heading_style))
-    doc_elements.append(Spacer(1, 10))
-
-    # TECHNOLOGY INFO
-    tech_info = [
-        ["Technology Title:", data['technology_title']],
-        ["Description:", data['description']],
-        ["Assessment Date:", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')]
-    ]
-    if data['mode'] == 'TCP':
-        tech_info.append(["Recommended Pathway:", data['recommended_pathway']])
-    else:
-        tech_info.append(["Assessment Result:", f"{data['mode']} Level {data['level']}"])
-
-    tech_table = Table(tech_info, colWidths=[2*inch, 4*inch])
-    tech_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-    doc_elements.append(tech_table)
-    doc_elements.append(Spacer(1, 16))
-
-    # MAIN EXPLANATION
-    doc_elements.append(Paragraph("Assessment Summary", heading_style))
-    doc_elements.append(Paragraph(data.get("explanation", ""), sty["Normal"]))
-    doc_elements.append(Spacer(1, 14))
-
-    # ASSESSMENT-SPECIFIC SECTIONS
-    if data["mode"] == "TCP":
-        generate_tcp_pdf_sections(doc_elements, data, sty, heading_style)
-    else:
-        generate_trl_irl_pdf_sections(doc_elements, data, sty, heading_style)
-
-    # FOOTER
-    doc_elements.append(Spacer(1, 14))
-    footer_style = ParagraphStyle("Footer", parent=sty["Normal"], fontSize=8, textColor=colors.grey, alignment=1)
-    doc_elements.append(Paragraph("Generated by MMSU Innovation and Technology Support Office", footer_style))
-    doc_elements.append(Paragraph("Technology Assessment Tool", footer_style))
-
-    doc.build(doc_elements)
-    buf.seek(0)
-    return send_file(buf, mimetype="application/pdf", as_attachment=True, download_name=f"MMSU_{data['technology_title']}_{data['mode']}_Assessment.pdf")
-
-def generate_tcp_pdf_sections(doc_elements, data, sty, heading_style):
-    """Generate TCP-specific PDF sections"""
-    
-    # Pathways Table
+    # Pathway Scores
     doc_elements.append(Paragraph("Commercialization Pathway Scores", heading_style))
     doc_elements.append(Spacer(1, 8))
 
     pathway_scores = data.get('pathway_scores', {})
-    score_data = [["Pathway", "Score", "Ranking"]]
-    sorted_pathways = sorted(pathway_scores.items(), key=lambda x: x[1], reverse=True)
-    for rank, (pathway, score) in enumerate(sorted_pathways, 1):
-        score_data.append([pathway, str(score), f"#{rank}"])
+    if pathway_scores:
+        score_data = [["Pathway", "Score", "Ranking"]]
+        sorted_pathways = sorted(pathway_scores.items(), key=lambda x: x[1], reverse=True)
+        for rank, (pathway, score) in enumerate(sorted_pathways, 1):
+            score_data.append([pathway, str(score), f"#{rank}"])
 
-    score_table = Table(score_data, colWidths=[2.5*inch, 0.8*inch, 0.7*inch])
-    score_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('ALIGN', (1, 0), (-1, -1), 'CENTER')
-    ]))
-    doc_elements.append(score_table)
+        score_table = Table(score_data, colWidths=[2.5*inch, 0.8*inch, 0.7*inch])
+        score_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('ALIGN', (1, 0), (-1, -1), 'CENTER')
+        ]))
+        doc_elements.append(score_table)
+    else:
+        doc_elements.append(Paragraph("No pathway scores available.", sty["Normal"]))
+    
     doc_elements.append(Spacer(1, 12))
 
-    # Detailed Questions and Answers
+    # Detailed Responses
     doc_elements.append(Paragraph("Detailed Assessment Responses", heading_style))
     doc_elements.append(Spacer(1, 8))
     
     tcp_data = data.get('tcp_data', {})
     answers = data.get('answers', [])
-    answer_idx = 0
     
-    for dimension in tcp_data.get('dimensions', []):
-        doc_elements.append(Paragraph(dimension['name'], sty["Heading3"]))
-        
-        for q_num, question in enumerate(dimension['questions'], 1):
-            if answer_idx < len(answers):
-                score = answers[answer_idx]
-                score_text = ["Low (1)", "Medium (2)", "High (3)"][score - 1] if 1 <= score <= 3 else "Not answered"
-            else:
-                score_text = "Not answered"
+    if tcp_data and answers:
+        answer_idx = 0
+        for dimension in tcp_data.get('dimensions', []):
+            doc_elements.append(Paragraph(dimension['name'], sty["Heading3"]))
             
-            doc_elements.append(Paragraph(f"Q{answer_idx+1}. {question}", sty["Normal"]))
-            doc_elements.append(Paragraph(f"Response: {score_text}", sty["Normal"]))
-            doc_elements.append(Spacer(1, 6))
-            answer_idx += 1
-        doc_elements.append(Spacer(1, 8))
+            for question in dimension['questions']:
+                if answer_idx < len(answers):
+                    score = answers[answer_idx]
+                    if score == 1:
+                        score_text = "Low (1)"
+                    elif score == 2:
+                        score_text = "Medium (2)"
+                    elif score == 3:
+                        score_text = "High (3)"
+                    else:
+                        score_text = "Not answered"
+                else:
+                    score_text = "Not answered"
+                
+                doc_elements.append(Paragraph(f"Q{answer_idx+1}. {question}", sty["Normal"]))
+                doc_elements.append(Paragraph(f"Response: {score_text}", sty["Normal"]))
+                doc_elements.append(Spacer(1, 6))
+                answer_idx += 1
+            doc_elements.append(Spacer(1, 8))
+    else:
+        doc_elements.append(Paragraph("No detailed responses available.", sty["Normal"]))
 
-    # Results and Discussion
-    doc_elements.append(Paragraph("Results and Discussion", heading_style))
-    discussion = generate_tcp_discussion(data)
-    doc_elements.append(Paragraph(discussion, sty["Normal"]))
-    doc_elements.append(Spacer(1, 10))
-
-    # Recommendations
+    # Strategic Recommendations
     doc_elements.append(Paragraph("Strategic Recommendations", heading_style))
-    recommendations = generate_tcp_recommendations(data)
+    recommended_pathway = data.get('recommended_pathway', '')
+    recommendations = get_pathway_recommendations(recommended_pathway)
     doc_elements.append(Paragraph(recommendations, sty["Normal"]))
 
-def generate_trl_irl_pdf_sections(doc_elements, data, sty, heading_style):
-    """Generate TRL/IRL-specific PDF sections"""
+def generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style):
+    """Generate TRL/IRL-specific PDF content"""
     doc_elements.append(Paragraph("Detailed Assessment Results", heading_style))
     doc_elements.append(Spacer(1, 10))
     
     questions = data.get('questions', [])
     answers = data.get('answers', [])
     
-    for idx, level in enumerate(questions):
-        level_title = f"{data['mode']} Level {level['level']}: {level['title']}"
-        doc_elements.append(Paragraph(level_title, sty["Heading3"]))
-        
-        if idx < len(answers):
-            level_answers = answers[idx]
-            for q_idx, question in enumerate(level['checks']):
-                if q_idx < len(level_answers):
-                    answer = "Yes" if level_answers[q_idx] else "No"
-                else:
-                    answer = "Not answered"
-                
-                doc_elements.append(Paragraph(f"Q{q_idx+1}. {question}", sty["Normal"]))
-                doc_elements.append(Paragraph(f"Answer: {answer}", sty["Normal"]))
-                doc_elements.append(Spacer(1, 4))
-        doc_elements.append(Spacer(1, 8))
+    if questions and answers:
+        for idx, level in enumerate(questions):
+            level_title = f"{data['mode']} Level {level['level']}: {level['title']}"
+            doc_elements.append(Paragraph(level_title, sty["Heading3"]))
+            
+            if idx < len(answers):
+                level_answers = answers[idx]
+                for q_idx, question in enumerate(level['checks']):
+                    if q_idx < len(level_answers):
+                        answer = "Yes" if level_answers[q_idx] else "No"
+                    else:
+                        answer = "Not answered"
+                    
+                    doc_elements.append(Paragraph(f"Q{q_idx+1}. {question}", sty["Normal"]))
+                    doc_elements.append(Paragraph(f"Answer: {answer}", sty["Normal"]))
+                    doc_elements.append(Spacer(1, 4))
+            doc_elements.append(Spacer(1, 8))
+    else:
+        doc_elements.append(Paragraph("No detailed assessment results available.", sty["Normal"]))
 
-def generate_tcp_discussion(data):
-    """Generate TCP discussion text without HTML formatting"""
-    recommended = data['recommended_pathway']
-    scores = data['pathway_scores']
-    
-    sorted_pathways = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    top_3 = sorted_pathways[:3]
-    
-    discussion = f"""Assessment Results: The Technology Commercialization Pathway assessment evaluated seven potential pathways for bringing this technology to market. Based on multi-dimensional scoring, the analysis recommends {recommended} as the primary commercialization strategy.
-
-Pathway Rankings: The top three pathways are: 1) {top_3[0][0]} (Score: {top_3[0][1]}), 2) {top_3[1][0]} (Score: {top_3[1][1]}), 3) {top_3[2][0]} (Score: {top_3[2][1]}).
-
-Strategic Analysis: The scoring differential provides insight into technology readiness and organizational capabilities. A high score for {recommended} suggests strong alignment between technology characteristics, market conditions, and organizational resources.
-
-Risk Considerations: While {recommended} represents the highest-scoring pathway, organizations should consider mixed strategies that leverage multiple pathways based on technology maturity and market evolution."""
-    
-    return discussion
-
-def generate_tcp_recommendations(data):
-    """Generate strategic recommendations for TCP"""
-    recommended = data['recommended_pathway']
-    
-    recommendations_text = {
-        "Direct Sale": "Focus on developing comprehensive go-to-market strategy, establishing direct sales channels, investing in marketing and brand development, ensuring manufacturing capabilities, and securing pilot customers.",
+def get_pathway_recommendations(pathway):
+    """Get recommendations for a specific pathway"""
+    recommendations = {
+        "Direct Sale": "Focus on developing comprehensive go-to-market strategy, establishing direct sales channels, investing in marketing and brand development, ensuring manufacturing capabilities, and securing pilot customers. Build strong customer relationships and ensure product quality meets market expectations.",
         
-        "Licensing": "Strengthen intellectual property protection, identify potential licensees with market presence, develop comprehensive licensing packages, negotiate favorable terms, and establish relationship management.",
+        "Licensing": "Strengthen intellectual property protection through patents and trademarks. Identify potential licensees with established market presence and complementary capabilities. Develop comprehensive licensing packages that include technical documentation, training materials, and ongoing support. Negotiate favorable terms that balance upfront payments, royalties, and milestone-based compensation.",
         
-        "Startup/Spin-out": "Assemble experienced management team, develop comprehensive business plan, secure initial funding, establish legal structure, and build minimum viable product.",
+        "Startup/Spin-out": "Assemble an experienced management team with relevant industry expertise and entrepreneurial experience. Develop a comprehensive business plan with detailed market analysis, financial projections, and growth strategies. Secure initial funding through angel investors, venture capital, or government grants. Establish proper legal structure and intellectual property ownership arrangements.",
         
-        "Assignment": "Conduct technology valuation, identify potential acquirers, prepare transfer packages, negotiate terms, and plan transition.",
+        "Assignment": "Conduct thorough technology valuation using multiple methodologies including cost, market, and income approaches. Identify potential acquirers with strategic interest and complementary capabilities. Prepare comprehensive technology transfer packages including all documentation, know-how, and training materials. Negotiate favorable terms that maximize value while ensuring successful technology transfer.",
         
-        "Research Collaboration": "Identify research partners, develop joint proposals, establish IP agreements, create governance systems, and plan commercialization pathway.",
+        "Research Collaboration": "Identify research partners with complementary expertise, resources, and strategic objectives. Develop joint research proposals that clearly define objectives, responsibilities, and intellectual property arrangements. Secure funding through collaborative grants and partnership agreements. Establish governance structures for project management and decision-making. Plan eventual commercialization pathways.",
         
-        "Open Source": "Develop licensing strategy, create documentation, build community engagement, identify service revenue opportunities, and establish thought leadership.",
+        "Open Source": "Develop open source licensing strategy that balances community building with commercial opportunities. Create comprehensive documentation, tutorials, and developer resources to encourage adoption. Build community engagement through forums, conferences, and collaborative development platforms. Identify service revenue opportunities including consulting, training, and premium support.",
         
-        "Government Procurement": "Understand procurement processes, ensure regulatory compliance, develop government relationships, prepare for lengthy sales cycles, and consider SBIR/STTR opportunities."
+        "Government Procurement": "Understand government procurement processes, requirements, and evaluation criteria. Ensure full compliance with relevant regulations, security standards, and certification requirements. Develop relationships with government agencies, prime contractors, and system integrators. Prepare for extended procurement timelines and bureaucratic processes. Consider government funding opportunities such as SBIR/STTR programs."
     }
     
-    return recommendations_text.get(recommended, "Strategic recommendations are being developed for this pathway.")
+    return recommendations.get(pathway, "Develop a customized commercialization strategy based on your technology's unique characteristics, market conditions, and organizational capabilities. Consider consulting with technology transfer professionals and industry experts to optimize your approach.")
 
 if __name__ == "__main__":
     app.run(debug=True)
