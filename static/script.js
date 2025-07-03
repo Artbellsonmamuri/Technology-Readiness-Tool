@@ -4,8 +4,12 @@ class AssessmentApp {
         this.mode = "";
         this.questions = [];
         this.answers = [];
-        this.lix = 0; // current level index
-        this.cix = 0; // current check index
+        this.lix = 0;
+        this.cix = 0;
+        
+        this.tcpQuestions = [];
+        this.tcpCurrentQuestion = 0;
+        this.tcpAnswers = [];
 
         this.i18n = {
             english: {
@@ -13,11 +17,13 @@ class AssessmentApp {
                 select_mode: "Select Assessment Mode",
                 trl_desc: "Technology Readiness Level",
                 irl_desc: "Investment Readiness Level",
+                tcp_desc: "Technology Commercialization Pathway",
                 tech_info: "Technology Information",
                 title_lbl: "Technology Title:",
                 desc_lbl: "Short Description:",
                 start: "Start Assessment",
                 q_title: "Assessment Questions",
+                tcp_q_title: "TCP Assessment Questions",
                 yes: "Yes",
                 no: "No",
                 results: "Assessment Results",
@@ -29,11 +35,13 @@ class AssessmentApp {
                 select_mode: "Pumili ng Uri ng Assessment",
                 trl_desc: "Technology Readiness Level",
                 irl_desc: "Investment Readiness Level",
+                tcp_desc: "Technology Commercialization Pathway",
                 tech_info: "Impormasyon ng Teknolohiya",
                 title_lbl: "Pamagat ng Teknolohiya:",
                 desc_lbl: "Maikling Paglalarawan:",
                 start: "Simulan ang Assessment",
                 q_title: "Mga Tanong sa Assessment",
+                tcp_q_title: "TCP Assessment na mga Tanong",
                 yes: "Oo",
                 no: "Hindi",
                 results: "Mga Resulta",
@@ -57,20 +65,12 @@ class AssessmentApp {
     async begin() {
         if (this.collectInfo()) {
             await this.fetchQuestions();
-            this.present();
+            if (this.mode === "TCP") {
+                this.presentTCP();
+            } else {
+                this.present();
+            }
         }
-    }
-
-    respond(ans) {
-        this.record(ans);
-    }
-
-    reset() {
-        location.reload();
-    }
-
-    download() {
-        this.downloadPDF();
     }
 
     translate() {
@@ -78,11 +78,13 @@ class AssessmentApp {
         this.setText("mode-title", t.select_mode);
         this.setText("trl-description", t.trl_desc);
         this.setText("irl-description", t.irl_desc);
+        this.setText("tcp-description", t.tcp_desc);
         this.setText("tech-info-title", t.tech_info);
         this.setText("title-label", t.title_lbl);
         this.setText("description-label", t.desc_lbl);
         this.setText("start-btn", t.start);
         this.setText("questions-title", t.q_title);
+        this.setText("tcp-questions-title", t.tcp_q_title);
         this.setText("yes-btn", t.yes);
         this.setText("no-btn", t.no);
         this.setText("results-title", t.results);
@@ -103,12 +105,124 @@ class AssessmentApp {
     async fetchQuestions() {
         try {
             const res = await fetch(`/api/questions/${this.mode}/${this.lang}`);
-            this.questions = await res.json();
+            if (this.mode === "TCP") {
+                this.tcpQuestions = await res.json();
+            } else {
+                this.questions = await res.json();
+            }
         } catch (error) {
             console.error('Error loading questions:', error);
         }
     }
 
+    // TCP Assessment Methods
+    presentTCP() {
+        this.tcpCurrentQuestion = 0;
+        this.tcpAnswers = [];
+        this.showStep("tcp-questions");
+        this.renderTCPQuestion();
+    }
+
+    renderTCPQuestion() {
+        let questionIndex = 0;
+        let currentDimension = "";
+        let currentQuestion = "";
+
+        for (const dimension of this.tcpQuestions.dimensions) {
+            for (const question of dimension.questions) {
+                if (questionIndex === this.tcpCurrentQuestion) {
+                    currentDimension = dimension.name;
+                    currentQuestion = question;
+                    break;
+                }
+                questionIndex++;
+            }
+            if (currentQuestion) break;
+        }
+
+        this.setText("tcp-dimension-title", currentDimension);
+        this.setText("tcp-question-text", currentQuestion);
+
+        const totalQuestions = this.tcpQuestions.dimensions.reduce((sum, dim) => sum + dim.questions.length, 0);
+        const progress = ((this.tcpCurrentQuestion + 1) / totalQuestions) * 100;
+        
+        const progressElement = document.getElementById("tcp-progress");
+        if (progressElement) {
+            progressElement.style.width = `${progress}%`;
+        }
+
+        this.setText("tcp-progress-text",
+            `${this.lang === "english" ? "Question" : "Tanong"} ${this.tcpCurrentQuestion + 1} / ${totalQuestions}`);
+    }
+
+    recordTCP(score) {
+        this.tcpAnswers.push(score);
+        this.tcpCurrentQuestion++;
+
+        const totalQuestions = this.tcpQuestions.dimensions.reduce((sum, dim) => sum + dim.questions.length, 0);
+        
+        if (this.tcpCurrentQuestion >= totalQuestions) {
+            this.finishTCP();
+        } else {
+            this.renderTCPQuestion();
+        }
+    }
+
+    async finishTCP() {
+        const payload = {
+            mode: this.mode,
+            language: this.lang,
+            technology_title: this.title,
+            description: this.desc,
+            answers: this.tcpAnswers
+        };
+
+        try {
+            const res = await fetch("/api/assess", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            this.result = await res.json();
+            this.showTCPResults();
+        } catch (error) {
+            console.error('Error completing TCP assessment:', error);
+        }
+    }
+
+    showTCPResults() {
+        this.setText("result-level", `Recommended Pathway: ${this.result.recommended_pathway}`);
+        this.setText("tech-title-display", this.result.technology_title);
+        this.setText("result-explanation", this.result.explanation);
+
+        const badge = document.getElementById("result-badge");
+        if (badge) {
+            badge.textContent = "TCP Assessment";
+            badge.style.background = "#DCFCE7";
+            badge.style.color = "#065F46";
+        }
+
+        const scoresContainer = document.getElementById("tcp-pathway-scores");
+        const scoresList = document.getElementById("pathway-scores-list");
+        if (scoresContainer && scoresList) {
+            scoresContainer.style.display = "block";
+            scoresList.innerHTML = "";
+            
+            const pathwayScores = this.result.pathway_scores;
+            const sortedPathways = Object.entries(pathwayScores).sort((a, b) => b[1] - a[1]);
+            
+            sortedPathways.forEach(([pathway, score]) => {
+                const scoreItem = document.createElement("div");
+                scoreItem.className = "pathway-score-item";
+                scoreItem.innerHTML = `<strong>${pathway}:</strong> ${score} points`;
+                scoresList.appendChild(scoreItem);
+            });
+        }
+
+        this.showStep("results");
+    }
+
+    // Regular TRL/IRL Assessment Methods
     present() {
         this.lix = 0;
         this.cix = 0;
@@ -197,6 +311,11 @@ class AssessmentApp {
                 }
             }
 
+            const scoresContainer = document.getElementById("tcp-pathway-scores");
+            if (scoresContainer) {
+                scoresContainer.style.display = "none";
+            }
+
             this.showStep("results");
         } catch (error) {
             console.error('Error completing assessment:', error);
@@ -252,6 +371,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function selectLanguage(l) { APP.pickLanguage(l); }
 function selectMode(m) { APP.pickMode(m); }
 function startAssessment() { APP.begin(); }
-function answerQuestion(b) { APP.respond(b); }
+function answerQuestion(b) { APP.record(b); }
+function answerTCPQuestion(score) { APP.recordTCP(score); }
 function downloadPDF() { APP.download(); }
-function resetAssessment() { APP.reset(); }
+function resetAssessment() { location.reload(); }
