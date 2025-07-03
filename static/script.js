@@ -10,6 +10,7 @@ class AssessmentApp {
         this.tcpQuestions = [];
         this.tcpCurrentQuestion = 0;
         this.tcpAnswers = [];
+        this.result = null;
 
         this.i18n = {
             english: {
@@ -110,6 +111,7 @@ class AssessmentApp {
             }
             if (this.mode === "TCP") {
                 this.tcpQuestions = await res.json();
+                console.log("TCP Questions loaded:", this.tcpQuestions);
             } else {
                 this.questions = await res.json();
             }
@@ -183,6 +185,8 @@ class AssessmentApp {
             answers: this.tcpAnswers
         };
 
+        console.log("Finishing TCP assessment with payload:", payload);
+
         try {
             const res = await fetch("/api/assess", {
                 method: "POST",
@@ -195,6 +199,7 @@ class AssessmentApp {
             }
             
             this.result = await res.json();
+            console.log("TCP assessment result:", this.result);
             this.showTCPResults();
         } catch (error) {
             console.error('Error completing TCP assessment:', error);
@@ -205,10 +210,30 @@ class AssessmentApp {
     }
 
     showTCPResults() {
+        // Set main result display
         this.setText("result-level", `Recommended Pathway: ${this.result.recommended_pathway}`);
         this.setText("tech-title-display", this.result.technology_title);
-        this.setText("result-explanation", this.result.explanation);
+        
+        // Enhanced explanation with detailed analysis
+        let explanation = this.result.explanation;
+        const detailedAnalysis = this.result.detailed_analysis;
+        
+        if (detailedAnalysis) {
+            const overall = detailedAnalysis.overall_readiness;
+            explanation += `\n\nOverall Commercialization Readiness: ${overall}`;
+            
+            if (detailedAnalysis.strengths && detailedAnalysis.strengths.length > 0) {
+                explanation += `\n\nKey Strengths: ${detailedAnalysis.strengths.join(", ")}`;
+            }
+            
+            if (detailedAnalysis.weaknesses && detailedAnalysis.weaknesses.length > 0) {
+                explanation += `\n\nAreas for Improvement: ${detailedAnalysis.weaknesses.join(", ")}`;
+            }
+        }
+        
+        this.setText("result-explanation", explanation);
 
+        // Set badge
         const badge = document.getElementById("result-badge");
         if (badge) {
             badge.textContent = "TCP Assessment";
@@ -216,6 +241,7 @@ class AssessmentApp {
             badge.style.color = "#065F46";
         }
 
+        // Show pathway scores with enhanced details
         const scoresContainer = document.getElementById("tcp-pathway-scores");
         const scoresList = document.getElementById("pathway-scores-list");
         if (scoresContainer && scoresList) {
@@ -225,10 +251,30 @@ class AssessmentApp {
             const pathwayScores = this.result.pathway_scores;
             const sortedPathways = Object.entries(pathwayScores).sort((a, b) => b[1] - a[1]);
             
+            // Add title with overall readiness
+            if (detailedAnalysis && detailedAnalysis.overall_readiness) {
+                const readinessTitle = document.createElement("div");
+                readinessTitle.className = "pathway-score-item";
+                readinessTitle.innerHTML = `<strong>Overall Readiness: ${detailedAnalysis.overall_readiness}</strong>`;
+                readinessTitle.style.borderTop = "2px solid #065F46";
+                readinessTitle.style.paddingTop = "12px";
+                readinessTitle.style.marginTop = "8px";
+                scoresList.appendChild(readinessTitle);
+            }
+            
             sortedPathways.forEach(([pathway, score], index) => {
                 const scoreItem = document.createElement("div");
                 scoreItem.className = "pathway-score-item";
                 scoreItem.innerHTML = `<strong>#${index + 1} ${pathway}:</strong> ${score} points`;
+                
+                // Highlight recommended pathway
+                if (pathway === this.result.recommended_pathway) {
+                    scoreItem.style.backgroundColor = "#DCFCE7";
+                    scoreItem.style.fontWeight = "bold";
+                    scoreItem.style.borderLeft = "4px solid #065F46";
+                    scoreItem.style.paddingLeft = "12px";
+                }
+                
                 scoresList.appendChild(scoreItem);
             });
         }
@@ -346,6 +392,9 @@ class AssessmentApp {
 
     async downloadPDF() {
         try {
+            console.log("Starting PDF download...");
+            console.log("Current result object:", this.result);
+            
             // Validate result object
             if (!this.result || !this.result.mode) {
                 alert(this.lang === "english" ? 
@@ -354,8 +403,13 @@ class AssessmentApp {
                 return;
             }
 
-            console.log("Downloading PDF for:", this.result.mode);
-            console.log("Result object:", this.result);
+            console.log("Sending PDF request for mode:", this.result.mode);
+            
+            // Show loading indicator
+            const downloadBtn = document.getElementById("download-btn");
+            const originalText = downloadBtn.textContent;
+            downloadBtn.textContent = this.lang === "english" ? "Generating PDF..." : "Ginagawa ang PDF...";
+            downloadBtn.disabled = true;
 
             const res = await fetch("/api/generate_pdf", {
                 method: "POST",
@@ -365,6 +419,8 @@ class AssessmentApp {
                 body: JSON.stringify(this.result)
             });
 
+            console.log("PDF response status:", res.status);
+
             if (!res.ok) {
                 const errorText = await res.text();
                 console.error("PDF generation failed:", errorText);
@@ -372,6 +428,7 @@ class AssessmentApp {
             }
 
             const blob = await res.blob();
+            console.log("PDF blob size:", blob.size);
             
             if (blob.size === 0) {
                 throw new Error("Received empty PDF file");
@@ -388,8 +445,20 @@ class AssessmentApp {
             
             console.log("PDF download completed successfully");
             
+            // Reset button
+            downloadBtn.textContent = originalText;
+            downloadBtn.disabled = false;
+            
         } catch (error) {
             console.error('Error downloading PDF:', error);
+            
+            // Reset button
+            const downloadBtn = document.getElementById("download-btn");
+            if (downloadBtn) {
+                downloadBtn.textContent = this.lang === "english" ? "Download PDF Report" : "I-download ang PDF";
+                downloadBtn.disabled = false;
+            }
+            
             alert(this.lang === "english" ? 
                 `Error downloading PDF: ${error.message}. Please try again.` : 
                 `Error sa pag-download ng PDF: ${error.message}. Subukan muli.`);
@@ -428,5 +497,5 @@ function selectMode(m) { APP.pickMode(m); }
 function startAssessment() { APP.begin(); }
 function answerQuestion(b) { APP.record(b); }
 function answerTCPQuestion(score) { APP.recordTCP(score); }
-function downloadPDF() { APP.download(); }
+function downloadPDF() { APP.downloadPDF(); }
 function resetAssessment() { location.reload(); }
