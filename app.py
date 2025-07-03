@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, jsonify, send_file
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
+from reportlab.lib.units import inch
 from datetime import datetime
 import io
 
@@ -218,7 +219,7 @@ TRL_QUESTIONS = {
     ]
 }
 
-# Complete IRL Questions Database (1-6 with multiple checks per level)
+# Complete IRL Questions Database (1-9 with multiple checks per level)
 IRL_QUESTIONS = {
     "english": [
         {   # IRL-1: Initial Concept
@@ -286,6 +287,39 @@ IRL_QUESTIONS = {
                 "Are there validated assumptions about customer acquisition costs and lifetime value?",
                 "Have you demonstrated scalability of the business model with growth projections?"
             ]
+        },
+        {   # IRL-7: Investment Ready / Early Commercial
+            "level": 7,
+            "title": "Investment Ready / Early Commercial",
+            "checks": [
+                "Has a comprehensive business plan been developed with detailed financial projections?",
+                "Is there a complete management team with relevant industry experience?",
+                "Have you secured initial funding, investment, or significant partnerships?",
+                "Are intellectual property rights and legal structures properly established?",
+                "Have you achieved initial commercial sales or revenue milestones?"
+            ]
+        },
+        {   # IRL-8: Commercial Scaling
+            "level": 8,
+            "title": "Commercial Scaling",
+            "checks": [
+                "Is the business generating consistent and growing revenue streams?",
+                "Have you established scalable operations and distribution channels?",
+                "Are customer acquisition and retention processes optimized and repeatable?",
+                "Have you achieved positive cash flow or clear path to profitability?",
+                "Is there evidence of market traction and competitive positioning?"
+            ]
+        },
+        {   # IRL-9: Market Leadership / Expansion
+            "level": 9,
+            "title": "Market Leadership / Expansion",
+            "checks": [
+                "Has the business achieved sustainable profitability and market leadership?",
+                "Are you expanding into new markets, products, or customer segments?",
+                "Have you established strong brand recognition and customer loyalty?",
+                "Are there strategic partnerships or acquisition opportunities being pursued?",
+                "Is there a clear strategy for long-term growth and market expansion?"
+            ]
         }
     ],
     "filipino": [
@@ -317,152 +351,4 @@ IRL_QUESTIONS = {
             "checks": [
                 "Na-validate na ba ang problem-solution fit sa pamamagitan ng interviews o surveys sa potential customers?",
                 "May ebidensya ba na ang proposed solution ay tumutugunan sa tunay at malaking market need?",
-                "Malinaw na ba ang pagkakakilala sa customer segments at kanilang specific needs?",
-                "May nakadokumentong feedback ba mula sa early users o market experts?",
-                "Na-validate na ba ang mga key assumptions tungkol sa customer pain points?"
-            ]
-        },
-        {   # IRL-4: Prototype/Minimum Viable Product (MVP)
-            "level": 4,
-            "title": "Prototype/Minimum Viable Product (MVP)",
-            "checks": [
-                "Nakabuo at nasubukan na ba ang low-fidelity prototype o MVP?",
-                "Nasubukan na ba ang MVP internally o sa maliit na grupo ng target users?",
-                "May nakolektang initial performance metrics o user feedback data ba?",
-                "May nakadokumentong plano ba para sa karagdagang product development at iteration?",
-                "Naitakda na ba ang success criteria at KPIs para sa MVP?"
-            ]
-        },
-        {   # IRL-5: Product/Market Fit Validation
-            "level": 5,
-            "title": "Product/Market Fit Validation",
-            "checks": [
-                "Nasubukan na ba ang produkto sa market kasama ang tunay na users sa aktwal na kondisyon?",
-                "May ebidensya ba ng product/market fit tulad ng repeat usage o positive feedback?",
-                "Naitakda, sinubaybayan, at na-analyze na ba ang key performance indicators (KPIs)?",
-                "May initial sales, signed letters of intent, o committed customers na ba?",
-                "Naipakita na ba ang customer retention at engagement metrics?"
-            ]
-        },
-        {   # IRL-6: Business Model Validation
-            "level": 6,
-            "title": "Business Model Validation",
-            "checks": [
-                "Nasubukan at na-validate na ba ang business model sa tunay na market conditions?",
-                "May ebidensya ba ng sustainable revenue generation o napatunayang monetization strategy?",
-                "Naitatag, nasubukan, at na-optimize na ba ang operational processes?",
-                "May na-validate na assumptions ba tungkol sa customer acquisition costs at lifetime value?",
-                "Naipakita na ba ang scalability ng business model kasama ang growth projections?"
-            ]
-        }
-    ]
-}
-
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-@app.route("/api/questions/<mode>/<language>")
-def get_questions(mode, language):
-    if mode.upper() == "TRL":
-        return jsonify(TRL_QUESTIONS.get(language.lower(), TRL_QUESTIONS["english"]))
-    return jsonify(IRL_QUESTIONS.get(language.lower(), IRL_QUESTIONS["english"]))
-
-@app.route("/api/assess", methods=["POST"])
-def assess_technology():
-    data = request.json
-    mode = data["mode"]
-    language = data["language"]
-    answers = data["answers"]
-
-    questions = (
-        TRL_QUESTIONS if mode.upper() == "TRL" else IRL_QUESTIONS
-    )[language.lower()]
-
-    level_achieved = -1
-    for idx, lvl in enumerate(questions):
-        if idx >= len(answers) or not all(answers[idx]):
-            break
-        level_achieved = lvl["level"]
-
-    result = {
-        "mode": mode,
-        "mode_full": ("Technology Readiness Level" if mode.upper()=="TRL" else "Investment Readiness Level"),
-        "level": max(0, level_achieved),
-        "technology_title": data["technology_title"],
-        "description": data["description"],
-        "explanation": generate_explanation(level_achieved, mode, language, questions),
-        "timestamp": datetime.utcnow().isoformat()
-    }
-    return jsonify(result)
-
-def generate_explanation(lvl, mode, lang, qset):
-    if lang == "filipino":
-        if lvl < 0:
-            text = f"Hindi pa naaabot ng inyong teknolohiya ang antas 1 ng {mode}. Mangyaring kumpletuhin muna ang mga pangunahing requirements."
-        else:
-            text = f"Naabot ng inyong teknolohiya ang {mode} antas {lvl}. {qset[lvl]['title']} ang pinakahuling yugto na natugunan nang buo."
-        
-        if lvl + 1 < len(qset):
-            nxt = qset[lvl + 1]
-            text += f" Para umusad sa susunod na antas ({nxt['level']}), kinakailangan: {nxt['title']}."
-        
-        if mode == "IRL":
-            if lvl < 3:
-                text += " Mag-focus sa market research at validation ng inyong business concept."
-            elif lvl < 5:
-                text += " Patuloy na i-develop ang inyong produkto at maghanap ng early customers."
-            else:
-                text += " Mag-focus sa scaling at revenue generation para sa sustainable growth."
-        
-        return text
-    
-    # English
-    if lvl < 0:
-        text = f"Your technology has not yet satisfied the basic requirements for {mode} level 1."
-    else:
-        text = f"Your technology has achieved {mode} level {lvl} — {qset[lvl]['title']} requirements are fully met."
-    
-    if lvl + 1 < len(qset):
-        nxt = qset[lvl + 1]
-        text += f" To advance to level {nxt['level']}, you must complete: {nxt['title']}."
-    
-    if mode == "IRL":
-        if lvl < 3:
-            text += " Focus on market research and validating your business concept with potential customers."
-        elif lvl < 5:
-            text += " Continue developing your product and securing early customer commitments."
-        else:
-            text += " Focus on scaling operations and demonstrating sustainable revenue growth."
-    
-    return text
-
-@app.route("/api/generate_pdf", methods=["POST"])
-def generate_pdf():
-    data = request.json
-    buf = io.BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=A4)
-    sty = getSampleStyleSheet()
-    head = ParagraphStyle("H1", parent=sty["Heading1"], textColor=colors.darkgreen)
-    
-    doc_elements = [
-        Paragraph(f"{data['mode_full']} Assessment Report", head),
-        Spacer(1, 12),
-        Paragraph(f"<b>Technology Title:</b> {data['technology_title']}", sty["Normal"]),
-        Paragraph(f"<b>Description:</b> {data['description']}", sty["Normal"]),
-        Paragraph(f"<b>Date:</b> {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}", sty["Normal"]),
-        Spacer(1, 12),
-        Paragraph(f"<b>Assessment Result:</b> {data['mode']} Level {data['level']}", sty["Heading2"]),
-        Spacer(1, 8),
-        Paragraph(f"<b>Explanation:</b>", sty["Heading3"]),
-        Paragraph(data["explanation"], sty["Normal"])
-    ]
-    
-    doc.build(doc_elements)
-    buf.seek(0)
-    return send_file(buf, mimetype="application/pdf",
-                     as_attachment=True,
-                     download_name=f"{data['technology_title']}_{data['mode']}_Assessment.pdf")
-
-if __name__ == "__main__":
-    app.run(debug=True)
+                "Ma
