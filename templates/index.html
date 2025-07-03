@@ -14,7 +14,7 @@
                 <h2>Innovation and Technology Support Office</h2>
                 <h3>Technology Assessment Tool</h3>
             </div>
-            <p>Comprehensive Technology Readiness Level (TRL) and Investment Readiness Level (IRL) Assessment</p>
+            <p>Comprehensive Technology Readiness Level (TRL), Investment Readiness Level (IRL), and Technology Commercialization Pathway (TCP) Assessment</p>
         </header>
 
         <!-- Language Selection -->
@@ -40,6 +40,11 @@
                     <span id="irl-description">Investment Readiness Level</span>
                     <small>Levels 1-9 Assessment</small>
                 </button>
+                <button onclick="selectMode('TCP')" class="btn btn-secondary">
+                    <strong>TCP</strong>
+                    <span id="tcp-description">Technology Commercialization Pathway</span>
+                    <small>Pathway Recommendation</small>
+                </button>
             </div>
         </div>
 
@@ -59,7 +64,7 @@
             </form>
         </div>
 
-        <!-- Questions -->
+        <!-- Questions (TRL/IRL) -->
         <div id="questions" class="step">
             <h2 id="questions-title">Assessment Questions</h2>
             <div id="question-container">
@@ -80,6 +85,29 @@
             </div>
         </div>
 
+        <!-- TCP Questions -->
+        <div id="tcp-questions" class="step">
+            <h2 id="tcp-questions-title">TCP Assessment Questions</h2>
+            <div id="tcp-question-container">
+                <div id="tcp-current-question" class="question-card">
+                    <h3 id="tcp-dimension-title"></h3>
+                    <h4 id="tcp-question-text"></h4>
+                    <p id="tcp-question-description">Rate from 1 (Low) to 3 (High)</p>
+                    <div class="tcp-rating-buttons">
+                        <button onclick="answerTCPQuestion(1)" class="btn btn-rating">1 - Low</button>
+                        <button onclick="answerTCPQuestion(2)" class="btn btn-rating">2 - Medium</button>
+                        <button onclick="answerTCPQuestion(3)" class="btn btn-rating">3 - High</button>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="tcp-progress" class="progress-fill"></div>
+                </div>
+                <span id="tcp-progress-text">Question 1 of 15</span>
+            </div>
+        </div>
+
         <!-- Results -->
         <div id="results" class="step">
             <h2 id="results-title">Assessment Results</h2>
@@ -91,6 +119,10 @@
                 <div class="result-content">
                     <h4 id="tech-title-display"></h4>
                     <p id="result-explanation"></p>
+                    <div id="tcp-pathway-scores" class="tcp-scores-container" style="display: none;">
+                        <h4>Pathway Scores:</h4>
+                        <div id="pathway-scores-list"></div>
+                    </div>
                 </div>
                 <div class="result-actions">
                     <button onclick="downloadPDF()" class="btn btn-primary" id="download-btn">Download PDF Report</button>
