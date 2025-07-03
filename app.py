@@ -351,4 +351,273 @@ IRL_QUESTIONS = {
             "checks": [
                 "Na-validate na ba ang problem-solution fit sa pamamagitan ng interviews o surveys sa potential customers?",
                 "May ebidensya ba na ang proposed solution ay tumutugunan sa tunay at malaking market need?",
-                "Ma
+                "Malinaw na ba ang pagkakakilala sa customer segments at kanilang specific needs?",
+                "May nakadokumentong feedback ba mula sa early users o market experts?",
+                "Na-validate na ba ang mga key assumptions tungkol sa customer pain points?"
+            ]
+        },
+        {   # IRL-4: Prototype/Minimum Viable Product (MVP)
+            "level": 4,
+            "title": "Prototype/Minimum Viable Product (MVP)",
+            "checks": [
+                "Nakabuo at nasubukan na ba ang low-fidelity prototype o MVP?",
+                "Nasubukan na ba ang MVP internally o sa maliit na grupo ng target users?",
+                "May nakolektang initial performance metrics o user feedback data ba?",
+                "May nakadokumentong plano ba para sa karagdagang product development at iteration?",
+                "Naitakda na ba ang success criteria at KPIs para sa MVP?"
+            ]
+        },
+        {   # IRL-5: Product/Market Fit Validation
+            "level": 5,
+            "title": "Product/Market Fit Validation",
+            "checks": [
+                "Nasubukan na ba ang produkto sa market kasama ang tunay na users sa aktwal na kondisyon?",
+                "May ebidensya ba ng product/market fit tulad ng repeat usage o positive feedback?",
+                "Naitakda, sinubaybayan, at na-analyze na ba ang key performance indicators (KPIs)?",
+                "May initial sales, signed letters of intent, o committed customers na ba?",
+                "Naipakita na ba ang customer retention at engagement metrics?"
+            ]
+        },
+        {   # IRL-6: Business Model Validation
+            "level": 6,
+            "title": "Business Model Validation",
+            "checks": [
+                "Nasubukan at na-validate na ba ang business model sa tunay na market conditions?",
+                "May ebidensya ba ng sustainable revenue generation o napatunayang monetization strategy?",
+                "Naitatag, nasubukan, at na-optimize na ba ang operational processes?",
+                "May na-validate na assumptions ba tungkol sa customer acquisition costs at lifetime value?",
+                "Naipakita na ba ang scalability ng business model kasama ang growth projections?"
+            ]
+        },
+        {   # IRL-7: Investment Ready / Early Commercial
+            "level": 7,
+            "title": "Handa sa Investment / Early Commercial",
+            "checks": [
+                "Nabuo na ba ang comprehensive business plan na may detalyadong financial projections?",
+                "May kumpletong management team ba na may kaugnay na industry experience?",
+                "Nakakuha na ba ng initial funding, investment, o makabuluhang partnerships?",
+                "Naitatag na ba nang maayos ang intellectual property rights at legal structures?",
+                "Nakamit na ba ang initial commercial sales o revenue milestones?"
+            ]
+        },
+        {   # IRL-8: Commercial Scaling
+            "level": 8,
+            "title": "Commercial Scaling",
+            "checks": [
+                "Gumagawa ba ang business ng consistent at lumalaking revenue streams?",
+                "Naitatag na ba ang scalable operations at distribution channels?",
+                "Na-optimize na ba at nauulit ang customer acquisition at retention processes?",
+                "Nakamit na ba ang positive cash flow o malinaw na daan patungo sa profitability?",
+                "May ebidensya ba ng market traction at competitive positioning?"
+            ]
+        },
+        {   # IRL-9: Market Leadership / Expansion
+            "level": 9,
+            "title": "Market Leadership / Expansion",
+            "checks": [
+                "Nakamit na ba ng business ang sustainable profitability at market leadership?",
+                "Nag-eexpand ba kayo sa bagong markets, products, o customer segments?",
+                "Naitatag na ba ang malakas na brand recognition at customer loyalty?",
+                "May strategic partnerships o acquisition opportunities ba na sinusubaybayan?",
+                "May malinaw na estratehiya ba para sa long-term growth at market expansion?"
+            ]
+        }
+    ]
+}
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/api/questions/<mode>/<language>")
+def get_questions(mode, language):
+    if mode.upper() == "TRL":
+        return jsonify(TRL_QUESTIONS.get(language.lower(), TRL_QUESTIONS["english"]))
+    return jsonify(IRL_QUESTIONS.get(language.lower(), IRL_QUESTIONS["english"]))
+
+@app.route("/api/assess", methods=["POST"])
+def assess_technology():
+    data = request.json
+    mode = data["mode"]
+    language = data["language"]
+    answers = data["answers"]
+
+    questions = (
+        TRL_QUESTIONS if mode.upper() == "TRL" else IRL_QUESTIONS
+    )[language.lower()]
+
+    level_achieved = -1
+    for idx, lvl in enumerate(questions):
+        if idx >= len(answers) or not all(answers[idx]):
+            break
+        level_achieved = lvl["level"]
+
+    result = {
+        "mode": mode,
+        "mode_full": ("Technology Readiness Level" if mode.upper()=="TRL" else "Investment Readiness Level"),
+        "level": max(0, level_achieved),
+        "technology_title": data["technology_title"],
+        "description": data["description"],
+        "answers": answers,
+        "questions": questions,
+        "explanation": generate_explanation(level_achieved, mode, language, questions),
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    return jsonify(result)
+
+def generate_explanation(lvl, mode, lang, qset):
+    if lang == "filipino":
+        if lvl < 0:
+            text = f"Hindi pa naaabot ng inyong teknolohiya ang antas 1 ng {mode}. Mangyaring kumpletuhin muna ang mga pangunahing requirements."
+        else:
+            text = f"Naabot ng inyong teknolohiya ang {mode} antas {lvl}. {qset[lvl]['title']} ang pinakahuling yugto na natugunan nang buo."
+        
+        if lvl + 1 < len(qset):
+            nxt = qset[lvl + 1]
+            text += f" Para umusad sa susunod na antas ({nxt['level']}), kinakailangan: {nxt['title']}."
+        
+        if mode == "IRL":
+            if lvl < 3:
+                text += " Mag-focus sa market research at validation ng inyong business concept."
+            elif lvl < 6:
+                text += " Patuloy na i-develop ang inyong produkto at maghanap ng early customers."
+            else:
+                text += " Mag-focus sa scaling at revenue generation para sa sustainable growth."
+        
+        return text
+    
+    # English
+    if lvl < 0:
+        text = f"Your technology has not yet satisfied the basic requirements for {mode} level 1."
+    else:
+        text = f"Your technology has achieved {mode} level {lvl} — {qset[lvl]['title']} requirements are fully met."
+    
+    if lvl + 1 < len(qset):
+        nxt = qset[lvl + 1]
+        text += f" To advance to level {nxt['level']}, you must complete: {nxt['title']}."
+    
+    if mode == "IRL":
+        if lvl < 3:
+            text += " Focus on market research and validating your business concept with potential customers."
+        elif lvl < 6:
+            text += " Continue developing your product and securing early customer commitments."
+        else:
+            text += " Focus on scaling operations and demonstrating sustainable revenue growth."
+    
+    return text
+
+@app.route("/api/generate_pdf", methods=["POST"])
+def generate_pdf():
+    data = request.json
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=0.5*inch)
+    sty = getSampleStyleSheet()
+    
+    # Custom styles with MMSU branding
+    title_style = ParagraphStyle("Title", parent=sty["Heading1"], 
+                                fontSize=16, textColor=colors.darkgreen, 
+                                alignment=1, spaceAfter=6)
+    subtitle_style = ParagraphStyle("Subtitle", parent=sty["Normal"], 
+                                   fontSize=10, textColor=colors.darkblue, 
+                                   alignment=1, spaceAfter=12)
+    heading_style = ParagraphStyle("Heading", parent=sty["Heading2"], 
+                                  fontSize=12, textColor=colors.darkgreen)
+    
+    doc_elements = []
+    
+    # Header with MMSU branding
+    doc_elements.append(Paragraph("MARANO MARCOS STATE UNIVERSITY", title_style))
+    doc_elements.append(Paragraph("Innovation and Technology Support Office", subtitle_style))
+    doc_elements.append(Paragraph("Technology Assessment Tool", subtitle_style))
+    doc_elements.append(Spacer(1, 20))
+    
+    # Assessment type and result
+    doc_elements.append(Paragraph(f"{data['mode_full']} Assessment Report", heading_style))
+    doc_elements.append(Spacer(1, 12))
+    
+    # Technology Information
+    tech_info = [
+        ["Technology Title:", data['technology_title']],
+        ["Description:", data['description']],
+        ["Assessment Date:", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')],
+        ["Assessment Result:", f"{data['mode']} Level {data['level']}"]
+    ]
+    
+    tech_table = Table(tech_info, colWidths=[2*inch, 4*inch])
+    tech_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    
+    doc_elements.append(tech_table)
+    doc_elements.append(Spacer(1, 20))
+    
+    # Assessment Summary
+    doc_elements.append(Paragraph("Assessment Summary", heading_style))
+    doc_elements.append(Paragraph(data["explanation"], sty["Normal"]))
+    doc_elements.append(Spacer(1, 15))
+    
+    # Detailed Assessment Results
+    doc_elements.append(Paragraph("Detailed Assessment Results", heading_style))
+    doc_elements.append(Spacer(1, 10))
+    
+    questions = data.get('questions', [])
+    answers = data.get('answers', [])
+    
+    for idx, level in enumerate(questions):
+        # Level header
+        level_title = f"{data['mode']} Level {level['level']}: {level['title']}"
+        doc_elements.append(Paragraph(level_title, ParagraphStyle("LevelTitle", 
+                                    parent=sty["Heading3"], fontSize=11, 
+                                    textColor=colors.darkblue)))
+        
+        # Questions and answers for this level
+        if idx < len(answers):
+            level_answers = answers[idx]
+            for q_idx, question in enumerate(level['checks']):
+                if q_idx < len(level_answers):
+                    answer = "✓ Yes" if level_answers[q_idx] else "✗ No"
+                    answer_color = colors.darkgreen if level_answers[q_idx] else colors.red
+                else:
+                    answer = "— Not answered"
+                    answer_color = colors.grey
+                
+                # Create table for question and answer
+                qa_data = [[f"Q{q_idx+1}:", question, answer]]
+                qa_table = Table(qa_data, colWidths=[0.4*inch, 4.6*inch, 1*inch])
+                qa_table.setStyle(TableStyle([
+                    ('FONTSIZE', (0, 0), (-1, -1), 9),
+                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                    ('LEFTPADDING', (0, 0), (-1, -1), 6),
+                    ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+                    ('TOPPADDING', (0, 0), (-1, -1), 3),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+                    ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                    ('TEXTCOLOR', (2, 0), (2, -1), answer_color),
+                    ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+                ]))
+                doc_elements.append(qa_table)
+        
+        doc_elements.append(Spacer(1, 10))
+    
+    # Footer
+    doc_elements.append(Spacer(1, 20))
+    footer_style = ParagraphStyle("Footer", parent=sty["Normal"], 
+                                 fontSize=8, textColor=colors.grey, 
+                                 alignment=1)
+    doc_elements.append(Paragraph("Generated by MMSU Innovation and Technology Support Office", footer_style))
+    doc_elements.append(Paragraph("Technology Assessment Tool", footer_style))
+    
+    doc.build(doc_elements)
+    buf.seek(0)
+    return send_file(buf, mimetype="application/pdf",
+                     as_attachment=True,
+                     download_name=f"MMSU_{data['technology_title']}_{data['mode']}_Assessment.pdf")
+
+if __name__ == "__main__":
+    app.run(debug=True)
