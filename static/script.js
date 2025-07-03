@@ -1,249 +1,182 @@
-class TRLIRLAssessment {
+class AssessmentApp {
     constructor() {
-        this.currentLanguage = '';
-        this.currentMode = '';
+        this.lang      = "";
+        this.mode      = "";
         this.questions = [];
-        this.currentQuestionIndex = 0;
-        this.answers = [];
-        this.technologyTitle = '';
-        this.technologyDescription = '';
-        this.translations = {
+        this.answers   = [];    // nested answers
+        this.lix       = 0;     // current level index
+        this.cix       = 0;     // current check index
+
+        this.i18n = {
             english: {
-                mode_title: "Select Assessment Mode",
-                trl_description: "Technology Readiness Level",
-                irl_description: "Investment Readiness Level",
-                tech_info_title: "Technology Information",
-                title_label: "Technology Title:",
-                description_label: "Short Description:",
-                start_btn: "Start Assessment",
-                questions_title: "Assessment Questions",
-                yes_btn: "Yes",
-                no_btn: "No",
-                results_title: "Assessment Results",
-                download_btn: "Download PDF Report",
-                restart_btn: "Start New Assessment"
+                choose_lang: "Choose Your Language",
+                select_mode: "Select Assessment Mode",
+                trl_desc: "Technology Readiness Level",
+                irl_desc: "Investment Readiness Level",
+                tech_info: "Technology Information",
+                title_lbl: "Technology Title:",
+                desc_lbl : "Short Description:",
+                start    : "Start Assessment",
+                q_title  : "Assessment Questions",
+                yes      : "Yes",
+                no       : "No",
+                results  : "Assessment Results",
+                download : "Download PDF Report",
+                restart  : "Start New Assessment"
             },
             filipino: {
-                mode_title: "Pumili ng Uri ng Assessment",
-                trl_description: "Technology Readiness Level",
-                irl_description: "Investment Readiness Level",
-                tech_info_title: "Impormasyon ng Teknolohiya",
-                title_label: "Pamagat ng Teknolohiya:",
-                description_label: "Maikling Paglalarawan:",
-                start_btn: "Simulan ang Assessment",
-                questions_title: "Mga Tanong sa Assessment",
-                yes_btn: "Oo",
-                no_btn: "Hindi",
-                results_title: "Mga Resulta ng Assessment",
-                download_btn: "I-download ang PDF Report",
-                restart_btn: "Magsimula ng Bagong Assessment"
+                choose_lang: "Pumili ng Wika",
+                select_mode: "Pumili ng Uri ng Assessment",
+                trl_desc: "Technology Readiness Level",
+                irl_desc: "Investment Readiness Level",
+                tech_info: "Impormasyon ng Teknolohiya",
+                title_lbl: "Pamagat ng Teknolohiya:",
+                desc_lbl : "Maikling Paglalarawan:",
+                start    : "Simulan ang Assessment",
+                q_title  : "Mga Tanong sa Assessment",
+                yes      : "Oo",
+                no       : "Hindi",
+                results  : "Mga Resulta",
+                download : "I-download ang PDF",
+                restart  : "Magsimula Muli"
             }
         };
     }
 
-    selectLanguage(language) {
-        this.currentLanguage = language;
-        this.updateLanguage();
-        this.showStep('mode-selection');
+    // ---------------- PUBLIC ENTRY POINTS called from HTML ----------------
+    pickLanguage(code)   { this.lang = code;  this.translate(); show("mode"); }
+    pickMode(m)          { this.mode = m;     show("tech"); }
+    async begin()        { if (this.collectInfo()) { await this.fetchQuestions(); this.present(); } }
+    respond(ans)         { this.record(ans); }
+    reset()              { location.reload(); }
+    download()           { this.downloadPDF(); }
+
+    // ---------------- INTERNAL WORKFLOW ----------------
+    translate() {
+        const t = this.i18n[this.lang];
+        text("mode-title",  t.select_mode);
+        text("trl-description", t.trl_desc);
+        text("irl-description", t.irl_desc);
+        text("tech-info-title", t.tech_info);
+        text("title-label", t.title_lbl);
+        text("description-label", t.desc_lbl);
+        text("start-btn", t.start);
+        text("questions-title", t.q_title);
+        text("yes-btn", t.yes);
+        text("no-btn",  t.no);
+        text("results-title", t.results);
+        text("download-btn", t.download);
+        text("restart-btn",  t.restart);
     }
 
-    updateLanguage() {
-        const t = this.translations[this.currentLanguage];
-        document.getElementById('mode-title').textContent = t.mode_title;
-        document.getElementById('trl-description').textContent = t.trl_description;
-        document.getElementById('irl-description').textContent = t.irl_description;
-        document.getElementById('tech-info-title').textContent = t.tech_info_title;
-        document.getElementById('title-label').textContent = t.title_label;
-        document.getElementById('description-label').textContent = t.description_label;
-        document.getElementById('start-btn').textContent = t.start_btn;
-        document.getElementById('questions-title').textContent = t.questions_title;
-        document.getElementById('yes-btn').textContent = t.yes_btn;
-        document.getElementById('no-btn').textContent = t.no_btn;
-        document.getElementById('results-title').textContent = t.results_title;
-        document.getElementById('download-btn').textContent = t.download_btn;
-        document.getElementById('restart-btn').textContent = t.restart_btn;
+    collectInfo() {
+        this.title = val("tech-title");
+        this.desc  = val("tech-description");
+        if (!this.title || !this.desc) {
+            alert(this.lang==="english" ? "Fill in all fields" : "Pakipunan ang lahat ng field");
+            return false;
+        }
+        return true;
     }
 
-    selectMode(mode) {
-        this.currentMode = mode;
-        this.showStep('tech-info');
+    async fetchQuestions() {
+        const res = await fetch(`/api/questions/${this.mode}/${this.lang}`);
+        this.questions = await res.json();
     }
 
-    showStep(stepId) {
-        document.querySelectorAll('.step').forEach(step => {
-            step.classList.remove('active');
-        });
-        document.getElementById(stepId).classList.add('active');
+    present() {
+        this.lix = 0; this.cix = 0; this.answers = [];
+        show("questions");
+        this.renderCheck();
     }
 
-    async startAssessment() {
-        this.technologyTitle = document.getElementById('tech-title').value;
-        this.technologyDescription = document.getElementById('tech-description').value;
-        
-        if (!this.technologyTitle || !this.technologyDescription) {
-            alert(this.currentLanguage === 'english' ? 
-                'Please fill in all fields' : 
-                'Pakipunan ang lahat ng field');
-            return;
+    renderCheck() {
+        const lvl   = this.questions[this.lix];
+        const qtext = lvl.checks[this.cix];
+        text("question-text", qtext);
+        text("question-description", `${lvl.title} — ${this.cix + 1}/${lvl.checks.length}`);
+        const done   = this.answers.flat().length;
+        const total  = this.questions.reduce((s,l)=>s+l.checks.length,0);
+        id("progress").style.width = `${Math.round(done / total * 100)}%`;
+        text("progress-text",
+             `${this.lang==="english"?"Check":"Tanong"} ${done+1} / ${total}`);
+    }
+
+    record(ans) {
+        if (!this.answers[this.lix]) this.answers[this.lix]=[];
+        this.answers[this.lix].push(ans);
+
+        if (!ans) { return this.finish(); }
+
+        const lvl = this.questions[this.lix];
+        if (this.cix + 1 < lvl.checks.length) {
+            this.cix++;
+        } else {                   // level complete
+            this.lix++; this.cix = 0;
         }
 
-        await this.loadQuestions();
-        this.currentQuestionIndex = 0;
-        this.answers = [];
-        this.showQuestion();
-        this.showStep('questions');
-    }
-
-    async loadQuestions() {
-        try {
-            const response = await fetch(`/api/questions/${this.currentMode}/${this.currentLanguage}`);
-            this.questions = await response.json();
-        } catch (error) {
-            console.error('Error loading questions:', error);
-        }
-    }
-
-    showQuestion() {
-        if (this.currentQuestionIndex < this.questions.length) {
-            const question = this.questions[this.currentQuestionIndex];
-            document.getElementById('question-text').textContent = question.question;
-            document.getElementById('question-description').textContent = question.description;
-            
-            const progress = ((this.currentQuestionIndex + 1) / this.questions.length) * 100;
-            document.getElementById('progress').style.width = progress + '%';
-            document.getElementById('progress-text').textContent = 
-                `${this.currentLanguage === 'english' ? 'Question' : 'Tanong'} ${this.currentQuestionIndex + 1} ${this.currentLanguage === 'english' ? 'of' : 'ng'} ${this.questions.length}`;
-        }
-    }
-
-    answerQuestion(answer) {
-        this.answers.push(answer);
-        
-        if (!answer || this.currentQuestionIndex === this.questions.length - 1) {
-            this.completeAssessment();
+        if (this.lix >= this.questions.length) {
+            this.finish();
         } else {
-            this.currentQuestionIndex++;
-            this.showQuestion();
+            this.renderCheck();
         }
     }
 
-    async completeAssessment() {
-        const assessmentData = {
-            mode: this.currentMode,
-            language: this.currentLanguage,
-            technology_title: this.technologyTitle,
-            description: this.technologyDescription,
+    async finish() {
+        const payload = {
+            mode: this.mode,
+            language: this.lang,
+            technology_title: this.title,
+            description: this.desc,
             answers: this.answers
         };
-
-        try {
-            const response = await fetch('/api/assess', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(assessmentData)
-            });
-
-            this.result = await response.json();
-            this.showResults();
-        } catch (error) {
-            console.error('Error completing assessment:', error);
-        }
-    }
-
-    showResults() {
-        document.getElementById('result-level').textContent = 
-            `${this.result.mode} ${this.currentLanguage === 'english' ? 'Level' : 'Antas'} ${this.result.level}`;
-        
-        document.getElementById('tech-title-display').textContent = this.result.technology_title;
-        document.getElementById('result-explanation').textContent = this.result.explanation;
-        
-        // Set badge color based on level
-        const badge = document.getElementById('result-badge');
-        badge.textContent = `${this.currentLanguage === 'english' ? 'Level' : 'Antas'} ${this.result.level}`;
-        
-        if (this.result.level <= 3) {
-            badge.style.background = '#fed7d7';
-            badge.style.color = '#c53030';
-        } else if (this.result.level <= 6) {
-            badge.style.background = '#fef2de';
-            badge.style.color = '#dd6b20';
-        } else {
-            badge.style.background = '#c6f6d5';
-            badge.style.color = '#2f855a';
-        }
-        
-        this.showStep('results');
+        const res = await fetch("/api/assess", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        this.result = await res.json();
+        text("result-level",
+             `${this.result.mode} ${(this.lang==="english")?"Level":"Antas"} ${this.result.level}`);
+        text("tech-title-display", this.result.technology_title);
+        text("result-explanation", this.result.explanation);
+        const badge = id("result-badge");
+        badge.textContent = `${this.lang==="english"?"Level":"Antas"} ${this.result.level}`;
+        badge.style.background = this.result.level<=3?"#FEE2E2":this.result.level<=6?"#FEF9C3":"#DCFCE7";
+        badge.style.color      = this.result.level<=3?"#991B1B":this.result.level<=6?"#92400E":"#065F46";
+        show("results");
     }
 
     async downloadPDF() {
-        try {
-            const response = await fetch('/api/generate_pdf', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(this.result)
-            });
-
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = `${this.result.technology_title}_${this.result.mode}_Assessment.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error('Error downloading PDF:', error);
-        }
-    }
-
-    resetAssessment() {
-        this.currentLanguage = '';
-        this.currentMode = '';
-        this.questions = [];
-        this.currentQuestionIndex = 0;
-        this.answers = [];
-        this.technologyTitle = '';
-        this.technologyDescription = '';
-        document.getElementById('tech-title').value = '';
-        document.getElementById('tech-description').value = '';
-        this.showStep('language-selection');
+        const res  = await fetch("/api/generate_pdf", {
+            method:"POST", headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(this.result)
+        });
+        const blob = await res.blob();
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement("a");
+        a.href = url; a.download = `${this.result.technology_title}_${this.result.mode}.pdf`;
+        a.click(); URL.revokeObjectURL(url);
     }
 }
 
-// Global instance
-const assessment = new TRLIRLAssessment();
-
-// Global functions for HTML onclick events
-function selectLanguage(language) {
-    assessment.selectLanguage(language);
+// -------------- Helper DOM functions --------------
+const id   = s=>document.getElementById(s);
+const text = (s,v)=>{ id(s).textContent=v; };
+const val  = s=>id(s).value.trim();
+function show(step){
+    document.querySelectorAll(".step").forEach(e=>e.classList.remove("active"));
+    id(`${step}-selection`)?.classList.add("active")||
+    id(step).classList.add("active");
 }
 
-function selectMode(mode) {
-    assessment.selectMode(mode);
-}
+// -------------- Bootstrap on load --------------
+const APP = new AssessmentApp();
+document.addEventListener("DOMContentLoaded",()=>show("language"));
 
-function startAssessment() {
-    assessment.startAssessment();
-}
-
-function answerQuestion(answer) {
-    assessment.answerQuestion(answer);
-}
-
-function downloadPDF() {
-    assessment.downloadPDF();
-}
-
-function resetAssessment() {
-    assessment.resetAssessment();
-}
-
-// Initialize the application when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    assessment.showStep('language-selection');
-});
+function selectLanguage(l){APP.pickLanguage(l);}
+function selectMode(m){APP.pickMode(m);}
+function startAssessment(){APP.begin();}
+function answerQuestion(b){APP.respond(b);}
+function downloadPDF(){APP.download();}
+function resetAssessment(){APP.reset();}
