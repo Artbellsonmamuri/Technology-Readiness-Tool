@@ -324,11 +324,22 @@ class AssessmentApp {
 
     async downloadPDF() {
         try {
+            // Ensure we have a valid result object
+            if (!this.result) {
+                alert(this.lang === "english" ? "No assessment results available" : "Walang available na resulta");
+                return;
+            }
+
             const res = await fetch("/api/generate_pdf", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(this.result)
             });
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
@@ -338,6 +349,9 @@ class AssessmentApp {
             URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Error downloading PDF:', error);
+            alert(this.lang === "english" ? 
+                "Error downloading PDF. Please try again." : 
+                "Error sa pag-download ng PDF. Subukan muli.");
         }
     }
 
