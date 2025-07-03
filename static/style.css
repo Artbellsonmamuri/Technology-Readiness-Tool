@@ -100,12 +100,18 @@ h2 {
     font-size: 14px;
 }
 
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .btn-primary {
     background: #10B981;
     color: #FFFFFF;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
     transform: translateY(-3px);
     box-shadow: 0 6px 15px rgba(16, 185, 129, .4);
 }
@@ -265,9 +271,10 @@ h2 {
     font-size: 1.3em;
 }
 
-.result-content p {
+.result-explanation {
     color: #718096;
     line-height: 1.8;
+    white-space: pre-line;
 }
 
 .tcp-scores-container {
