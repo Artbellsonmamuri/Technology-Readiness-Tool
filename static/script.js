@@ -300,4 +300,78 @@ class AssessmentApp {
             if (badge) {
                 badge.textContent = `${this.lang === "english" ? "Level" : "Antas"} ${this.result.level}`;
                 if (this.result.level <= 3) {
-                    badge.style.background = "#F
+                    badge.style.background = "#FEE2E2";
+                    badge.style.color = "#991B1B";
+                } else if (this.result.level <= 6) {
+                    badge.style.background = "#FEF9C3";
+                    badge.style.color = "#92400E";
+                } else {
+                    badge.style.background = "#DCFCE7";
+                    badge.style.color = "#065F46";
+                }
+            }
+
+            const scoresContainer = document.getElementById("tcp-pathway-scores");
+            if (scoresContainer) {
+                scoresContainer.style.display = "none";
+            }
+
+            this.showStep("results");
+        } catch (error) {
+            console.error('Error completing assessment:', error);
+        }
+    }
+
+    async downloadPDF() {
+        try {
+            const res = await fetch("/api/generate_pdf", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(this.result)
+            });
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `MMSU_${this.result.technology_title}_${this.result.mode}_Assessment.pdf`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading PDF:', error);
+        }
+    }
+
+    showStep(stepId) {
+        document.querySelectorAll(".step").forEach(e => e.classList.remove("active"));
+        const targetElement = document.getElementById(stepId);
+        if (targetElement) {
+            targetElement.classList.add("active");
+        }
+    }
+
+    setText(elementId, text) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = text;
+        }
+    }
+
+    getValue(elementId) {
+        const element = document.getElementById(elementId);
+        return element ? element.value.trim() : "";
+    }
+}
+
+const APP = new AssessmentApp();
+
+document.addEventListener("DOMContentLoaded", () => {
+    APP.showStep("language-selection");
+});
+
+function selectLanguage(l) { APP.pickLanguage(l); }
+function selectMode(m) { APP.pickMode(m); }
+function startAssessment() { APP.begin(); }
+function answerQuestion(b) { APP.record(b); }
+function answerTCPQuestion(score) { APP.recordTCP(score); }
+function downloadPDF() { APP.download(); }
+function resetAssessment() { location.reload(); }
