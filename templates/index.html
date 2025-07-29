@@ -18,39 +18,6 @@
             <p>Comprehensive Technology Readiness Level (TRL), Investment Readiness Level (IRL), Market Readiness Level (MRL), and Technology Commercialization Pathway (TCP) Assessment</p>
         </header>
 
-        <!-- Statistics Overview (Public) -->
-        <div class="statistics-overview">
-            <h2>Assessment Tool Usage Overview</h2>
-            <div class="stats-cards">
-                <div class="stat-card">
-                    <div class="stat-number">{{ stats.total_assessments or 0 }}</div>
-                    <div class="stat-label">Total Assessments</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">{{ "%.1f"|format(stats.completion_rate or 0) }}%</div>
-                    <div class="stat-label">Completion Rate</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">4</div>
-                    <div class="stat-label">Assessment Tools</div>
-                </div>
-            </div>
-            
-            <!-- Assessment Type Distribution Chart -->
-            {% if stats.assessments_by_type and stats.assessments_by_type|length > 0 %}
-            <div class="chart-container">
-                <canvas id="assessmentDistributionChart"></canvas>
-            </div>
-            {% endif %}
-            
-            <!-- Admin Link -->
-            <div class="admin-link" style="text-align: center; margin: 20px 0;">
-                <a href="{{ url_for('admin_statistics') }}" class="btn btn-secondary">
-                    📊 View Detailed Statistics Dashboard
-                </a>
-            </div>
-        </div>
-
         <!-- Language Selection -->
         <div id="language-selection" class="step active">
             <h2>Choose Your Language / Pumili ng Wika</h2>
@@ -195,47 +162,11 @@
             </div>
         </div>
 
-        <!-- Public Google Drive Link -->
-        {% if public_folder_link %}
-        <div class="public-reports">
-            <h3>📁 Public Reports Archive</h3>
-            <p>All assessment reports are automatically saved to our public Google Drive folder for transparency and accessibility.</p>
-            <a href="{{ public_folder_link }}" target="_blank" class="btn btn-secondary">
-                View Public Reports Archive
-            </a>
+        <!-- Hidden Navigation Links -->
+        <div class="hidden-navigation" style="position: fixed; bottom: 10px; right: 10px; opacity: 0.7;">
+            <a href="{{ url_for('overview') }}" style="color: #666; font-size: 12px; text-decoration: none;">📊</a>
         </div>
-        {% endif %}
     </div>
-
-    <!-- Chart Initialization -->
-    {% if stats.assessments_by_type and stats.assessments_by_type|length > 0 %}
-    <script>
-        // Initialize assessment distribution chart
-        const ctx = document.getElementById('assessmentDistributionChart').getContext('2d');
-        const assessmentData = {{ stats.assessments_by_type | tojson | safe }};
-        
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: assessmentData.map(item => item.assessment_type),
-                datasets: [{
-                    data: assessmentData.map(item => item.count),
-                    backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Assessment Type Distribution'
-                    }
-                }
-            }
-        });
-    </script>
-    {% endif %}
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
