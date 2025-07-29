@@ -33,9 +33,625 @@ app.secret_key = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
 PERPLEXITY_API_KEY = os.getenv('PERPLEXITY_API_KEY')
 PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions"
 
-# Keep all existing TRL, IRL, MRL, TCP questions databases as they were...
-# (I'll include the essential ones, but they remain the same as before)
+# Complete TRL Questions Database (0-9)
+TRL_QUESTIONS = {
+    "english": [
+        {
+            "level": 0,
+            "title": "Pre-Concept / Exploration",
+            "checks": [
+                "Has the core idea or problem space been clearly articulated?",
+                "Have unmet needs or gaps been identified through initial research?",
+                "Is background literature or patent prior-art being reviewed?",
+                "Are speculative 'what-if' scenarios being recorded for future study?",
+                "Is any form of intellectual-property strategy (trade secret or early disclosure) in place?"
+            ]
+        },
+        {
+            "level": 1,
+            "title": "Basic Principles Observed",
+            "checks": [
+                "Have the fundamental scientific principles underpinning the technology been identified?",
+                "Is at least one peer-reviewed source or equivalent documentation available?",
+                "Have theoretical or mathematical models been drafted to explain feasibility?",
+                "Is there preliminary evidence or data supporting the stated principles?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Technology Concept Formulated",
+            "checks": [
+                "Is a specific technology concept or application now defined rather than an abstract idea?",
+                "Are the advantages and potential use-cases described in technical language?",
+                "Have initial feasibility analyses or simulations been completed?",
+                "Is the concept documented in a white-paper, preprint or equivalent outlet?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Experimental Proof of Concept",
+            "checks": [
+                "Have critical functions or key performance parameters been identified?",
+                "Have laboratory experiments demonstrated proof-of-concept for at least one function?",
+                "Are performance metrics recorded and benchmarked against targets?",
+                "Have safety, ethical or regulatory constraints been identified at this stage?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Technology Validated in Laboratory",
+            "checks": [
+                "Has a breadboard or prototype subsystem been integrated for laboratory testing?",
+                "Do measured performances meet or surpass model predictions within tolerances?",
+                "Are test procedures documented and peer-reviewed or independently replicated?",
+                "Is a preliminary risk register available for the validated subsystem?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Technology Validated in Relevant Environment",
+            "checks": [
+                "Has the breadboard been upgraded for operation in a relevant (not yet operational) environment?",
+                "Do environmental tests include temperature, vibration or other domain-specific stresses?",
+                "Has compliance with domain standards been assessed by an external body or advisory board?",
+                "Is an updated risk mitigation plan in place reflecting test outcomes?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Prototype Demonstrated in Relevant Environment",
+            "checks": [
+                "Is a system/sub-system model or prototype complete enough to deliver baseline functionality?",
+                "Has the prototype been demonstrated end-to-end in a relevant environment?",
+                "Do data show the prototype meeting critical performance metrics under realistic constraints?",
+                "Is a V&V (verification & validation) report available for this prototype?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "System Prototype Demonstrated in Operational Environment",
+            "checks": [
+                "Has the prototype been installed or trialed within the intended operational setting?",
+                "Do operational data confirm functionality under real-world duty-cycles?",
+                "Are failure modes analysed with corrective actions documented?",
+                "Is the supply-chain or manufacturing route for key components identified?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "System Complete and Qualified",
+            "checks": [
+                "Is the technology an integrated commercial or mission-ready system?",
+                "Has the system passed full acceptance tests, certifications, or regulatory approvals?",
+                "Are formal user manuals, maintenance plans and training materials available?",
+                "Have pilot customers or early adopters signed off on performance KPIs?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Actual System Proven in Operational Environment",
+            "checks": [
+                "Has the technology been deployed in its final form during routine mission operations?",
+                "Do longitudinal data confirm sustained performance and reliability?",
+                "Are service-level agreements and quality-assurance processes fully operational?",
+                "Is a continual improvement framework in place for upgrades or derivative products?"
+            ]
+        }
+    ],
+    "filipino": [
+        {
+            "level": 0,
+            "title": "Pre-Konsepto / Eksplorasyon",
+            "checks": [
+                "Malinaw bang nailahad ang pangunahing ideya o problemang nais solusyonan?",
+                "Natukoy na ba ang hindi natutugunang pangangailangan batay sa paunang pananaliksik?",
+                "Isinasagawa ba ang pagsusuri ng literatura o patent upang maiwasan ang duplikasyon?",
+                "Naitatala ba ang mga spekulatibong 'paano kung' na senaryo para sa susunod na pag-aaral?",
+                "May estratehiya na ba ukol sa proteksyon ng intelektuwal na ari-arian (hal. trade secret o maagang paglalathala)?"
+            ]
+        },
+        {
+            "level": 1,
+            "title": "Pangunahing Prinsipyo na-obserbahan",
+            "checks": [
+                "Natukoy na ba ang mga batayang prinsipyong siyentipiko ng teknolohiya?",
+                "Mayroon bang kahit isang peer-reviewed na sanggunian o katumbas na dokumentasyon?",
+                "Nabuo na ba ang teoretikal o matematikal na modelo upang patunayan ang posibilidad?",
+                "May paunang ebidensiya o datos ba na sumusuporta sa mga prinsipyong ito?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Nabuo ang Konsepto ng Teknolohiya",
+            "checks": [
+                "May tiyak na konsepto o aplikasyong teknolohikal na ba kaysa sa abstraktong ideya?",
+                "Naipaliwanag ba ang mga benepisyo at posibleng gamit sa teknikal na wika?",
+                "Nagawa na ba ang paunang feasibility analysis o simulation?",
+                "Nakadokumento ba ang konsepto sa white-paper, preprint o katumbas?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Eksperimental na Patunay ng Konsepto",
+            "checks": [
+                "Natukoy na ba ang mga kritikal na function o key performance parameters?",
+                "May mga eksperimento bang laboratoryo na nagpatunay ng konsepto para kahit isang function?",
+                "Naitala at na-benchmark ba ang performance metrics laban sa target?",
+                "Natukoy na ba ang mga usaping pangkaligtasan, etikal o regulasyon sa yugtong ito?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Na-validate ang Teknolohiya sa Laboratoryo",
+            "checks": [
+                "May breadboard o prototype subsystem ba na na-integrate para sa testing sa laboratoryo?",
+                "Tugma ba ang nasukat na performance sa inaasahan ayon sa modelo?",
+                "Nadokumento at na-peer-review ba ang test procedures o na-replicate nang independiyente?",
+                "May paunang talaan ba ng panganib para sa na-validate na subsystem?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Na-validate sa Kaugnay na Kapaligiran",
+            "checks": [
+                "Na-upgrade ba ang breadboard para gumana sa kaugnay (pero di pa operasyonal) na kapaligiran?",
+                "Saklaw ba ng environmental tests ang temperatura, vibration o iba pang stress na may kaugnayan sa domain?",
+                "Nagsagawa ba ng assessment sa pagsunod sa mga pamantayan ng industriya o regulasyon?",
+                "Na-update ba ang risk mitigation plan batay sa resulta ng tests?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Prototype na Naipakita sa Kaugnay na Kapaligiran",
+            "checks": [
+                "Kumpleto ba ang system o subsystem model/prototype para maghatid ng batayang functionality?",
+                "Naipakita ba end-to-end ang prototype sa kaugnay na kapaligiran?",
+                "Ipinapakita ba ng data na naabot ng prototype ang kritikal na performance metrics sa tunay na limitasyon?",
+                "May verification at validation report ba para sa prototype?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "Prototype ng Sistema sa Operasyonal na Kapaligiran",
+            "checks": [
+                "Na-install o na-subok ba ang prototype sa inaasahang operasyonal na setting?",
+                "Pinatutunayan ba ng operasyonal na datos ang functionality sa aktwal na duty-cycle?",
+                "Na-analyse ba ang failure modes at nadokumento ang corrective actions?",
+                "Natukoy na ba ang supply-chain o ruta ng pagmamanupaktura para sa mahahalagang bahagi?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "Kumpleto at Na-qualify ang Sistema",
+            "checks": [
+                "Isang integrado at handa-komersiyal o mission-ready na sistema na ba ang teknolohiya?",
+                "Naipasa ba nito ang kumpletong acceptance tests, certifications, o approvals?",
+                "May opisyal na user manuals, maintenance plans at training materials na ba?",
+                "May pilot customers o early adopters ba na nag-sign-off sa performance KPIs?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Aktwal na Sistemang Napatunayan sa Operasyon",
+            "checks": [
+                "Na-deploy na ba ang teknolohiya sa final form sa regular na operasyon?",
+                "Pinatutunayan ba ng pangmatagalang datos ang tuloy-tuloy na performance at reliability?",
+                "Gumagana ba ang service-level agreements at QA processes nang buo?",
+                "May framework ba para sa continual improvement o derivative products?"
+            ]
+        }
+    ]
+}
 
+# Complete IRL Questions Database (1-9)
+IRL_QUESTIONS = {
+    "english": [
+        {
+            "level": 1,
+            "title": "Initial Concept",
+            "checks": [
+                "Is there a clear business idea or concept documented?",
+                "Has a basic business model canvas been completed?",
+                "Are the founders aware of the specific market need or problem being addressed?",
+                "Is there any documentation of the idea or initial research conducted?",
+                "Have you identified the core value proposition of your technology?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Market & Competitive Analysis",
+            "checks": [
+                "Has the value proposition been clearly defined and summarized?",
+                "Is there an initial analysis of the target market size and growth potential?",
+                "Has a basic competitive landscape been mapped and analyzed?",
+                "Have you identified potential barriers to entry or regulatory considerations?",
+                "Are key market trends and opportunities documented?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Problem/Solution Validation",
+            "checks": [
+                "Has the problem-solution fit been validated with potential customers through interviews or surveys?",
+                "Is there evidence that the proposed solution addresses a real and significant market need?",
+                "Have customer segments and their specific needs been clearly identified?",
+                "Is there documented feedback from early users or market experts?",
+                "Have you validated key assumptions about customer pain points?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Prototype/Minimum Viable Product (MVP)",
+            "checks": [
+                "Has a low-fidelity prototype or MVP been developed and tested?",
+                "Has the MVP been tested internally or with a small group of target users?",
+                "Are there initial performance metrics or user feedback data collected?",
+                "Is there a documented plan for further product development and iteration?",
+                "Have you established success criteria and KPIs for the MVP?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Product/Market Fit Validation",
+            "checks": [
+                "Has the product been tested in the market with real users in actual conditions?",
+                "Is there evidence of product/market fit such as repeat usage or positive feedback?",
+                "Have key performance indicators (KPIs) been defined, tracked, and analyzed?",
+                "Are there initial sales, signed letters of intent, or committed customers?",
+                "Have you demonstrated customer retention and engagement metrics?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Business Model Validation",
+            "checks": [
+                "Has the business model been tested and validated in real market conditions?",
+                "Is there evidence of sustainable revenue generation or proven monetization strategy?",
+                "Have operational processes been established, tested, and optimized?",
+                "Are there validated assumptions about customer acquisition costs and lifetime value?",
+                "Have you demonstrated scalability of the business model with growth projections?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "Investment Ready / Early Commercial",
+            "checks": [
+                "Has a comprehensive business plan been developed with detailed financial projections?",
+                "Is there a complete management team with relevant industry experience?",
+                "Have you secured initial funding, investment, or significant partnerships?",
+                "Are intellectual property rights and legal structures properly established?",
+                "Have you achieved initial commercial sales or revenue milestones?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "Commercial Scaling",
+            "checks": [
+                "Is the business generating consistent and growing revenue streams?",
+                "Have you established scalable operations and distribution channels?",
+                "Are customer acquisition and retention processes optimized and repeatable?",
+                "Have you achieved positive cash flow or clear path to profitability?",
+                "Is there evidence of market traction and competitive positioning?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Market Leadership / Expansion",
+            "checks": [
+                "Has the business achieved sustainable profitability and market leadership?",
+                "Are you expanding into new markets, products, or customer segments?",
+                "Have you established strong brand recognition and customer loyalty?",  
+                "Are there strategic partnerships or acquisition opportunities being pursued?",
+                "Is there a clear strategy for long-term growth and market expansion?"
+            ]
+        }
+    ],
+    "filipino": [
+        {
+            "level": 1,
+            "title": "Pangunahing Konsepto",
+            "checks": [
+                "May malinaw at nakadokumentong business idea o konsepto ba?",
+                "Nakumpleto na ba ang basic business model canvas?",
+                "Alam ba ng mga founder ang tiyak na market need o problemang aayusin?",
+                "May dokumentasyon ba ng ideya o paunang pananaliksik na ginawa?",
+                "Natukoy na ba ang core value proposition ng inyong teknolohiya?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Market at Competitive Analysis",
+            "checks": [
+                "Malinaw na ba ang pagkakadefine at nabuod ang value proposition?",
+                "May paunang pagsusuri ba ng target market size at growth potential?",
+                "Nagawa na ba ang basic competitive landscape mapping at analysis?",
+                "Natukoy na ba ang mga potential barriers to entry o regulatory considerations?",
+                "Nakadokumento ba ang mga key market trends at opportunities?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Problem/Solution Validation",
+            "checks": [
+                "Na-validate na ba ang problem-solution fit sa pamamagitan ng interviews o surveys sa potential customers?",
+                "May ebidensya ba na ang proposed solution ay tumutugunan sa tunay at malaking market need?",
+                "Malinaw na ba ang pagkakakilala sa customer segments at kanilang specific needs?",
+                "May nakadokumentong feedback ba mula sa early users o market experts?",
+                "Na-validate na ba ang mga key assumptions tungkol sa customer pain points?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Prototype/Minimum Viable Product (MVP)",
+            "checks": [
+                "Nakabuo at nasubukan na ba ang low-fidelity prototype o MVP?",
+                "Nasubukan na ba ang MVP internally o sa maliit na grupo ng target users?",
+                "May nakolektang initial performance metrics o user feedback data ba?",
+                "May nakadokumentong plano ba para sa karagdagang product development at iteration?",
+                "Naitakda na ba ang success criteria at KPIs para sa MVP?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Product/Market Fit Validation",
+            "checks": [
+                "Nasubukan na ba ang produkto sa market kasama ang tunay na users sa aktwal na kondisyon?",
+                "May ebidensya ba ng product/market fit tulad ng repeat usage o positive feedback?",
+                "Naitakda, sinubaybayan, at na-analyze na ba ang key performance indicators (KPIs)?",
+                "May initial sales, signed letters of intent, o committed customers na ba?",
+                "Naipakita na ba ang customer retention at engagement metrics?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Business Model Validation",
+            "checks": [
+                "Nasubukan at na-validate na ba ang business model sa tunay na market conditions?",
+                "May ebidensya ba ng sustainable revenue generation o napatunayang monetization strategy?",
+                "Naitatag, nasubukan, at na-optimize na ba ang operational processes?",
+                "May na-validate na assumptions ba tungkol sa customer acquisition costs at lifetime value?",
+                "Naipakita na ba ang scalability ng business model kasama ang growth projections?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "Handa sa Investment / Early Commercial",
+            "checks": [
+                "Nabuo na ba ang comprehensive business plan na may detalyadong financial projections?",
+                "May kumpletong management team ba na may kaugnay na industry experience?",
+                "Nakakuha na ba ng initial funding, investment, o makabuluhang partnerships?",
+                "Naitatag na ba nang maayos ang intellectual property rights at legal structures?",
+                "Nakamit na ba ang initial commercial sales o revenue milestones?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "Commercial Scaling",
+            "checks": [
+                "Gumagawa ba ang business ng consistent at lumalaking revenue streams?",
+                "Naitatag na ba ang scalable operations at distribution channels?",
+                "Na-optimize na ba at nauulit ang customer acquisition at retention processes?",
+                "Nakamit na ba ang positive cash flow o malinaw na daan patungo sa profitability?",
+                "May ebidensya ba ng market traction at competitive positioning?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Market Leadership / Expansion",
+            "checks": [
+                "Nakamit na ba ng business ang sustainable profitability at market leadership?",
+                "Nag-eexpand ba kayo sa bagong markets, products, o customer segments?",
+                "Naitatag na ba ang malakas na brand recognition at customer loyalty?",
+                "May strategic partnerships o acquisition opportunities ba na sinusubaybayan?",
+                "May malinaw na estratehiya ba para sa long-term growth at market expansion?"
+            ]
+        }
+    ]
+}
+
+# Market Readiness Level (MRL) Questions Database (1-9)
+MRL_QUESTIONS = {
+    "english": [
+        {
+            "level": 1,
+            "title": "Market Need Identification",
+            "checks": [
+                "Has a specific market problem or unmet need been clearly identified?",
+                "Is there preliminary evidence that the identified need is significant and widespread?",
+                "Have initial market pain points been documented through observations or informal discussions?",
+                "Is there awareness of existing solutions and their limitations in addressing the identified need?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Market Research and Analysis",
+            "checks": [
+                "Has formal market research been conducted to validate the identified market need?",
+                "Is there documented analysis of market size, growth trends, and dynamics?",
+                "Have target customer segments been preliminarily identified and characterized?",
+                "Is there understanding of market drivers, barriers, and key success factors?",
+                "Have relevant industry reports, studies, or expert opinions been gathered and analyzed?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Customer Discovery and Validation",
+            "checks": [
+                "Have direct interviews or surveys been conducted with potential customers?",
+                "Is there validated evidence that customers experience the identified problem?",
+                "Have customer personas and use cases been developed based on real feedback?",
+                "Is there documented willingness from customers to consider alternative solutions?",
+                "Have customer requirements and decision-making criteria been identified?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Market Segmentation and Sizing",
+            "checks": [
+                "Have distinct market segments been identified and prioritized based on data?",
+                "Is there quantitative analysis of Total Addressable Market (TAM) and Serviceable Available Market (SAM)?",
+                "Have early adopter segments been identified with specific characteristics?",
+                "Is there analysis of market penetration potential and adoption barriers?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Competitive Analysis and Positioning",
+            "checks": [
+                "Has a comprehensive competitive landscape analysis been completed?",
+                "Are direct and indirect competitors identified with their strengths and weaknesses?",
+                "Is there clear differentiation and unique value proposition compared to existing solutions?",
+                "Have competitive pricing models and market positioning strategies been analyzed?",
+                "Is there understanding of competitive response scenarios?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Go-to-Market Strategy Development",
+            "checks": [
+                "Has a comprehensive go-to-market strategy been developed and documented?",
+                "Are distribution channels and sales strategies clearly defined?",
+                "Is there a marketing and customer acquisition plan with defined tactics?",
+                "Have partnerships and strategic alliances been identified and approached?",
+                "Is there a pricing strategy based on market research and competitive analysis?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "Market Testing and Pilot Programs",
+            "checks": [
+                "Have pilot programs or market tests been conducted with real customers?",
+                "Is there validated customer adoption and usage data from controlled market tests?",
+                "Have key performance indicators for market success been defined and measured?",
+                "Is there evidence of customer satisfaction and willingness to pay?",
+                "Have market test results been used to refine the value proposition and strategy?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "Market Launch Preparation",
+            "checks": [
+                "Are all market launch preparations completed including sales materials and training?",
+                "Have launch partnerships and distribution agreements been secured?",
+                "Is there established customer support and service infrastructure?",
+                "Are marketing campaigns and launch activities planned and ready for execution?",
+                "Have success metrics and monitoring systems been established for market launch?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Market Adoption and Scale",
+            "checks": [
+                "Has the technology achieved measurable market adoption with growing customer base?",
+                "Are there established market channels generating consistent demand?",
+                "Is there evidence of market acceptance and positive customer testimonials?",
+                "Have expansion opportunities into adjacent markets been identified and planned?",
+                "Is there a track record of successful market performance and growth?"
+            ]
+        }
+    ],
+    "filipino": [
+        {
+            "level": 1,
+            "title": "Pagkilala sa Pangangailangan ng Market",
+            "checks": [
+                "Malinaw bang natukoy ang specific na problema o hindi natutugunang pangangailangan sa market?",
+                "May paunang ebidensya ba na ang natukoyang pangangailangan ay malaki at malawakang naranasan?",
+                "Nadokumento na ba ang initial market pain points sa pamamagitan ng obserbasyon o informal na diskusyon?",
+                "May kamalayan ba sa existing solutions at ang kanilang mga limitasyon sa pagtugunan ng natukoyang pangangailangan?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Market Research at Analysis",
+            "checks": [
+                "Nagsagawa na ba ng formal market research upang ma-validate ang natukoyang market need?",
+                "May nakadokumentong analysis ba ng market size, growth trends, at dynamics?",
+                "Paunang natukoy at na-characterize na ba ang target customer segments?",
+                "May pag-unawa ba sa market drivers, barriers, at key success factors?",
+                "Nakolekta at na-analyze na ba ang relevant industry reports, studies, o expert opinions?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Customer Discovery at Validation",
+            "checks": [
+                "Nagsagawa na ba ng direct interviews o surveys sa mga potential customers?",
+                "May na-validate na ebidensya ba na naranasan ng customers ang natukoyang problema?",
+                "Nabuo na ba ang customer personas at use cases batay sa tunay na feedback?",
+                "May nakadokumentong willingness ba mula sa customers na isaalang-alang ang alternative solutions?",
+                "Natukoy na ba ang customer requirements at decision-making criteria?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Market Segmentation at Sizing",
+            "checks": [
+                "Natukoy at na-prioritize na ba ang distinct market segments batay sa datos?",
+                "May quantitative analysis ba ng Total Addressable Market (TAM) at Serviceable Available Market (SAM)?",
+                "Natukoy na ba ang early adopter segments na may specific na karakteristika?",
+                "May analysis ba ng market penetration potential at adoption barriers?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Competitive Analysis at Positioning",
+            "checks": [
+                "Nakumpleto na ba ang comprehensive competitive landscape analysis?",
+                "Natukoy na ba ang direct at indirect competitors kasama ang kanilang mga strengths at weaknesses?",
+                "May malinaw na differentiation at unique value proposition ba kumpara sa existing solutions?",
+                "Na-analyze na ba ang competitive pricing models at market positioning strategies?",
+                "May pag-unawa ba sa competitive response scenarios?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Go-to-Market Strategy Development",
+            "checks": [
+                "Nabuo at nadokumento na ba ang comprehensive go-to-market strategy?",
+                "Malinaw bang natukoy ang distribution channels at sales strategies?",
+                "May marketing at customer acquisition plan ba na may defined tactics?",
+                "Natukoy at na-approach na ba ang partnerships at strategic alliances?",
+                "May pricing strategy ba batay sa market research at competitive analysis?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "Market Testing at Pilot Programs",
+            "checks": [
+                "Nagsagawa na ba ng pilot programs o market tests kasama ang tunay na customers?",
+                "May na-validate na customer adoption at usage data ba mula sa controlled market tests?",
+                "Natukoy at nasukat na ba ang key performance indicators para sa market success?",
+                "May ebidensya ba ng customer satisfaction at willingness to pay?",
+                "Ginamit na ba ang market test results upang i-refine ang value proposition at strategy?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "Market Launch Preparation",
+            "checks": [
+                "Nakumpleto na ba ang lahat ng market launch preparations kasama ang sales materials at training?",
+                "Na-secure na ba ang launch partnerships at distribution agreements?",
+                "May naitatag na customer support at service infrastructure ba?",
+                "Naplano at handa na ba ang marketing campaigns at launch activities para sa execution?",
+                "Naitatag na ba ang success metrics at monitoring systems para sa market launch?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Market Adoption at Scale",
+            "checks": [
+                "Nakamit na ba ng teknolohiya ang measurable market adoption na may lumalaking customer base?",
+                "May naitatagang market channels ba na gumagawa ng consistent demand?",
+                "May ebidensya ba ng market acceptance at positive customer testimonials?",
+                "Natukoy at naplano na ba ang expansion opportunities sa adjacent markets?",
+                "May track record ba ng successful market performance at growth?"
+            ]
+        }
+    ]
+}
+
+# TCP Questions Database
 TCP_QUESTIONS = {
     "english": {
         "dimensions": [
@@ -211,7 +827,7 @@ TCP_QUESTIONS = {
     }
 }
 
-# Database connection and initialization (keeping existing)
+# Database connection and initialization
 def get_db_connection():
     """Get PostgreSQL database connection using psycopg3"""
     try:
@@ -387,7 +1003,7 @@ class PerplexityAnalyzer:
 
 perplexity_analyzer = PerplexityAnalyzer()
 
-# Email Manager (keeping existing)
+# Email Manager
 class EmailManager:
     def __init__(self):
         self.smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
@@ -447,7 +1063,7 @@ Innovation and Technology Support Office
 
 email_manager = EmailManager()
 
-# Helper functions (keeping essential ones)
+# Helper functions
 def get_client_ip_address():
     """Get client IP address"""
     try:
@@ -478,6 +1094,91 @@ def save_pdf_to_db(pdf_buffer, filename, assessment_id):
     except Exception as e:
         print(f"Error saving PDF: {e}")
         return False
+    finally:
+        conn.close()
+
+def get_all_pdfs():
+    """Get all PDFs from database for admin view"""
+    conn = get_db_connection()
+    if not conn:
+        return []
+    
+    try:
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute('''
+                SELECT id, technology_title, assessment_type, pdf_filename, 
+                       timestamp, language, level_achieved, recommended_pathway
+                FROM assessments 
+                WHERE pdf_data IS NOT NULL 
+                ORDER BY timestamp DESC
+            ''')
+            return [dict(row) for row in cur.fetchall()]
+    except Exception as e:
+        print(f"Error getting PDFs: {e}")
+        return []
+    finally:
+        conn.close()
+
+def get_pdf_by_id(assessment_id):
+    """Get specific PDF from database"""
+    conn = get_db_connection()
+    if not conn:
+        return None, None
+    
+    try:
+        with conn.cursor() as cur:
+            cur.execute('''
+                SELECT pdf_data, pdf_filename 
+                FROM assessments 
+                WHERE id = %s AND pdf_data IS NOT NULL
+            ''', (assessment_id,))
+            result = cur.fetchone()
+            if result:
+                return result[0], result[1]
+            return None, None
+    except Exception as e:
+        print(f"Error getting PDF by ID: {e}")
+        return None, None
+    finally:
+        conn.close()
+
+def get_statistics():
+    """Get comprehensive statistics from PostgreSQL database"""
+    conn = get_db_connection()
+    if not conn:
+        return {
+            'total_assessments': 0,
+            'assessments_by_type': [],
+            'completion_rate': 0
+        }
+    
+    try:
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute('SELECT COUNT(*) as count FROM assessments WHERE completed = true')
+            result = cur.fetchone()
+            total = result['count'] if result else 0
+            
+            cur.execute('SELECT assessment_type, COUNT(*) as count FROM assessments WHERE completed = true GROUP BY assessment_type ORDER BY count DESC')
+            by_type = cur.fetchall()
+            
+            cur.execute('SELECT COUNT(*) as count FROM assessments')
+            total_started_result = cur.fetchone()
+            total_started = total_started_result['count'] if total_started_result else 0
+            
+            completion_rate = (total / total_started * 100) if total_started > 0 else 0
+            
+            return {
+                'total_assessments': total,
+                'assessments_by_type': [dict(row) for row in by_type],
+                'completion_rate': round(completion_rate, 2)
+            }
+    except Exception as e:
+        print(f"Error getting statistics: {e}")
+        return {
+            'total_assessments': 0,
+            'assessments_by_type': [],
+            'completion_rate': 0
+        }
     finally:
         conn.close()
 
@@ -526,6 +1227,15 @@ def save_assessment_to_db(assessment_data, answers_data):
                                 VALUES (%s, %s, %s, %s)
                             ''', (assessment_id, dimension['name'], q_idx, answers[answer_idx]))
                             answer_idx += 1
+            else:
+                # Save standard assessment answers
+                answers = assessment_data.get('answers', [])
+                for level_idx, level_answers in enumerate(answers):
+                    for q_idx, answer in enumerate(level_answers):
+                        cur.execute('''
+                            INSERT INTO assessment_answers (assessment_id, level_number, question_index, answer)
+                            VALUES (%s, %s, %s, %s)
+                        ''', (assessment_id, level_idx, q_idx, answer))
             
             conn.commit()
             return assessment_id
@@ -535,14 +1245,96 @@ def save_assessment_to_db(assessment_data, answers_data):
     finally:
         conn.close()
 
-# Routes (keeping essential ones)
+# ALL ROUTES - This is what was missing!
 @app.route("/")
 def index():
     return render_template("index.html")
 
+@app.route("/overview")
+def overview():
+    try:
+        stats = get_statistics()
+        return render_template("overview.html", stats=stats)
+    except Exception as e:
+        print(f"Error in overview route: {e}")
+        empty_stats = {
+            'total_assessments': 0,
+            'assessments_by_type': [],
+            'completion_rate': 0
+        }
+        return render_template("overview.html", stats=empty_stats)
+
+@app.route("/admin/statistics")
+def admin_statistics():
+    try:
+        stats = get_statistics()
+        return render_template("admin_statistics.html", stats=stats)
+    except Exception as e:
+        print(f"Error in admin_statistics route: {e}")
+        empty_stats = {
+            'total_assessments': 0,
+            'assessments_by_type': [],
+            'completion_rate': 0
+        }
+        return render_template("admin_statistics.html", stats=empty_stats)
+
+@app.route("/admin/pdfs")
+def admin_pdfs():
+    """Admin page to view all collected PDFs"""
+    try:
+        pdfs = get_all_pdfs()
+        admin_email = os.getenv('ADMIN_EMAIL')
+        return render_template("admin_pdfs.html", pdfs=pdfs, admin_email=admin_email)
+    except Exception as e:
+        print(f"Error in admin_pdfs route: {e}")
+        return render_template("admin_pdfs.html", pdfs=[], admin_email=None)
+
+@app.route("/admin/pdf/<int:assessment_id>")
+def download_pdf(assessment_id):
+    """Download specific PDF by assessment ID"""
+    try:
+        pdf_data, filename = get_pdf_by_id(assessment_id)
+        if pdf_data and filename:
+            return send_file(
+                io.BytesIO(pdf_data),
+                mimetype="application/pdf",
+                as_attachment=True,
+                download_name=filename
+            )
+        else:
+            return "PDF not found", 404
+    except Exception as e:
+        print(f"Error downloading PDF: {e}")
+        return "Error downloading PDF", 500
+
+@app.route("/api/statistics")
+def api_statistics():
+    try:
+        stats = get_statistics()
+        return jsonify(stats)
+    except Exception as e:
+        print(f"Error in api_statistics: {e}")
+        return jsonify({'error': 'Database connection failed'})
+
+@app.route("/consent")
+def consent_page():
+    return render_template("consent.html")
+
+@app.route("/api/consent", methods=["POST"])
+def handle_consent():
+    data = request.json
+    session_id = str(uuid.uuid4())
+    return jsonify({"session_id": session_id, "consent_given": data.get("consent", False)})
+
 @app.route("/api/questions/<mode>/<language>")
 def get_questions(mode, language):
-    if mode.upper() == "TCP":
+    if mode.upper() == "TRL":
+        return jsonify(TRL_QUESTIONS.get(language.lower(), TRL_QUESTIONS["english"]))
+    elif mode.upper() == "IRL":
+        return jsonify(IRL_QUESTIONS.get(language.lower(), IRL_QUESTIONS["english"]))
+    elif mode.upper() == "MRL":
+        return jsonify(MRL_QUESTIONS.get(language.lower(), MRL_QUESTIONS["english"]))
+    elif mode.upper() == "TCP":
         return jsonify(TCP_QUESTIONS.get(language.lower(), TCP_QUESTIONS["english"]))
     return jsonify([])
 
@@ -553,7 +1345,65 @@ def assess_technology():
     
     if mode.upper() == "TCP":
         return assess_tcp_enhanced(data)
-    return jsonify({"error": "Only TCP mode enhanced in this version"})
+    else:
+        return assess_standard(data)
+
+def assess_standard(data):
+    mode = data["mode"]
+    language = data["language"]
+    answers = data["answers"]
+
+    if mode.upper() == "TRL":
+        questions = TRL_QUESTIONS[language.lower()]
+    elif mode.upper() == "IRL":
+        questions = IRL_QUESTIONS[language.lower()]
+    elif mode.upper() == "MRL":
+        questions = MRL_QUESTIONS[language.lower()]
+    else:  
+        return jsonify({"error": "Invalid assessment mode"}), 400
+
+    level_achieved = -1
+    for idx, lvl in enumerate(questions):
+        if idx >= len(answers) or not all(answers[idx]):
+            break
+        level_achieved = lvl["level"]
+
+    result = {
+        "mode": mode,
+        "mode_full": get_mode_full_name(mode),
+        "level": max(0 if mode.upper() == "TRL" else 1, level_achieved),
+        "technology_title": data["technology_title"],
+        "description": data["description"],
+        "answers": answers,
+        "questions": questions,
+        "explanation": generate_explanation(level_achieved, mode, language, questions),
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    return jsonify(result)
+
+def get_mode_full_name(mode):
+    mode_names = {
+        "TRL": "Technology Readiness Level",
+        "IRL": "Investment Readiness Level", 
+        "MRL": "Market Readiness Level",
+        "TCP": "Technology Commercialization Pathway"
+    }
+    return mode_names.get(mode.upper(), mode)
+
+def generate_explanation(lvl, mode, lang, qset):
+    if lang == "filipino":
+        if lvl < (0 if mode == "TRL" else 1):
+            start_level = 0 if mode == "TRL" else 1
+            return f"Hindi pa naaabot ng inyong teknolohiya ang antas {start_level} ng {mode}."
+        else:
+            text = f"Naabot ng inyong teknolohiya ang {mode} antas {lvl}."
+        return text
+    else:
+        start_level = 0 if mode == "TRL" else 1
+        if lvl < start_level:
+            return f"Your technology has not yet satisfied the basic requirements for {mode} level {start_level}."
+        else:
+            return f"Your technology has achieved {mode} level {lvl}."
 
 # Enhanced TCP Assessment Function
 def assess_tcp_enhanced(data):
@@ -631,7 +1481,7 @@ def generate_comprehensive_tcp_analysis(answers, tcp_data, pathway_scores, recom
     print("🤖 Generating AI-enhanced comprehensive analysis...")
     
     # Basic analysis components
-    input_summary = generate_input_summary(answers, tcp_data)
+    input_summary = {"total_questions": len(answers), "average_score": round(sum(answers) / len(answers), 2)}
     dimension_scores = generate_dimension_scores(answers, tcp_data)
     sorted_pathways = sorted(pathway_scores.items(), key=lambda x: x[1], reverse=True)
     top_pathways = sorted_pathways[:3]
@@ -653,66 +1503,15 @@ def generate_comprehensive_tcp_analysis(answers, tcp_data, pathway_scores, recom
     else:
         market_intelligence = generate_fallback_intelligence(technology_title, language)
     
-    # Enhanced insights with AI data
-    enhanced_insights = generate_ai_enhanced_insights(
-        dimension_scores, pathway_scores, recommended_pathway, market_intelligence, language
-    )
-    
-    # AI-powered success strategies
-    success_strategies = generate_ai_success_strategies(
-        dimension_scores, recommended_pathway, market_intelligence, language
-    )
-    
-    # Enhanced risk assessment
-    risk_assessment = generate_ai_risk_assessment(
-        dimension_scores, recommended_pathway, market_intelligence, language
-    )
-    
-    # Market positioning with competitive intelligence
-    market_positioning = generate_ai_market_positioning(
-        dimension_scores, recommended_pathway, market_intelligence, language
-    )
-    
-    # Financial projections with market data
-    financial_projections = generate_ai_financial_projections(
-        recommended_pathway, market_intelligence, dimension_scores, language
-    )
-    
-    # Implementation roadmap with market timing
-    implementation_roadmap = generate_ai_implementation_roadmap(
-        recommended_pathway, market_intelligence, language
-    )
-    
-    # Partnership opportunities
-    partnership_opportunities = identify_ai_partnership_opportunities(
-        technology_title, recommended_pathway, market_intelligence, language
-    )
-    
-    # Overall readiness and confidence scoring
-    overall_readiness = calculate_overall_readiness(dimension_scores)
-    confidence_score = calculate_ai_confidence_score(pathway_scores, dimension_scores, market_intelligence)
-    
     analysis = {
-        # Basic analysis
         "input_summary": input_summary,
         "dimension_scores": dimension_scores,
         "top_pathways": top_pathways,
         "recommended_pathway": recommended_pathway,
         "second_alternative": second_alternative,
-        "overall_readiness": overall_readiness,
-        "confidence_score": confidence_score,
-        
-        # AI-Enhanced components
+        "overall_readiness": calculate_overall_readiness(dimension_scores),
+        "confidence_score": calculate_ai_confidence_score(pathway_scores, dimension_scores, market_intelligence),
         "market_intelligence": market_intelligence,
-        "insights": enhanced_insights,
-        "success_strategies": success_strategies,
-        "risk_assessment": risk_assessment,
-        "market_positioning": market_positioning,
-        "financial_projections": financial_projections,
-        "implementation_roadmap": implementation_roadmap,
-        "partnership_opportunities": partnership_opportunities,
-        
-        # Metadata
         "analysis_timestamp": datetime.utcnow().isoformat(),
         "ai_enhanced": True,
         "data_freshness": "2024-2025 Real-time",
@@ -720,676 +1519,6 @@ def generate_comprehensive_tcp_analysis(answers, tcp_data, pathway_scores, recom
     }
     
     return analysis
-
-# AI Processing Functions
-def process_ai_market_intelligence(ai_response, language):
-    """Process AI response into structured market intelligence"""
-    if not ai_response:
-        return generate_fallback_intelligence("", language)
-    
-    # Extract structured information from AI response
-    intelligence = {
-        "market_overview": extract_section(ai_response, "market", 500),
-        "competitive_landscape": extract_section(ai_response, "competitor", 500),
-        "funding_trends": extract_section(ai_response, "investment|funding", 400),
-        "regulatory_insights": extract_section(ai_response, "regulatory|regulation", 300),
-        "success_stories": extract_section(ai_response, "success|case", 400),
-        "opportunities": extract_section(ai_response, "opportunity|trend", 400),
-        "threats": extract_section(ai_response, "threat|risk|challenge", 300),
-        "partnerships": extract_section(ai_response, "partnership|collaboration", 300),
-        "pricing_models": extract_section(ai_response, "pricing|revenue", 300),
-        "full_analysis": ai_response[:3000]  # Keep full analysis for reference
-    }
-    
-    return intelligence
-
-def extract_section(text, keywords, max_length=500):
-    """Extract relevant sections from AI response based on keywords"""
-    if not text:
-        return "Information not available"
-    
-    import re
-    
-    # Split text into sentences/paragraphs
-    sections = re.split(r'\n\n|\. ', text)
-    relevant_sections = []
-    
-    # Find sections containing keywords
-    keyword_list = keywords.split('|')
-    for section in sections:
-        if any(keyword.lower() in section.lower() for keyword in keyword_list):
-            relevant_sections.append(section.strip())
-    
-    # Combine and limit length
-    result = '. '.join(relevant_sections)
-    if len(result) > max_length:
-        result = result[:max_length] + "..."
-    
-    return result if result else "Detailed analysis available in full report"
-
-def generate_ai_enhanced_insights(dimension_scores, pathway_scores, recommended_pathway, market_intelligence, language):
-    """Generate enhanced insights with AI market intelligence"""
-    insights = []
-    
-    if language == "filipino":
-        # Market-driven insights
-        market_overview = market_intelligence.get("market_overview", "")
-        if "growth" in market_overview.lower():
-            insights.append("🚀 Ang market ay may positive growth trajectory na favorable sa inyong technology commercialization.")
-        
-        # Competitive insights
-        competitive_landscape = market_intelligence.get("competitive_landscape", "")
-        if competitive_landscape and len(competitive_landscape) > 50:
-            insights.append(f"🏆 Competitive landscape insight: {competitive_landscape[:200]}...")
-        
-        # Funding insights
-        funding_trends = market_intelligence.get("funding_trends", "")
-        if funding_trends and len(funding_trends) > 50:
-            insights.append(f"💰 Current funding trend: {funding_trends[:200]}...")
-        
-        # Dimension-specific insights
-        strong_dimensions = [dim for dim, data in dimension_scores.items() if data["percentage"] >= 75]
-        weak_dimensions = [dim for dim, data in dimension_scores.items() if data["percentage"] < 50]
-        
-        if strong_dimensions:
-            insights.append(f"💪 Mga strength: {', '.join(strong_dimensions)}. Gamitin ang mga ito laban sa current market players.")
-        
-        if weak_dimensions:
-            insights.append(f"⚠️ Priority improvement areas: {', '.join(weak_dimensions)}. Critical sa market success.")
-        
-        # Opportunity insights
-        opportunities = market_intelligence.get("opportunities", "")
-        if opportunities and len(opportunities) > 50:
-            insights.append(f"🎯 Market opportunity: {opportunities[:200]}...")
-    else:
-        # Market-driven insights
-        market_overview = market_intelligence.get("market_overview", "")
-        if "growth" in market_overview.lower():
-            insights.append("🚀 Market shows positive growth trajectory favorable for your technology commercialization timing.")
-        
-        # Competitive insights
-        competitive_landscape = market_intelligence.get("competitive_landscape", "")
-        if competitive_landscape and len(competitive_landscape) > 50:
-            insights.append(f"🏆 Competitive landscape: {competitive_landscape[:200]}...")
-        
-        # Funding insights
-        funding_trends = market_intelligence.get("funding_trends", "")
-        if funding_trends and len(funding_trends) > 50:
-            insights.append(f"💰 Current funding environment: {funding_trends[:200]}...")
-        
-        # Dimension-specific insights with market context
-        strong_dimensions = [dim for dim, data in dimension_scores.items() if data["percentage"] >= 75]
-        weak_dimensions = [dim for dim, data in dimension_scores.items() if data["percentage"] < 50]
-        
-        if strong_dimensions:
-            insights.append(f"💪 Your strongest capabilities: {', '.join(strong_dimensions)}. Leverage these against current market competitors.")
-        
-        if weak_dimensions:
-            insights.append(f"⚠️ Priority areas for improvement: {', '.join(weak_dimensions)}. These are critical success factors in current market.")
-        
-        # Success stories insight
-        success_stories = market_intelligence.get("success_stories", "")
-        if success_stories and len(success_stories) > 50:
-            insights.append(f"🌟 Success patterns: {success_stories[:200]}...")
-        
-        # Market opportunities
-        opportunities = market_intelligence.get("opportunities", "")
-        if opportunities and len(opportunities) > 50:
-            insights.append(f"🎯 Current market opportunity: {opportunities[:200]}...")
-        
-        # Pathway-specific AI insights
-        if recommended_pathway == "Direct Sale":
-            insights.append("🎯 Direct Sale pathway shows strong potential based on current market conditions and competitive analysis.")
-        elif recommended_pathway == "Licensing":
-            insights.append("🤝 Licensing strategy aligns with current market trends where companies focus on core competencies.")
-        elif recommended_pathway == "Startup/Spin-out":
-            insights.append("🚀 Startup approach is viable given current investor interest and market dynamics in your sector.")
-    
-    return insights
-
-def generate_ai_success_strategies(dimension_scores, recommended_pathway, market_intelligence, language):
-    """Generate AI-powered success strategies"""
-    strategies = {
-        "immediate_actions": [],
-        "short_term_goals": [],
-        "long_term_strategies": [],
-        "market_timing": [],
-        "funding_strategy": [],
-        "partnership_strategy": []
-    }
-    
-    opportunities = market_intelligence.get("opportunities", "")
-    funding_trends = market_intelligence.get("funding_trends", "")
-    partnerships = market_intelligence.get("partnerships", "")
-    
-    if language == "filipino":
-        # AI-informed immediate actions
-        if opportunities:
-            strategies["immediate_actions"].append(f"🎯 Mag-capitalize sa opportunity: {opportunities[:150]}...")
-        
-        strategies["immediate_actions"].extend([
-            "📊 Mag-conduct ng AI-powered market validation study",
-            "🔍 Mag-analyze ng real-time competitive intelligence",
-            "📈 Mag-develop ng data-driven customer acquisition strategy"
-        ])
-        
-        # Funding strategy with AI insights
-        if funding_trends:
-            strategies["funding_strategy"].append(f"💰 Align sa trend: {funding_trends[:150]}...")
-        
-        strategies["funding_strategy"].extend([
-            "🎯 Target ang active investors based sa AI market analysis",
-            "📋 Prepare ng pitch deck aligned sa current investor focus",
-            "🏦 Explore ng AI-identified funding opportunities"
-        ])
-        
-        # Partnership strategy
-        if partnerships:
-            strategies["partnership_strategy"].append(f"🤝 Partnership opportunity: {partnerships[:150]}...")
-        
-        strategies["partnership_strategy"].extend([
-            "🌐 Identify strategic partners through AI market mapping",
-            "🤝 Build relationships sa key industry players",
-            "📊 Leverage ng partnership data para sa market entry"
-        ])
-    else:
-        # AI-informed immediate actions
-        if opportunities:
-            strategies["immediate_actions"].append(f"🎯 Capitalize on identified opportunity: {opportunities[:150]}...")
-        
-        strategies["immediate_actions"].extend([
-            "📊 Conduct AI-powered market validation and sizing study",
-            "🔍 Analyze real-time competitive intelligence and positioning",
-            "📈 Develop data-driven customer acquisition and retention strategy"
-        ])
-        
-        # Short-term goals with market intelligence
-        strategies["short_term_goals"] = [
-            "🚀 Launch pilot program with AI-identified early adopters",
-            "📊 Establish KPI tracking system based on market benchmarks",
-            "🤝 Build strategic partnerships identified through market analysis",
-            "💰 Secure initial funding aligned with current investor focus"
-        ]
-        
-        # Long-term strategies with AI insights
-        strategies["long_term_strategies"] = [
-            "🏆 Establish market leadership position in identified segments",
-            "🌐 Expand into AI-identified adjacent markets and opportunities",
-            "🔄 Develop sustainable competitive moat based on market evolution",
-            "📈 Scale operations using AI-optimized processes and systems"
-        ]
-        
-        # Market timing strategies
-        strategies["market_timing"] = [
-            "⏰ Monitor AI-identified market inflection points for optimal timing",
-            "📊 Leverage real-time market data for strategic decision making",
-            "🎯 Align product launches with market readiness indicators",
-            "📈 Capitalize on identified market momentum and trends"
-        ]
-        
-        # Funding strategy with AI insights
-        if funding_trends:
-            strategies["funding_strategy"].append(f"💰 Align with current trend: {funding_trends[:150]}...")
-        
-        strategies["funding_strategy"].extend([
-            "🎯 Target active investors identified through AI market analysis",
-            "📋 Prepare pitch materials aligned with current investor focus areas",
-            "🏦 Explore AI-identified funding opportunities and programs",
-            "📊 Develop financial projections based on real market data"
-        ])
-        
-        # Partnership strategy with market intelligence
-        if partnerships:
-            strategies["partnership_strategy"].append(f"🤝 Strategic partnership opportunity: {partnerships[:150]}...")
-        
-        strategies["partnership_strategy"].extend([
-            "🌐 Identify and approach strategic partners through AI market mapping",
-            "🤝 Build relationships with key industry players and stakeholders",
-            "📊 Leverage partnership opportunities for accelerated market entry",
-            "🔄 Develop ecosystem partnerships for sustainable competitive advantage"
-        ])
-    
-    return strategies
-
-def generate_ai_risk_assessment(dimension_scores, recommended_pathway, market_intelligence, language):
-    """Generate AI-enhanced risk assessment"""
-    risks = {
-        "high_risk_areas": [],
-        "medium_risk_areas": [],
-        "market_risks": [],
-        "competitive_risks": [],
-        "mitigation_strategies": [],
-        "ai_identified_risks": []
-    }
-    
-    # Traditional dimension-based risks
-    for dim_name, dim_data in dimension_scores.items():
-        if dim_data["percentage"] < 40:
-            risks["high_risk_areas"].append(dim_name)
-        elif dim_data["percentage"] < 65:
-            risks["medium_risk_areas"].append(dim_name)
-    
-    # AI-identified market risks
-    threats = market_intelligence.get("threats", "")
-    if threats:
-        risks["ai_identified_risks"].append(f"Market threat: {threats[:200]}...")
-    
-    competitive_landscape = market_intelligence.get("competitive_landscape", "")
-    if "competitive" in competitive_landscape.lower():
-        risks["competitive_risks"].append("High competitive intensity identified through market analysis")
-    
-    if language == "filipino":
-        risks["mitigation_strategies"] = [
-            "🤖 Gamitin ang AI monitoring para sa early risk detection",
-            "📊 Mag-establish ng real-time market intelligence system",
-            "🛡️ Mag-develop ng adaptive strategy framework",
-            "🔄 Mag-implement ng continuous risk assessment process"
-        ]
-        
-        if recommended_pathway == "Direct Sale":
-            risks["mitigation_strategies"].extend([
-                "💰 Secure diversified funding sources para sa market volatility",
-                "🎯 Build strong customer relationships para sa stability",
-                "📈 Develop flexible pricing strategy based sa market conditions"
-            ])
-    else:
-        risks["mitigation_strategies"] = [
-            "🤖 Implement AI-powered risk monitoring and early warning systems",
-            "📊 Establish real-time market intelligence and competitive tracking",
-            "🛡️ Develop adaptive strategy framework for rapid market changes",
-            "🔄 Create continuous risk assessment and mitigation processes"
-        ]
-        
-        # Pathway-specific AI-enhanced mitigation
-        if recommended_pathway == "Direct Sale":
-            risks["mitigation_strategies"].extend([
-                "💰 Secure diversified funding sources to weather market volatility",
-                "🎯 Build strong customer relationships and loyalty programs",
-                "📈 Develop flexible pricing and product strategies based on market feedback"
-            ])
-        elif recommended_pathway == "Licensing":
-            risks["mitigation_strategies"].extend([
-                "🤝 Diversify licensing partners across different market segments",
-                "📋 Include adaptive clauses in licensing agreements",
-                "📊 Maintain ongoing competitive intelligence and market monitoring"
-            ])
-        elif recommended_pathway == "Startup/Spin-out":
-            risks["mitigation_strategies"].extend([
-                "🚀 Build agile team capable of rapid pivoting based on market feedback",
-                "💰 Secure multiple funding rounds and investor relationships",
-                "📊 Develop robust business model validation and testing processes"
-            ])
-    
-    return risks
-
-def generate_ai_market_positioning(dimension_scores, recommended_pathway, market_intelligence, language):
-    """Generate AI-enhanced market positioning strategy"""
-    positioning = {}
-    
-    market_strength = dimension_scores.get("Market & Customer", dimension_scores.get("Market at Customer", {})).get("percentage", 0)
-    tech_strength = dimension_scores.get("Technology & Product Readiness", dimension_scores.get("Technology at Product Readiness", {})).get("percentage", 0)
-    
-    competitive_landscape = market_intelligence.get("competitive_landscape", "")
-    opportunities = market_intelligence.get("opportunities", "")
-    
-    if language == "filipino":
-        if market_strength >= 75 and tech_strength >= 75:
-            positioning["strategy"] = "🏆 AI-Identified Market Leader"
-            positioning["advice"] = "Strong position sa market at tech. Mag-focus sa AI-driven expansion at dominance."
-        elif market_strength >= 60 and tech_strength >= 60:
-            positioning["strategy"] = "🚀 AI-Optimized Competitor"
-            positioning["advice"] = "Good positioning. Use AI insights para sa superior differentiation."
-        else:
-            positioning["strategy"] = "🎯 AI-Guided Niche Player"
-            positioning["advice"] = "Focus sa AI-identified niche segments na may competitive advantage."
-        
-        positioning["ai_insights"] = []
-        if competitive_landscape:
-            positioning["ai_insights"].append(f"Competitive insight: {competitive_landscape[:150]}...")
-        if opportunities:
-            positioning["ai_insights"].append(f"Market opportunity: {opportunities[:150]}...")
-    else:
-        if market_strength >= 75 and tech_strength >= 75:
-            positioning["strategy"] = "🏆 AI-Identified Market Leader"
-            positioning["advice"] = "Exceptional positioning in both market and technology. Focus on AI-driven market expansion and establishing dominant market position."
-        elif market_strength >= 60 and tech_strength >= 60:
-            positioning["strategy"] = "🚀 AI-Optimized Strong Competitor"
-            positioning["advice"] = "Strong competitive positioning. Leverage AI insights for superior differentiation and customer experience."
-        else:
-            positioning["strategy"] = "🎯 AI-Guided Niche Player"
-            positioning["advice"] = "Focus on AI-identified niche market segments where you can establish clear competitive advantages."
-        
-        # AI-enhanced differentiators
-        positioning["key_differentiators"] = [
-            "🤖 AI-optimized unique technology features and capabilities",
-            "📊 Data-driven superior customer service and support",
-            "💰 Market-intelligent competitive pricing and value proposition",
-            "🤝 AI-identified strategic partnerships and ecosystem relationships"
-        ]
-        
-        # AI market insights
-        positioning["ai_insights"] = []
-        if competitive_landscape:
-            positioning["ai_insights"].append(f"🔍 Competitive intelligence: {competitive_landscape[:200]}...")
-        if opportunities:
-            positioning["ai_insights"].append(f"🎯 Market opportunity analysis: {opportunities[:200]}...")
-        
-        # Market positioning recommendations
-        positioning["positioning_recommendations"] = [
-            "🎯 Position as innovation leader in AI-identified market gaps",
-            "📊 Leverage real-time market data for dynamic positioning strategy",
-            "🚀 Build thought leadership through AI-powered market insights",
-            "🤝 Establish ecosystem partnerships for enhanced market credibility"
-        ]
-    
-    return positioning
-
-def generate_ai_financial_projections(recommended_pathway, market_intelligence, dimension_scores, language):
-    """Generate AI-enhanced financial projections"""
-    projections = {
-        "revenue_model": "",
-        "funding_requirements": {},
-        "market_size_context": "",
-        "financial_milestones": {},
-        "roi_timeline": "",
-        "ai_market_insights": [],
-        "key_assumptions": []
-    }
-    
-    market_overview = market_intelligence.get("market_overview", "")
-    funding_trends = market_intelligence.get("funding_trends", "")
-    
-    if language == "filipino":
-        # AI-enhanced revenue model
-        if recommended_pathway == "Direct Sale":
-            projections["revenue_model"] = "🎯 AI-optimized direct sales revenue model based sa market intelligence at customer behavior analysis"
-            projections["funding_requirements"] = {
-                "initial": "₱3-7M para sa AI-powered product development at market entry",
-                "growth": "₱15-30M para sa AI-driven scaling at market expansion",
-                "working_capital": "₱8-15M para sa data-driven operations"
-            }
-        elif recommended_pathway == "Licensing":
-            projections["revenue_model"] = "🤝 AI-enhanced licensing model na optimized para sa market conditions at partner needs"
-            projections["funding_requirements"] = {
-                "initial": "₱2-5M para sa AI-powered IP development at protection",
-                "growth": "₱8-15M para sa partner support at market expansion",
-                "working_capital": "₱3-8M para sa ongoing AI-driven operations"
-            }
-        
-        projections["ai_market_insights"] = []
-        if market_overview:
-            projections["ai_market_insights"].append(f"Market analysis: {market_overview[:150]}...")
-        if funding_trends:
-            projections["ai_market_insights"].append(f"Funding trend: {funding_trends[:150]}...")
-    else:
-        # AI-enhanced revenue models
-        if recommended_pathway == "Direct Sale":
-            projections["revenue_model"] = "🎯 AI-optimized direct sales revenue model based on market intelligence and customer behavior analysis"
-            projections["funding_requirements"] = {
-                "initial": "$150K-750K for AI-powered product development and market entry",
-                "growth": "$750K-3M for AI-driven scaling and market expansion",
-                "working_capital": "$400K-1.5M for data-driven operations and growth"
-            }
-        elif recommended_pathway == "Licensing":
-            projections["revenue_model"] = "🤝 AI-enhanced licensing revenue model optimized for current market conditions and partner needs"
-            projections["funding_requirements"] = {
-                "initial": "$75K-500K for AI-powered IP development and protection",
-                "growth": "$400K-1.5M for partner support and market expansion",
-                "working_capital": "$150K-800K for ongoing AI-driven operations"
-            }
-        elif recommended_pathway == "Startup/Spin-out":
-            projections["revenue_model"] = "🚀 AI-guided multiple revenue stream model with dynamic optimization based on market feedback"
-            projections["funding_requirements"] = {
-                "seed": "$300K-2M for AI-powered initial development and validation",
-                "series_a": "$1.5M-8M for AI-driven market expansion and scaling",
-                "working_capital": "$750K-3M for operations and AI-optimized growth"
-            }
-        
-        # AI market insights
-        projections["ai_market_insights"] = []
-        if market_overview:
-            projections["ai_market_insights"].append(f"📊 Market intelligence: {market_overview[:200]}...")
-        if funding_trends:
-            projections["ai_market_insights"].append(f"💰 Funding landscape: {funding_trends[:200]}...")
-        
-        # Enhanced financial milestones with AI insights
-        projections["financial_milestones"] = {
-            "year_1": "🎯 Achieve AI-validated product-market fit and initial revenue streams",
-            "year_2": "📈 Demonstrate AI-optimized sustainable growth (75-150% revenue increase)",
-            "year_3": "🏆 Establish AI-driven market leadership position with strong profitability"
-        }
-        
-        projections["roi_timeline"] = "⏰ 2.5-4 years for technology commercialization with AI optimization (20% faster than traditional approaches)"
-        
-        # AI-enhanced assumptions
-        projections["key_assumptions"] = [
-            "🤖 AI-driven market adoption rates exceed traditional technology adoption curves",
-            "📊 Real-time market intelligence enables rapid strategy optimization and adaptation",
-            "🎯 AI-identified market opportunities provide sustainable competitive advantages",
-            "💰 Current funding environment remains favorable for AI-enhanced technology solutions",
-            "🚀 Continuous AI optimization improves operational efficiency and reduces costs"
-        ]
-    
-    return projections
-
-def generate_ai_implementation_roadmap(recommended_pathway, market_intelligence, language):
-    """Generate AI-enhanced implementation roadmap"""
-    roadmap = {
-        "phase_1": {"timeframe": "0-6 months", "milestones": [], "ai_activities": []},
-        "phase_2": {"timeframe": "6-12 months", "milestones": [], "ai_activities": []},
-        "phase_3": {"timeframe": "12-24 months", "milestones": [], "ai_activities": []},
-        "ai_optimization_timeline": [],
-        "market_intelligence_integration": []
-    }
-    
-    opportunities = market_intelligence.get("opportunities", "")
-    
-    if language == "filipino":
-        # Phase 1: AI-Enhanced Foundation
-        roadmap["phase_1"]["milestones"] = [
-            "🤖 Implement AI-powered market validation at product optimization",
-            "📊 Establish real-time market intelligence systems",
-            "🎯 Complete AI-guided competitive positioning analysis"
-        ]
-        
-        roadmap["phase_1"]["ai_activities"] = [
-            "Set up automated market monitoring systems",
-            "Deploy AI-powered customer feedback analysis",
-            "Implement predictive market trend analysis"
-        ]
-        
-        # Phase 2: AI-Driven Launch
-        roadmap["phase_2"]["milestones"] = [
-            "🚀 Launch AI-optimized pilot program",
-            "📈 Achieve AI-validated product-market fit",
-            "🤝 Establish AI-identified strategic partnerships"
-        ]
-        
-        roadmap["phase_2"]["ai_activities"] = [
-            "Deploy AI customer acquisition optimization",
-            "Implement automated competitive intelligence",
-            "Launch AI-powered performance tracking"
-        ]
-        
-        # Phase 3: AI-Powered Scale
-        roadmap["phase_3"]["milestones"] = [
-            "🏆 Achieve AI-driven market leadership",
-            "🌐 Expand sa AI-identified adjacent markets",
-            "📊 Establish sustainable AI-optimized operations"
-        ]
-        
-        roadmap["phase_3"]["ai_activities"] = [
-            "Deploy predictive market expansion strategies",
-            "Implement AI-powered operational optimization",
-            "Launch next-generation AI-enhanced products"
-        ]
-    else:
-        # Phase 1: AI-Enhanced Foundation (0-6 months)
-        roadmap["phase_1"]["milestones"] = [
-            "🤖 Implement AI-powered market validation and product optimization systems",
-            "📊 Establish comprehensive real-time market intelligence infrastructure",
-            "🎯 Complete AI-guided competitive analysis and positioning strategy"
-        ]
-        
-        roadmap["phase_1"]["ai_activities"] = [
-            "Deploy automated market monitoring and trend analysis systems",
-            "Implement AI-powered customer feedback collection and analysis",
-            "Set up predictive market intelligence and forecasting capabilities"
-        ]
-        
-        # Phase 2: AI-Driven Market Entry (6-12 months)
-        roadmap["phase_2"]["milestones"] = [
-            "🚀 Launch AI-optimized pilot program with target customer segments",
-            "📈 Achieve AI-validated product-market fit with measurable KPIs",
-            "🤝 Establish AI-identified strategic partnerships and alliances"
-        ]
-        
-        roadmap["phase_2"]["ai_activities"] = [
-            "Deploy AI-powered customer acquisition and conversion optimization",
-            "Implement automated competitive intelligence and response systems",
-            "Launch AI-driven performance tracking and optimization platforms"
-        ]
-        
-        # Phase 3: AI-Powered Market Leadership (12-24 months)
-        roadmap["phase_3"]["milestones"] = [
-            "🏆 Achieve AI-driven market leadership position in target segments",
-            "🌐 Successfully expand into AI-identified adjacent markets and opportunities",
-            "📊 Establish sustainable AI-optimized operations and growth systems"
-        ]
-        
-        roadmap["phase_3"]["ai_activities"] = [
-            "Deploy predictive market expansion and diversification strategies",
-            "Implement AI-powered operational efficiency and cost optimization",
-            "Launch next-generation AI-enhanced product and service offerings"
-        ]
-        
-        # AI optimization timeline
-        roadmap["ai_optimization_timeline"] = [
-            "⚡ Month 1-2: Deploy basic AI monitoring and analysis systems",
-            "🔄 Month 3-6: Implement advanced predictive analytics and optimization",
-            "🚀 Month 6-12: Launch AI-powered growth and expansion strategies",
-            "🏆 Month 12-24: Achieve AI-driven market leadership and sustainable competitive advantage"
-        ]
-        
-        # Market intelligence integration points
-        if opportunities:
-            roadmap["market_intelligence_integration"].append(f"🎯 Capitalize on opportunity: {opportunities[:150]}...")
-        
-        roadmap["market_intelligence_integration"].extend([
-            "📊 Continuous real-time market data integration and analysis",
-            "🤖 AI-powered competitive intelligence and strategic response systems",
-            "📈 Predictive market trend analysis for proactive strategy adjustment",
-            "🎯 Dynamic opportunity identification and rapid market entry capabilities"
-        ])
-    
-    return roadmap
-
-def identify_ai_partnership_opportunities(technology_title, recommended_pathway, market_intelligence, language):
-    """Identify partnership opportunities using AI market intelligence"""
-    opportunities = {
-        "strategic_partners": [],
-        "technology_partners": [],
-        "distribution_partners": [],
-        "funding_partners": [],
-        "ai_identified_partners": []
-    }
-    
-    partnerships = market_intelligence.get("partnerships", "")
-    
-    if language == "filipino":
-        # AI-identified strategic partnerships
-        if partnerships:
-            opportunities["ai_identified_partners"].append(f"🤖 AI-identified opportunity: {partnerships[:200]}...")
-        
-        # Pathway-specific partnerships
-        if recommended_pathway == "Direct Sale":
-            opportunities["strategic_partners"] = [
-                "🎯 AI-identified distribution partners na may strong market presence",
-                "📊 Data-driven technology integrators para sa solution enhancement",
-                "🤝 Industry leaders na compatible sa AI-optimized approach"
-            ]
-        elif recommended_pathway == "Licensing":
-            opportunities["strategic_partners"] = [
-                "🏢 AI-identified large corporations na may complementary products",
-                "🌐 International partners para sa global market expansion",
-                "🤝 Technology companies na nag-hahanap ng AI-enhanced innovation"
-            ]
-        
-        opportunities["technology_partners"] = [
-            "🏫 Research institutions na may AI at technology expertise",
-            "🔧 AI-powered technology suppliers at component providers",
-            "💻 Software/hardware partners para sa AI integration"
-        ]
-    else:
-        # AI-identified strategic partnerships
-        if partnerships:
-            opportunities["ai_identified_partners"].append(f"🤖 AI-identified partnership opportunity: {partnerships[:200]}...")
-        
-        # Enhanced strategic partnerships based on pathway
-        if recommended_pathway == "Direct Sale":
-            opportunities["strategic_partners"] = [
-                "🎯 AI-identified distribution partners with strong market presence and customer relationships",
-                "📊 Data-driven technology integrators for enhanced solution delivery and market reach",
-                "🤝 Industry leaders compatible with AI-optimized go-to-market approaches"
-            ]
-        elif recommended_pathway == "Licensing":
-            opportunities["strategic_partners"] = [
-                "🏢 AI-identified large corporations with complementary product portfolios and market access",
-                "🌐 International partners for AI-enhanced global market expansion opportunities",
-                "🤝 Innovation-focused technology companies seeking AI-enhanced competitive advantages"
-            ]
-        elif recommended_pathway == "Startup/Spin-out":
-            opportunities["strategic_partners"] = [
-                "🚀 AI-focused accelerators and incubators with technology commercialization expertise",
-                "🎯 Strategic investors with AI and technology market networks and experience",
-                "🤝 Industry mentors with successful AI-enhanced commercialization track records"
-            ]
-        
-        # Enhanced technology partnerships
-        opportunities["technology_partners"] = [
-            "🏫 Leading research institutions with AI, ML, and advanced technology capabilities",
-            "🔧 AI-powered technology suppliers and component providers for enhanced integration",
-            "💻 Software/hardware partners specializing in AI platform integration and compatibility"
-        ]
-        
-        # AI-enhanced distribution partnerships
-        opportunities["distribution_partners"] = [
-            "🌐 Digital platforms with AI-powered customer matching and acquisition capabilities",
-            "📊 Data-driven regional distributors with market intelligence and customer insights",
-            "🎯 AI-optimized retail and e-commerce partners for direct customer access and engagement"
-        ]
-        
-        # Enhanced funding partnerships
-        opportunities["funding_partners"] = [
-            "💰 AI-focused venture capital firms and strategic investors with sector expertise",
-            "🏛️ Government innovation programs and grants supporting AI-enhanced technology development",
-            "🌐 Crowdfunding and alternative financing platforms with AI-powered investor matching"
-        ]
-        
-        # Partnership success metrics
-        opportunities["partnership_success_metrics"] = [
-            "📈 Revenue growth acceleration through strategic partnerships (target: 50-100% increase)",
-            "🎯 Market penetration improvement via distribution partnerships (target: 3x customer reach)",
-            "🤖 Technology development acceleration through AI-enhanced collaboration (target: 30% faster TTM)",
-            "💰 Funding success rate improvement through investor partnerships (target: 2x funding success)"
-        ]
-    
-    return opportunities
-
-# Supporting helper functions
-def generate_input_summary(answers, tcp_data):
-    """Generate summary of user inputs"""
-    return {
-        "total_questions": len(answers),
-        "average_score": round(sum(answers) / len(answers), 2),
-        "dimension_breakdown": [
-            {
-                "dimension": dim["name"],
-                "average_score": round(sum(answers[i:i+len(dim["questions"])]) / len(dim["questions"]), 2)
-            }
-            for i, dim in enumerate(tcp_data["dimensions"])
-        ]
-    }
 
 def generate_dimension_scores(answers, tcp_data):
     """Generate dimension scores analysis"""
@@ -1430,54 +1559,47 @@ def calculate_overall_readiness(dimension_scores):
 
 def calculate_ai_confidence_score(pathway_scores, dimension_scores, market_intelligence):
     """Calculate AI-enhanced confidence score"""
-    # Basic confidence from pathway scores
     max_score = max(pathway_scores.values()) if pathway_scores else 0
     second_score = sorted(pathway_scores.values(), reverse=True)[1] if len(pathway_scores) > 1 else 0
     score_gap = max_score - second_score
     
-    # Average dimension readiness
     avg_dimension_score = sum(dim["percentage"] for dim in dimension_scores.values()) / len(dimension_scores) if dimension_scores else 0
     
-    # AI market intelligence boost
     market_boost = 0
     if market_intelligence.get("market_overview") and len(market_intelligence.get("market_overview", "")) > 100:
         market_boost += 10
     if market_intelligence.get("opportunities") and len(market_intelligence.get("opportunities", "")) > 100:
         market_boost += 10
-    if market_intelligence.get("funding_trends") and len(market_intelligence.get("funding_trends", "")) > 100:
-        market_boost += 5
     
-    # Calculate enhanced confidence
     confidence = min(100, (score_gap * 8) + (avg_dimension_score * 0.4) + market_boost)
     
     return round(confidence, 1)
 
-def generate_fallback_intelligence(technology_title, language):
+def process_ai_market_intelligence(ai_response, language):
+    """Process AI response into structured market intelligence"""
+    if not ai_response:
+        return generate_fallback_intelligence("", language)
+    
+    intelligence = {
+        "market_overview": ai_response[:500] if ai_response else "Market analysis not available",
+        "opportunities": "Opportunities identified through AI analysis" if ai_response else "No opportunities data",
+        "full_analysis": ai_response[:3000] if ai_response else "AI analysis not available"
+    }
+    
+    return intelligence
+
+def generate_fallback_intelligence(technology_title, language): 
     """Generate fallback intelligence when AI is not available"""
     if language == "filipino":
         return {
             "market_overview": "Market analysis ay hindi available - kailangan ng Perplexity API configuration para sa real-time intelligence",
-            "competitive_landscape": "Competitive analysis ay hindi updated",
-            "funding_trends": "Funding trend data ay hindi available",
-            "regulatory_insights": "Regulatory information ay hindi updated",
-            "success_stories": "Success story analysis ay hindi available",
             "opportunities": "Market opportunity analysis ay hindi available",
-            "threats": "Threat analysis ay hindi available",
-            "partnerships": "Partnership opportunity analysis ay hindi available",
-            "pricing_models": "Pricing model analysis ay hindi available",
             "full_analysis": "Para sa comprehensive AI-powered analysis, i-configure ang Perplexity API key sa environment variables."
         }
     else:
         return {
             "market_overview": "Real-time market analysis not available - configure Perplexity API for live market intelligence",
-            "competitive_landscape": "Competitive analysis not updated - requires API configuration",
-            "funding_trends": "Current funding trend data not available",
-            "regulatory_insights": "Regulatory environment information not updated",
-            "success_stories": "Success story analysis not available",
             "opportunities": "Market opportunity analysis requires API access",
-            "threats": "Threat analysis not available",
-            "partnerships": "Partnership opportunity analysis not available",  
-            "pricing_models": "Pricing model analysis not available",
             "full_analysis": "For comprehensive AI-powered market intelligence, configure PERPLEXITY_API_KEY in environment variables."
         }
 
@@ -1493,43 +1615,29 @@ def generate_enhanced_explanation(pathway_scores, recommended_pathway, detailed_
         text += f"Batay sa comprehensive AI-powered assessment, ang **pinakarekomendadong commercialization pathway** para sa inyong teknolohiya ay ang **{recommended_pathway}** (AI confidence level: {confidence}%).\n\n"
         
         if second_alt:
-            text += f"Ang inyong **second-best alternative** ay ang {second_alt[0]} na may score na {second_alt[1]}. Ito ay viable backup strategy kung may challenges sa primary recommendation.\n\n"
+            text += f"Ang inyong **second-best alternative** ay ang {second_alt[0]} na may score na {second_alt[1]}.\n\n"
         
         text += f"**Overall Commercialization Readiness:** {overall_readiness}\n\n"
         
-        # Add AI market insights
         market_overview = market_intelligence.get("market_overview", "")
         if market_overview and len(market_overview) > 50:
             text += f"**🔍 AI Market Intelligence:** {market_overview[:300]}...\n\n"
         
-        opportunities = market_intelligence.get("opportunities", "")
-        if opportunities and len(opportunities) > 50:
-            text += f"**🎯 Identified Opportunities:** {opportunities[:250]}...\n\n"
-        
-        text += f"Ang AI-enhanced assessment na ito ay nag-evaluate ng inyong teknolohiya gamit ang real-time market data at competitive intelligence, providing cutting-edge insights para sa successful technology commercialization."
+        text += f"Ang AI-enhanced assessment na ito ay nag-evaluate ng inyong teknolohiya gamit ang real-time market data."
     else:
         text = f"🤖 **AI-Enhanced Technology Commercialization Analysis**\n\n"
         text += f"Based on comprehensive AI-powered multi-dimensional assessment, the **most recommended commercialization pathway** for your technology is **{recommended_pathway}** (AI confidence level: {confidence}%).\n\n"
         
         if second_alt:
-            text += f"Your **second-best alternative** is {second_alt[0]} with a score of {second_alt[1]}. This serves as a viable backup strategy should challenges arise with the primary recommendation.\n\n"
+            text += f"Your **second-best alternative** is {second_alt[0]} with a score of {second_alt[1]}.\n\n"
         
         text += f"**Overall Commercialization Readiness:** {overall_readiness}\n\n"
         
-        # Add AI market insights
         market_overview = market_intelligence.get("market_overview", "")
         if market_overview and len(market_overview) > 50:
             text += f"**🔍 AI Market Intelligence:** {market_overview[:300]}...\n\n"
         
-        competitive_landscape = market_intelligence.get("competitive_landscape", "")
-        if competitive_landscape and len(competitive_landscape) > 50:
-            text += f"**🏆 Competitive Landscape:** {competitive_landscape[:250]}...\n\n"
-        
-        opportunities = market_intelligence.get("opportunities", "")
-        if opportunities and len(opportunities) > 50:
-            text += f"**🎯 Market Opportunities:** {opportunities[:250]}...\n\n"
-        
-        text += f"This AI-enhanced assessment leverages real-time market data, competitive intelligence, and predictive analytics to provide cutting-edge insights and recommendations for successful technology commercialization in today's dynamic market environment."
+        text += f"This AI-enhanced assessment leverages real-time market data and competitive intelligence for cutting-edge insights."
     
     return text
 
@@ -1542,7 +1650,7 @@ def generate_pdf():
         if not data or 'mode' not in data:
             return jsonify({"error": "Invalid data provided"}), 400
         
-        # Generate enhanced PDF with AI insights
+        # Generate enhanced PDF
         buf = create_enhanced_pdf(data)
         
         # Generate filename
@@ -1641,31 +1749,6 @@ def create_enhanced_pdf(data):
     doc_elements.append(Paragraph("🤖 AI-Enhanced Assessment Summary", heading_style))
     doc_elements.append(Paragraph(data.get("explanation", "No explanation available."), sty["Normal"]))
     doc_elements.append(Spacer(1, 14))
-    
-    # AI Market Intelligence Section
-    if data['mode'] == 'TCP' and 'detailed_analysis' in data:
-        detailed_analysis = data['detailed_analysis']
-        market_intelligence = detailed_analysis.get('market_intelligence', {})
-        
-        if market_intelligence.get('market_overview'):
-            doc_elements.append(Paragraph("📊 Real-time Market Intelligence", heading_style))
-            doc_elements.append(Paragraph(market_intelligence['market_overview'][:500] + "...", sty["Normal"]))
-            doc_elements.append(Spacer(1, 10))
-        
-        # AI Success Strategies
-        success_strategies = detailed_analysis.get('success_strategies', {})
-        if success_strategies.get('immediate_actions'):
-            doc_elements.append(Paragraph("🎯 AI-Recommended Immediate Actions", heading_style))
-            for action in success_strategies['immediate_actions'][:3]:
-                doc_elements.append(Paragraph(f"• {action}", sty["Normal"]))
-            doc_elements.append(Spacer(1, 10))
-        
-        # Market Opportunities
-        opportunities = market_intelligence.get('opportunities', '')
-        if opportunities and len(opportunities) > 50:
-            doc_elements.append(Paragraph("🚀 AI-Identified Market Opportunities", heading_style))
-            doc_elements.append(Paragraph(opportunities[:400] + "...", sty["Normal"]))
-            doc_elements.append(Spacer(1, 10))
     
     # Enhanced Footer
     doc_elements.append(Spacer(1, 14))
