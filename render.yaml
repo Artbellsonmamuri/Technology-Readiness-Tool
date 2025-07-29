@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: mmsu-trl-irl-tcp-assessment
+    name: mmsu-technology-assessment-tool
     env: python
     plan: free
     region: oregon
