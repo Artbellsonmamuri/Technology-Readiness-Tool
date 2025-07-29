@@ -14,21 +14,13 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_HOST
-        fromDatabase:
-          name: mmsu-assessment-db
-          property: host
+        value: dpg-d247nip5pdvs7380r3lg-a.oregon-postgres.render.com
       - key: DATABASE_NAME
-        fromDatabase:
-          name: mmsu-assessment-db
-          property: database
+        value: mmsu_assessments
       - key: DATABASE_USER
-        fromDatabase:
-          name: mmsu-assessment-db
-          property: user
+        value: mmsu_user
       - key: DATABASE_PASSWORD
-        fromDatabase:
-          name: mmsu-assessment-db
-          property: kulsmZ8dbrLeCccOy8h1C5eFB37l0JsJ
+        value: kulsmZ8dbrLeCccOy8h1C5eFB37l0JsJ
       - key: DATABASE_PORT
         value: 5432
 
@@ -37,3 +29,4 @@ databases:
     databaseName: mmsu_assessments
     user: mmsu_user
     plan: free
+    region: oregon
