@@ -426,6 +426,208 @@ IRL_QUESTIONS = {
     ]
 }
 
+# Market Readiness Level (MRL) Questions Database (1-9)
+MRL_QUESTIONS = {
+    "english": [
+        {
+            "level": 1,
+            "title": "Market Need Identification",
+            "checks": [
+                "Has a specific market problem or unmet need been clearly identified?",
+                "Is there preliminary evidence that the identified need is significant and widespread?",
+                "Have initial market pain points been documented through observations or informal discussions?",
+                "Is there awareness of existing solutions and their limitations in addressing the identified need?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Market Research and Analysis",
+            "checks": [
+                "Has formal market research been conducted to validate the identified market need?",
+                "Is there documented analysis of market size, growth trends, and dynamics?",
+                "Have target customer segments been preliminarily identified and characterized?",
+                "Is there understanding of market drivers, barriers, and key success factors?",
+                "Have relevant industry reports, studies, or expert opinions been gathered and analyzed?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Customer Discovery and Validation",
+            "checks": [
+                "Have direct interviews or surveys been conducted with potential customers?",
+                "Is there validated evidence that customers experience the identified problem?",
+                "Have customer personas and use cases been developed based on real feedback?",
+                "Is there documented willingness from customers to consider alternative solutions?",
+                "Have customer requirements and decision-making criteria been identified?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Market Segmentation and Sizing",
+            "checks": [
+                "Have distinct market segments been identified and prioritized based on data?",
+                "Is there quantitative analysis of Total Addressable Market (TAM) and Serviceable Available Market (SAM)?",
+                "Have early adopter segments been identified with specific characteristics?",
+                "Is there analysis of market penetration potential and adoption barriers?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Competitive Analysis and Positioning",
+            "checks": [
+                "Has a comprehensive competitive landscape analysis been completed?",
+                "Are direct and indirect competitors identified with their strengths and weaknesses?",
+                "Is there clear differentiation and unique value proposition compared to existing solutions?",
+                "Have competitive pricing models and market positioning strategies been analyzed?",
+                "Is there understanding of competitive response scenarios?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Go-to-Market Strategy Development",
+            "checks": [
+                "Has a comprehensive go-to-market strategy been developed and documented?",
+                "Are distribution channels and sales strategies clearly defined?",
+                "Is there a marketing and customer acquisition plan with defined tactics?",
+                "Have partnerships and strategic alliances been identified and approached?",
+                "Is there a pricing strategy based on market research and competitive analysis?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "Market Testing and Pilot Programs",
+            "checks": [
+                "Have pilot programs or market tests been conducted with real customers?",
+                "Is there validated customer adoption and usage data from controlled market tests?",
+                "Have key performance indicators for market success been defined and measured?",
+                "Is there evidence of customer satisfaction and willingness to pay?",
+                "Have market test results been used to refine the value proposition and strategy?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "Market Launch Preparation",
+            "checks": [
+                "Are all market launch preparations completed including sales materials and training?",
+                "Have launch partnerships and distribution agreements been secured?",
+                "Is there established customer support and service infrastructure?",
+                "Are marketing campaigns and launch activities planned and ready for execution?",
+                "Have success metrics and monitoring systems been established for market launch?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Market Adoption and Scale",
+            "checks": [
+                "Has the technology achieved measurable market adoption with growing customer base?",
+                "Are there established market channels generating consistent demand?",
+                "Is there evidence of market acceptance and positive customer testimonials?",
+                "Have expansion opportunities into adjacent markets been identified and planned?",
+                "Is there a track record of successful market performance and growth?"
+            ]
+        }
+    ],
+    "filipino": [
+        {
+            "level": 1,
+            "title": "Pagkilala sa Pangangailangan ng Market",
+            "checks": [
+                "Malinaw bang natukoy ang specific na problema o hindi natutugunang pangangailangan sa market?",
+                "May paunang ebidensya ba na ang natukoyang pangangailangan ay malaki at malawakang naranasan?",
+                "Nadokumento na ba ang initial market pain points sa pamamagitan ng obserbasyon o informal na diskusyon?",
+                "May kamalayan ba sa existing solutions at ang kanilang mga limitasyon sa pagtugunan ng natukoyang pangangailangan?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Market Research at Analysis",
+            "checks": [
+                "Nagsagawa na ba ng formal market research upang ma-validate ang natukoyang market need?",
+                "May nakadokumentong analysis ba ng market size, growth trends, at dynamics?",
+                "Paunang natukoy at na-characterize na ba ang target customer segments?",
+                "May pag-unawa ba sa market drivers, barriers, at key success factors?",
+                "Nakolekta at na-analyze na ba ang relevant industry reports, studies, o expert opinions?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Customer Discovery at Validation",
+            "checks": [
+                "Nagsagawa na ba ng direct interviews o surveys sa mga potential customers?",
+                "May na-validate na ebidensya ba na naranasan ng customers ang natukoyang problema?",
+                "Nabuo na ba ang customer personas at use cases batay sa tunay na feedback?",
+                "May nakadokumentong willingness ba mula sa customers na isaalang-alang ang alternative solutions?",
+                "Natukoy na ba ang customer requirements at decision-making criteria?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Market Segmentation at Sizing",
+            "checks": [
+                "Natukoy at na-prioritize na ba ang distinct market segments batay sa datos?",
+                "May quantitative analysis ba ng Total Addressable Market (TAM) at Serviceable Available Market (SAM)?",
+                "Natukoy na ba ang early adopter segments na may specific na karakteristika?",
+                "May analysis ba ng market penetration potential at adoption barriers?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Competitive Analysis at Positioning",
+            "checks": [
+                "Nakumpleto na ba ang comprehensive competitive landscape analysis?",
+                "Natukoy na ba ang direct at indirect competitors kasama ang kanilang mga strengths at weaknesses?",
+                "May malinaw na differentiation at unique value proposition ba kumpara sa existing solutions?",
+                "Na-analyze na ba ang competitive pricing models at market positioning strategies?",
+                "May pag-unawa ba sa competitive response scenarios?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Go-to-Market Strategy Development",
+            "checks": [
+                "Nabuo at nadokumento na ba ang comprehensive go-to-market strategy?",
+                "Malinaw bang natukoy ang distribution channels at sales strategies?",
+                "May marketing at customer acquisition plan ba na may defined tactics?",
+                "Natukoy at na-approach na ba ang partnerships at strategic alliances?",
+                "May pricing strategy ba batay sa market research at competitive analysis?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "Market Testing at Pilot Programs",
+            "checks": [
+                "Nagsagawa na ba ng pilot programs o market tests kasama ang tunay na customers?",
+                "May na-validate na customer adoption at usage data ba mula sa controlled market tests?",
+                "Natukoy at nasukat na ba ang key performance indicators para sa market success?",
+                "May ebidensya ba ng customer satisfaction at willingness to pay?",
+                "Ginamit na ba ang market test results upang i-refine ang value proposition at strategy?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "Market Launch Preparation",
+            "checks": [
+                "Nakumpleto na ba ang lahat ng market launch preparations kasama ang sales materials at training?",
+                "Na-secure na ba ang launch partnerships at distribution agreements?",
+                "May naitatag na customer support at service infrastructure ba?",
+                "Naplano at handa na ba ang marketing campaigns at launch activities para sa execution?",
+                "Naitatag na ba ang success metrics at monitoring systems para sa market launch?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Market Adoption at Scale",
+            "checks": [
+                "Nakamit na ba ng teknolohiya ang measurable market adoption na may lumalaking customer base?",
+                "May naitatagang market channels ba na gumagawa ng consistent demand?",
+                "May ebidensya ba ng market acceptance at positive customer testimonials?",
+                "Natukoy at naplano na ba ang expansion opportunities sa adjacent markets?",
+                "May track record ba ng successful market performance at growth?"
+            ]
+        }
+    ]
+}
+
 # TCP Questions Database
 TCP_QUESTIONS = {
     "english": {
@@ -612,6 +814,8 @@ def get_questions(mode, language):
         return jsonify(TRL_QUESTIONS.get(language.lower(), TRL_QUESTIONS["english"]))
     elif mode.upper() == "IRL":
         return jsonify(IRL_QUESTIONS.get(language.lower(), IRL_QUESTIONS["english"]))
+    elif mode.upper() == "MRL":
+        return jsonify(MRL_QUESTIONS.get(language.lower(), MRL_QUESTIONS["english"]))
     elif mode.upper() == "TCP":
         return jsonify(TCP_QUESTIONS.get(language.lower(), TCP_QUESTIONS["english"]))
     return jsonify([])
@@ -624,16 +828,21 @@ def assess_technology():
     if mode.upper() == "TCP":
         return assess_tcp(data)
     else:
-        return assess_trl_irl(data)
+        return assess_standard(data)
 
-def assess_trl_irl(data):
+def assess_standard(data):
     mode = data["mode"]
     language = data["language"]
     answers = data["answers"]
 
-    questions = (
-        TRL_QUESTIONS if mode.upper() == "TRL" else IRL_QUESTIONS
-    )[language.lower()]
+    if mode.upper() == "TRL":
+        questions = TRL_QUESTIONS[language.lower()]
+    elif mode.upper() == "IRL":
+        questions = IRL_QUESTIONS[language.lower()]
+    elif mode.upper() == "MRL":
+        questions = MRL_QUESTIONS[language.lower()]
+    else:
+        return jsonify({"error": "Invalid assessment mode"}), 400
 
     level_achieved = -1
     for idx, lvl in enumerate(questions):
@@ -641,18 +850,204 @@ def assess_trl_irl(data):
             break
         level_achieved = lvl["level"]
 
+    # Generate detailed analysis for MRL
+    detailed_analysis = None
+    if mode.upper() == "MRL":
+        detailed_analysis = generate_mrl_detailed_analysis(answers, questions, level_achieved, language)
+
     result = {
         "mode": mode,
-        "mode_full": ("Technology Readiness Level" if mode.upper()=="TRL" else "Investment Readiness Level"),
-        "level": max(0, level_achieved),
+        "mode_full": get_mode_full_name(mode),
+        "level": max(0 if mode.upper() == "TRL" else 1, level_achieved),
         "technology_title": data["technology_title"],
         "description": data["description"],
         "answers": answers,
         "questions": questions,
         "explanation": generate_explanation(level_achieved, mode, language, questions),
+        "detailed_analysis": detailed_analysis,
         "timestamp": datetime.utcnow().isoformat()
     }
     return jsonify(result)
+
+def get_mode_full_name(mode):
+    mode_names = {
+        "TRL": "Technology Readiness Level",
+        "IRL": "Investment Readiness Level",
+        "MRL": "Market Readiness Level",
+        "TCP": "Technology Commercialization Pathway"
+    }
+    return mode_names.get(mode.upper(), mode)
+
+def generate_mrl_detailed_analysis(answers, questions, level_achieved, language):
+    """Generate detailed analysis for MRL assessment"""
+    analysis = {}
+    
+    # Calculate level completion percentages
+    level_scores = []
+    for idx, level in enumerate(questions):
+        if idx < len(answers):
+            level_answers = answers[idx]
+            completed = sum(1 for ans in level_answers if ans)
+            total = len(level_answers)
+            percentage = (completed / total) * 100 if total > 0 else 0
+            level_scores.append({
+                "level": level["level"],
+                "title": level["title"],
+                "completed": completed,
+                "total": total,
+                "percentage": percentage
+            })
+    
+    # Market readiness assessment
+    if level_achieved >= 7:
+        market_readiness = "High"
+    elif level_achieved >= 4:
+        market_readiness = "Medium"
+    else:
+        market_readiness = "Low"
+    
+    # Key findings
+    strengths = []
+    areas_for_improvement = []
+    
+    for score in level_scores:
+        if score["percentage"] >= 75:
+            strengths.append(score["title"])
+        elif score["percentage"] < 50:
+            areas_for_improvement.append(score["title"])
+    
+    # Next steps recommendations
+    next_steps = generate_mrl_next_steps(level_achieved, language)
+    
+    analysis = {
+        "level_scores": level_scores,
+        "market_readiness": market_readiness,
+        "strengths": strengths,
+        "areas_for_improvement": areas_for_improvement,
+        "next_steps": next_steps,
+        "overall_progress": (level_achieved + 1) / len(questions) * 100
+    }
+    
+    return analysis
+
+def generate_mrl_next_steps(level_achieved, language):
+    """Generate next steps recommendations for MRL"""
+    if language == "filipino":
+        next_steps_map = {
+            0: [
+                "Magsagawa ng comprehensive market research",
+                "Tukuyin ang specific market problems at opportunities",
+                "Makipag-ugnayan sa potential customers para sa feedback",
+                "Mag-develop ng initial market hypothesis"
+            ],
+            1: [
+                "Mag-conduct ng formal customer discovery interviews",
+                "Mag-develop ng detailed customer personas",
+                "Mag-validate ng market size at growth potential",
+                "Mag-analyze ng competitive landscape"
+            ],
+            2: [
+                "Mag-create ng customer validation surveys",
+                "Mag-test ng value proposition sa target customers",
+                "Mag-refine ng customer segments batay sa feedback",
+                "Mag-document ng customer requirements"
+            ],
+            3: [
+                "Mag-conduct ng quantitative market analysis",
+                "Mag-prioritize ng market segments",
+                "Mag-develop ng market penetration strategy",
+                "Mag-identify ng early adopter characteristics"
+            ],
+            4: [
+                "Mag-complete ng comprehensive competitive analysis",
+                "Mag-define ng unique value proposition",
+                "Mag-develop ng competitive positioning strategy",
+                "Mag-analyze ng pricing models"
+            ],
+            5: [
+                "Mag-create ng detailed go-to-market plan",
+                "Mag-identify ng distribution channels",
+                "Mag-develop ng marketing strategy",
+                "Mag-establish ng strategic partnerships"
+            ],
+            6: [
+                "Mag-launch ng pilot programs",
+                "Mag-conduct ng controlled market tests",
+                "Mag-measure ng customer adoption metrics",
+                "Mag-refine ng value proposition"
+            ],
+            7: [
+                "Mag-prepare para sa full market launch",
+                "Mag-finalize ng sales at marketing materials",
+                "Mag-establish ng customer support systems",
+                "Mag-secure ng launch partnerships"
+            ],
+            8: [
+                "Mag-focus sa market expansion",
+                "Mag-optimize ng customer acquisition",
+                "Mag-develop ng adjacent market opportunities",
+                "Mag-build ng sustainable competitive advantage"
+            ]
+        }
+    else:
+        next_steps_map = {
+            0: [
+                "Conduct comprehensive market research",
+                "Identify specific market problems and opportunities",
+                "Engage with potential customers for feedback",
+                "Develop initial market hypothesis"
+            ],
+            1: [
+                "Conduct formal customer discovery interviews",
+                "Develop detailed customer personas",
+                "Validate market size and growth potential",
+                "Analyze competitive landscape"
+            ],
+            2: [
+                "Create customer validation surveys",
+                "Test value proposition with target customers",
+                "Refine customer segments based on feedback",
+                "Document customer requirements"
+            ],
+            3: [
+                "Conduct quantitative market analysis",
+                "Prioritize market segments",
+                "Develop market penetration strategy",
+                "Identify early adopter characteristics"
+            ],
+            4: [
+                "Complete comprehensive competitive analysis",
+                "Define unique value proposition",
+                "Develop competitive positioning strategy",
+                "Analyze pricing models"
+            ],
+            5: [
+                "Create detailed go-to-market plan",
+                "Identify distribution channels",
+                "Develop marketing strategy",
+                "Establish strategic partnerships"
+            ],
+            6: [
+                "Launch pilot programs",
+                "Conduct controlled market tests",
+                "Measure customer adoption metrics",
+                "Refine value proposition"
+            ],
+            7: [
+                "Prepare for full market launch",
+                "Finalize sales and marketing materials",
+                "Establish customer support systems",
+                "Secure launch partnerships"
+            ],
+            8: [
+                "Focus on market expansion",
+                "Optimize customer acquisition",
+                "Develop adjacent market opportunities",
+                "Build sustainable competitive advantage"
+            ]
+        }
+    
+    return next_steps_map.get(level_achieved, next_steps_map[8])
 
 def assess_tcp(data):
     language = data["language"]
@@ -865,15 +1260,20 @@ def generate_tcp_explanation(pathway_scores, recommended_pathway, language):
 
 def generate_explanation(lvl, mode, lang, qset):
     if lang == "filipino":
-        if lvl < 0:
-            text = f"Hindi pa naaabot ng inyong teknolohiya ang antas 1 ng {mode}. Mangyaring kumpletuhin muna ang mga pangunahing requirements."
+        if lvl < (0 if mode == "TRL" else 1):
+            start_level = 0 if mode == "TRL" else 1
+            text = f"Hindi pa naaabot ng inyong teknolohiya ang antas {start_level} ng {mode}. Mangyaring kumpletuhin muna ang mga pangunahing requirements."
         else:
-            text = f"Naabot ng inyong teknolohiya ang {mode} antas {lvl}. {qset[lvl]['title']} ang pinakahuling yugto na natugunan nang buo."
+            text = f"Naabot ng inyong teknolohiya ang {mode} antas {lvl}. {qset[lvl if mode == 'TRL' else lvl-1]['title']} ang pinakahuling yugto na natugunan nang buo."
         
         if lvl + 1 < len(qset):
-            nxt = qset[lvl + 1]
-            text += f" Para umusad sa susunod na antas ({nxt['level']}), kinakailangan: {nxt['title']}."
+            next_idx = (lvl + 1) if mode == "TRL" else lvl
+            if next_idx < len(qset):
+                nxt = qset[next_idx]
+                next_level = nxt["level"]
+                text += f" Para umusad sa susunod na antas ({next_level}), kinakailangan: {nxt['title']}."
         
+        # Mode-specific guidance
         if mode == "IRL":
             if lvl < 3:
                 text += " Mag-focus sa market research at validation ng inyong business concept."
@@ -881,18 +1281,32 @@ def generate_explanation(lvl, mode, lang, qset):
                 text += " Patuloy na i-develop ang inyong produkto at maghanap ng early customers."
             else:
                 text += " Mag-focus sa scaling at revenue generation para sa sustainable growth."
+        elif mode == "MRL":
+            if lvl < 3:
+                text += " Mag-focus sa market research at customer discovery upang mas maintindihan ang market needs."
+            elif lvl < 6:
+                text += " Mag-develop ng comprehensive market strategy at competitive positioning."
+            else:
+                text += " Mag-prepare para sa market launch at focus sa customer acquisition."
         
         return text
     
-    if lvl < 0:
-        text = f"Your technology has not yet satisfied the basic requirements for {mode} level 1."
+    # English
+    start_level = 0 if mode == "TRL" else 1
+    if lvl < start_level:
+        text = f"Your technology has not yet satisfied the basic requirements for {mode} level {start_level}."
     else:
-        text = f"Your technology has achieved {mode} level {lvl} — {qset[lvl]['title']} requirements are fully met."
+        level_idx = lvl if mode == "TRL" else lvl - 1
+        text = f"Your technology has achieved {mode} level {lvl} — {qset[level_idx]['title']} requirements are fully met."
     
-    if lvl + 1 < len(qset):
-        nxt = qset[lvl + 1]
-        text += f" To advance to level {nxt['level']}, you must complete: {nxt['title']}."
+    if lvl + 1 < len(qset) + (0 if mode == "TRL" else 1):
+        next_idx = (lvl + 1) if mode == "TRL" else lvl
+        if next_idx < len(qset):
+            nxt = qset[next_idx]
+            next_level = nxt["level"]
+            text += f" To advance to level {next_level}, you must complete: {nxt['title']}."
     
+    # Mode-specific guidance
     if mode == "IRL":
         if lvl < 3:
             text += " Focus on market research and validating your business concept with potential customers."
@@ -900,6 +1314,13 @@ def generate_explanation(lvl, mode, lang, qset):
             text += " Continue developing your product and securing early customer commitments."
         else:
             text += " Focus on scaling operations and demonstrating sustainable revenue growth."
+    elif mode == "MRL":
+        if lvl < 3:
+            text += " Focus on market research and customer discovery to better understand market needs."
+        elif lvl < 6:
+            text += " Develop comprehensive market strategy and competitive positioning."
+        else:
+            text += " Prepare for market launch and focus on customer acquisition strategies."
     
     return text
 
@@ -971,8 +1392,10 @@ def generate_pdf():
         # Mode-specific content
         if data["mode"] == "TCP":
             generate_tcp_pdf_content(doc_elements, data, sty, heading_style)
+        elif data["mode"] == "MRL":
+            generate_mrl_pdf_content(doc_elements, data, sty, heading_style)
         else:
-            generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style)
+            generate_standard_pdf_content(doc_elements, data, sty, heading_style)
 
         # Footer
         doc_elements.append(Spacer(1, 14))
@@ -1001,6 +1424,79 @@ def generate_pdf():
         print(f"PDF Generation Error: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
         return jsonify({"error": f"PDF generation failed: {str(e)}"}), 500
+
+def generate_mrl_pdf_content(doc_elements, data, sty, heading_style):
+    """Generate MRL-specific PDF content"""
+    
+    print("Generating MRL PDF content...")
+    
+    detailed_analysis = data.get('detailed_analysis', {})
+    
+    # Market Readiness Overview
+    doc_elements.append(Paragraph("Market Readiness Analysis", heading_style))
+    doc_elements.append(Spacer(1, 8))
+    
+    market_readiness = detailed_analysis.get('market_readiness', 'Unknown')
+    overall_progress = detailed_analysis.get('overall_progress', 0)
+    
+    doc_elements.append(Paragraph(f"Overall Market Readiness: {market_readiness}", sty["Normal"]))
+    doc_elements.append(Paragraph(f"Progress Completion: {overall_progress:.1f}%", sty["Normal"]))
+    doc_elements.append(Spacer(1, 12))
+    
+    # Level-by-Level Analysis
+    doc_elements.append(Paragraph("Level-by-Level Analysis", heading_style))
+    doc_elements.append(Spacer(1, 8))
+    
+    level_scores = detailed_analysis.get('level_scores', [])
+    if level_scores:
+        level_data = [["Level", "Title", "Progress", "Status"]]
+        for score in level_scores:
+            status = "✓ Complete" if score['percentage'] >= 75 else "◐ Partial" if score['percentage'] >= 50 else "○ Incomplete"
+            level_data.append([
+                f"MRL {score['level']}",
+                score['title'],
+                f"{score['percentage']:.1f}%",
+                status
+            ])
+        
+        level_table = Table(level_data, colWidths=[0.8*inch, 2.5*inch, 0.8*inch, 0.9*inch])
+        level_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('ALIGN', (2, 0), (-1, -1), 'CENTER')
+        ]))
+        doc_elements.append(level_table)
+    
+    doc_elements.append(Spacer(1, 15))
+
+    # Strengths and Areas for Improvement
+    strengths = detailed_analysis.get('strengths', [])
+    areas_for_improvement = detailed_analysis.get('areas_for_improvement', [])
+    
+    if strengths:
+        doc_elements.append(Paragraph("Key Strengths", heading_style))
+        for strength in strengths:
+            doc_elements.append(Paragraph(f"• {strength}", sty["Normal"]))
+        doc_elements.append(Spacer(1, 10))
+    
+    if areas_for_improvement:
+        doc_elements.append(Paragraph("Areas for Improvement", heading_style))
+        for area in areas_for_improvement:
+            doc_elements.append(Paragraph(f"• {area}", sty["Normal"]))
+        doc_elements.append(Spacer(1, 10))
+
+    # Next Steps and Recommendations
+    doc_elements.append(Paragraph("Recommended Next Steps", heading_style))
+    next_steps = detailed_analysis.get('next_steps', [])
+    if next_steps:
+        for step in next_steps:
+            doc_elements.append(Paragraph(f"• {step}", sty["Normal"]))
+    doc_elements.append(Spacer(1, 15))
+
+    # Detailed Responses
+    generate_standard_pdf_responses(doc_elements, data, sty, heading_style)
 
 def generate_tcp_pdf_content(doc_elements, data, sty, heading_style):
     """Generate comprehensive TCP PDF content"""
@@ -1131,8 +1627,21 @@ def generate_tcp_pdf_content(doc_elements, data, sty, heading_style):
         fallback_recommendations = get_pathway_recommendations(recommended_pathway)
         doc_elements.append(Paragraph(fallback_recommendations, sty["Normal"]))
 
-def generate_trl_irl_pdf_content(doc_elements, data, sty, heading_style):
-    """Generate TRL/IRL-specific PDF content"""
+def generate_standard_pdf_content(doc_elements, data, sty, heading_style):
+    """Generate TRL/IRL/MRL-specific PDF content"""
+    
+    # Enhanced analysis for MRL
+    if data["mode"] == "MRL":
+        detailed_analysis = data.get('detailed_analysis', {})
+        if detailed_analysis:
+            # Summary already handled in generate_mrl_pdf_content
+            pass
+    
+    # Add detailed responses
+    generate_standard_pdf_responses(doc_elements, data, sty, heading_style)
+
+def generate_standard_pdf_responses(doc_elements, data, sty, heading_style):
+    """Generate detailed responses for standard assessments (TRL/IRL/MRL)"""
     doc_elements.append(Paragraph("Detailed Assessment Results", heading_style))
     doc_elements.append(Spacer(1, 10))
     
