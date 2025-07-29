@@ -908,6 +908,9 @@ def init_database():
                 ADD COLUMN IF NOT EXISTS pdf_filename VARCHAR(255)
             ''')
             
+            # Drop the problematic index if it exists
+            cur.execute('DROP INDEX IF EXISTS idx_assessments_pdf')
+            
             # Create assessment_answers table
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS assessment_answers (
@@ -937,7 +940,6 @@ def init_database():
             cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_type ON assessments(assessment_type)')
             cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_completed ON assessments(completed)')
             cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_created_at ON assessments(created_at)')
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_pdf ON assessments(pdf_data)')
             
             conn.commit()
             print("Database initialized successfully!")
@@ -1514,10 +1516,11 @@ def admin_pdfs():
     """Admin page to view all collected PDFs"""
     try:
         pdfs = get_all_pdfs()
-        return render_template("admin_pdfs.html", pdfs=pdfs)
+        admin_email = os.getenv('ADMIN_EMAIL')
+        return render_template("admin_pdfs.html", pdfs=pdfs, admin_email=admin_email)
     except Exception as e:
         print(f"Error in admin_pdfs route: {e}")
-        return render_template("admin_pdfs.html", pdfs=[])
+        return render_template("admin_pdfs.html", pdfs=[], admin_email=None)
 
 @app.route("/admin/pdf/<int:assessment_id>")
 def download_pdf(assessment_id):
