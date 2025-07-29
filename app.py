@@ -30,384 +30,461 @@ except ImportError:
     print("Google Drive libraries not installed. Install with: pip install google-api-python-client google-auth")
 
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'your-secret-key-here')
+app.secret_key = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
 
-# Database connection
-def get_db_connection():
-    """Get PostgreSQL database connection"""
-    try:
-        conn = psycopg2.connect(
-            host=os.getenv('DATABASE_HOST'),
-            database=os.getenv('DATABASE_NAME'),
-            user=os.getenv('DATABASE_USER'),
-            password=os.getenv('DATABASE_PASSWORD'),
-            port=os.getenv('DATABASE_PORT', 5432)
-        )
-        return conn
-    except Exception as e:
-        print(f"Database connection error: {e}")
-        return None
+# Complete TRL Questions Database (0-9)
+TRL_QUESTIONS = {
+    "english": [
+        {
+            "level": 0,
+            "title": "Pre-Concept / Exploration",
+            "checks": [
+                "Has the core idea or problem space been clearly articulated?",
+                "Have unmet needs or gaps been identified through initial research?",
+                "Is background literature or patent prior-art being reviewed?",
+                "Are speculative 'what-if' scenarios being recorded for future study?",
+                "Is any form of intellectual-property strategy (trade secret or early disclosure) in place?"
+            ]
+        },
+        {
+            "level": 1,
+            "title": "Basic Principles Observed",
+            "checks": [
+                "Have the fundamental scientific principles underpinning the technology been identified?",
+                "Is at least one peer-reviewed source or equivalent documentation available?",
+                "Have theoretical or mathematical models been drafted to explain feasibility?",
+                "Is there preliminary evidence or data supporting the stated principles?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Technology Concept Formulated",
+            "checks": [
+                "Is a specific technology concept or application now defined rather than an abstract idea?",
+                "Are the advantages and potential use-cases described in technical language?",
+                "Have initial feasibility analyses or simulations been completed?",
+                "Is the concept documented in a white-paper, preprint or equivalent outlet?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Experimental Proof of Concept",
+            "checks": [
+                "Have critical functions or key performance parameters been identified?",
+                "Have laboratory experiments demonstrated proof-of-concept for at least one function?",
+                "Are performance metrics recorded and benchmarked against targets?",
+                "Have safety, ethical or regulatory constraints been identified at this stage?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Technology Validated in Laboratory",
+            "checks": [
+                "Has a breadboard or prototype subsystem been integrated for laboratory testing?",
+                "Do measured performances meet or surpass model predictions within tolerances?",
+                "Are test procedures documented and peer-reviewed or independently replicated?",
+                "Is a preliminary risk register available for the validated subsystem?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Technology Validated in Relevant Environment",
+            "checks": [
+                "Has the breadboard been upgraded for operation in a relevant (not yet operational) environment?",
+                "Do environmental tests include temperature, vibration or other domain-specific stresses?",
+                "Has compliance with domain standards been assessed by an external body or advisory board?",
+                "Is an updated risk mitigation plan in place reflecting test outcomes?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Prototype Demonstrated in Relevant Environment",
+            "checks": [
+                "Is a system/sub-system model or prototype complete enough to deliver baseline functionality?",
+                "Has the prototype been demonstrated end-to-end in a relevant environment?",
+                "Do data show the prototype meeting critical performance metrics under realistic constraints?",
+                "Is a V&V (verification & validation) report available for this prototype?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "System Prototype Demonstrated in Operational Environment",
+            "checks": [
+                "Has the prototype been installed or trialed within the intended operational setting?",
+                "Do operational data confirm functionality under real-world duty-cycles?",
+                "Are failure modes analysed with corrective actions documented?",
+                "Is the supply-chain or manufacturing route for key components identified?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "System Complete and Qualified",
+            "checks": [
+                "Is the technology an integrated commercial or mission-ready system?",
+                "Has the system passed full acceptance tests, certifications, or regulatory approvals?",
+                "Are formal user manuals, maintenance plans and training materials available?",
+                "Have pilot customers or early adopters signed off on performance KPIs?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Actual System Proven in Operational Environment",
+            "checks": [
+                "Has the technology been deployed in its final form during routine mission operations?",
+                "Do longitudinal data confirm sustained performance and reliability?",
+                "Are service-level agreements and quality-assurance processes fully operational?",
+                "Is a continual improvement framework in place for upgrades or derivative products?"
+            ]
+        }
+    ],
+    "filipino": [
+        {
+            "level": 0,
+            "title": "Pre-Konsepto / Eksplorasyon",
+            "checks": [
+                "Malinaw bang nailahad ang pangunahing ideya o problemang nais solusyonan?",
+                "Natukoy na ba ang hindi natutugunang pangangailangan batay sa paunang pananaliksik?",
+                "Isinasagawa ba ang pagsusuri ng literatura o patent upang maiwasan ang duplikasyon?",
+                "Naitatala ba ang mga spekulatibong 'paano kung' na senaryo para sa susunod na pag-aaral?",
+                "May estratehiya na ba ukol sa proteksyon ng intelektuwal na ari-arian (hal. trade secret o maagang paglalathala)?"
+            ]
+        },
+        {
+            "level": 1,
+            "title": "Pangunahing Prinsipyo na-obserbahan",
+            "checks": [
+                "Natukoy na ba ang mga batayang prinsipyong siyentipiko ng teknolohiya?",
+                "Mayroon bang kahit isang peer-reviewed na sanggunian o katumbas na dokumentasyon?",
+                "Nabuo na ba ang teoretikal o matematikal na modelo upang patunayan ang posibilidad?",
+                "May paunang ebidensiya o datos ba na sumusuporta sa mga prinsipyong ito?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Nabuo ang Konsepto ng Teknolohiya",
+            "checks": [
+                "May tiyak na konsepto o aplikasyong teknolohikal na ba kaysa sa abstraktong ideya?",
+                "Naipaliwanag ba ang mga benepisyo at posibleng gamit sa teknikal na wika?",
+                "Nagawa na ba ang paunang feasibility analysis o simulation?",
+                "Nakadokumento ba ang konsepto sa white-paper, preprint o katumbas?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Eksperimental na Patunay ng Konsepto",
+            "checks": [
+                "Natukoy na ba ang mga kritikal na function o key performance parameters?",
+                "May mga eksperimento bang laboratoryo na nagpatunay ng konsepto para kahit isang function?",
+                "Naitala at na-benchmark ba ang performance metrics laban sa target?",
+                "Natukoy na ba ang mga usaping pangkaligtasan, etikal o regulasyon sa yugtong ito?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Na-validate ang Teknolohiya sa Laboratoryo",
+            "checks": [
+                "May breadboard o prototype subsystem ba na na-integrate para sa testing sa laboratoryo?",
+                "Tugma ba ang nasukat na performance sa inaasahan ayon sa modelo?",
+                "Nadokumento at na-peer-review ba ang test procedures o na-replicate nang independiyente?",
+                "May paunang talaan ba ng panganib para sa na-validate na subsystem?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Na-validate sa Kaugnay na Kapaligiran",
+            "checks": [
+                "Na-upgrade ba ang breadboard para gumana sa kaugnay (pero di pa operasyonal) na kapaligiran?",
+                "Saklaw ba ng environmental tests ang temperatura, vibration o iba pang stress na may kaugnayan sa domain?",
+                "Nagsagawa ba ng assessment sa pagsunod sa mga pamantayan ng industriya o regulasyon?",
+                "Na-update ba ang risk mitigation plan batay sa resulta ng tests?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Prototype na Naipakita sa Kaugnay na Kapaligiran",
+            "checks": [
+                "Kumpleto ba ang system o subsystem model/prototype para maghatid ng batayang functionality?",
+                "Naipakita ba end-to-end ang prototype sa kaugnay na kapaligiran?",
+                "Ipinapakita ba ng data na naabot ng prototype ang kritikal na performance metrics sa tunay na limitasyon?",
+                "May verification at validation report ba para sa prototype?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "Prototype ng Sistema sa Operasyonal na Kapaligiran",
+            "checks": [
+                "Na-install o na-subok ba ang prototype sa inaasahang operasyonal na setting?",
+                "Pinatutunayan ba ng operasyonal na datos ang functionality sa aktwal na duty-cycle?",
+                "Na-analyse ba ang failure modes at nadokumento ang corrective actions?",
+                "Natukoy na ba ang supply-chain o ruta ng pagmamanupaktura para sa mahahalagang bahagi?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "Kumpleto at Na-qualify ang Sistema",
+            "checks": [
+                "Isang integrado at handa-komersiyal o mission-ready na sistema na ba ang teknolohiya?",
+                "Naipasa ba nito ang kumpletong acceptance tests, certifications, o approvals?",
+                "May opisyal na user manuals, maintenance plans at training materials na ba?",
+                "May pilot customers o early adopters ba na nag-sign-off sa performance KPIs?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Aktwal na Sistemang Napatunayan sa Operasyon",
+            "checks": [
+                "Na-deploy na ba ang teknolohiya sa final form sa regular na operasyon?",
+                "Pinatutunayan ba ng pangmatagalang datos ang tuloy-tuloy na performance at reliability?",
+                "Gumagana ba ang service-level agreements at QA processes nang buo?",
+                "May framework ba para sa continual improvement o derivative products?"
+            ]
+        }
+    ]
+}
 
-# Database initialization
-def init_database():
-    """Initialize PostgreSQL database with required tables"""
-    conn = get_db_connection()
-    if not conn:
-        print("Failed to connect to database!")
-        return
-    
-    try:
-        with conn.cursor() as cur:
-            # Create assessments table
-            cur.execute('''
-                CREATE TABLE IF NOT EXISTS assessments (
-                    id SERIAL PRIMARY KEY,
-                    session_id VARCHAR(255),
-                    assessment_type VARCHAR(10),
-                    technology_title VARCHAR(500),
-                    description TEXT,
-                    level_achieved INTEGER,
-                    recommended_pathway VARCHAR(100),
-                    language VARCHAR(10),
-                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    google_drive_link VARCHAR(1000),
-                    ip_address INET,
-                    user_agent TEXT,
-                    consent_given BOOLEAN DEFAULT TRUE,
-                    completed BOOLEAN DEFAULT TRUE,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Create assessment_answers table
-            cur.execute('''
-                CREATE TABLE IF NOT EXISTS assessment_answers (
-                    id SERIAL PRIMARY KEY,
-                    assessment_id INTEGER REFERENCES assessments(id) ON DELETE CASCADE,
-                    level_number INTEGER,
-                    question_index INTEGER,
-                    answer BOOLEAN,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Create tcp_answers table
-            cur.execute('''
-                CREATE TABLE IF NOT EXISTS tcp_answers (
-                    id SERIAL PRIMARY KEY,
-                    assessment_id INTEGER REFERENCES assessments(id) ON DELETE CASCADE,
-                    dimension_name VARCHAR(100),
-                    question_index INTEGER,
-                    score INTEGER,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            
-            # Create indexes for better performance
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_timestamp ON assessments(timestamp)')
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_type ON assessments(assessment_type)')
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_completed ON assessments(completed)')
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_created_at ON assessments(created_at)')
-            
-            conn.commit()
-            print("Database initialized successfully!")
-            
-    except Exception as e:
-        print(f"Database initialization error: {e}")
-        conn.rollback()
-    finally:
-        conn.close()
+# Complete IRL Questions Database (1-9)
+IRL_QUESTIONS = {
+    "english": [
+        {
+            "level": 1,
+            "title": "Initial Concept",
+            "checks": [
+                "Is there a clear business idea or concept documented?",
+                "Has a basic business model canvas been completed?",
+                "Are the founders aware of the specific market need or problem being addressed?",
+                "Is there any documentation of the idea or initial research conducted?",
+                "Have you identified the core value proposition of your technology?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Market & Competitive Analysis",
+            "checks": [
+                "Has the value proposition been clearly defined and summarized?",
+                "Is there an initial analysis of the target market size and growth potential?",
+                "Has a basic competitive landscape been mapped and analyzed?",
+                "Have you identified potential barriers to entry or regulatory considerations?",
+                "Are key market trends and opportunities documented?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Problem/Solution Validation",
+            "checks": [
+                "Has the problem-solution fit been validated with potential customers through interviews or surveys?",
+                "Is there evidence that the proposed solution addresses a real and significant market need?",
+                "Have customer segments and their specific needs been clearly identified?",
+                "Is there documented feedback from early users or market experts?",
+                "Have you validated key assumptions about customer pain points?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Prototype/Minimum Viable Product (MVP)",
+            "checks": [
+                "Has a low-fidelity prototype or MVP been developed and tested?",
+                "Has the MVP been tested internally or with a small group of target users?",
+                "Are there initial performance metrics or user feedback data collected?",
+                "Is there a documented plan for further product development and iteration?",
+                "Have you established success criteria and KPIs for the MVP?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Product/Market Fit Validation",
+            "checks": [
+                "Has the product been tested in the market with real users in actual conditions?",
+                "Is there evidence of product/market fit such as repeat usage or positive feedback?",
+                "Have key performance indicators (KPIs) been defined, tracked, and analyzed?",
+                "Are there initial sales, signed letters of intent, or committed customers?",
+                "Have you demonstrated customer retention and engagement metrics?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Business Model Validation",
+            "checks": [
+                "Has the business model been tested and validated in real market conditions?",
+                "Is there evidence of sustainable revenue generation or proven monetization strategy?",
+                "Have operational processes been established, tested, and optimized?",
+                "Are there validated assumptions about customer acquisition costs and lifetime value?",
+                "Have you demonstrated scalability of the business model with growth projections?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "Investment Ready / Early Commercial",
+            "checks": [
+                "Has a comprehensive business plan been developed with detailed financial projections?",
+                "Is there a complete management team with relevant industry experience?",
+                "Have you secured initial funding, investment, or significant partnerships?",
+                "Are intellectual property rights and legal structures properly established?",
+                "Have you achieved initial commercial sales or revenue milestones?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "Commercial Scaling",
+            "checks": [
+                "Is the business generating consistent and growing revenue streams?",
+                "Have you established scalable operations and distribution channels?",
+                "Are customer acquisition and retention processes optimized and repeatable?",
+                "Have you achieved positive cash flow or clear path to profitability?",
+                "Is there evidence of market traction and competitive positioning?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Market Leadership / Expansion",
+            "checks": [
+                "Has the business achieved sustainable profitability and market leadership?",
+                "Are you expanding into new markets, products, or customer segments?",
+                "Have you established strong brand recognition and customer loyalty?",
+                "Are there strategic partnerships or acquisition opportunities being pursued?",
+                "Is there a clear strategy for long-term growth and market expansion?"
+            ]
+        }
+    ],
+    "filipino": [
+        {
+            "level": 1,
+            "title": "Pangunahing Konsepto",
+            "checks": [
+                "May malinaw at nakadokumentong business idea o konsepto ba?",
+                "Nakumpleto na ba ang basic business model canvas?",
+                "Alam ba ng mga founder ang tiyak na market need o problemang aayusin?",
+                "May dokumentasyon ba ng ideya o paunang pananaliksik na ginawa?",
+                "Natukoy na ba ang core value proposition ng inyong teknolohiya?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Market at Competitive Analysis",
+            "checks": [
+                "Malinaw na ba ang pagkakadefine at nabuod ang value proposition?",
+                "May paunang pagsusuri ba ng target market size at growth potential?",
+                "Nagawa na ba ang basic competitive landscape mapping at analysis?",
+                "Natukoy na ba ang mga potential barriers to entry o regulatory considerations?",
+                "Nakadokumento ba ang mga key market trends at opportunities?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Problem/Solution Validation",
+            "checks": [
+                "Na-validate na ba ang problem-solution fit sa pamamagitan ng interviews o surveys sa potential customers?",
+                "May ebidensya ba na ang proposed solution ay tumutugunan sa tunay at malaking market need?",
+                "Malinaw na ba ang pagkakakilala sa customer segments at kanilang specific needs?",
+                "May nakadokumentong feedback ba mula sa early users o market experts?",
+                "Na-validate na ba ang mga key assumptions tungkol sa customer pain points?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Prototype/Minimum Viable Product (MVP)",
+            "checks": [
+                "Nakabuo at nasubukan na ba ang low-fidelity prototype o MVP?",
+                "Nasubukan na ba ang MVP internally o sa maliit na grupo ng target users?",
+                "May nakolektang initial performance metrics o user feedback data ba?",
+                "May nakadokumentong plano ba para sa karagdagang product development at iteration?",
+                "Naitakda na ba ang success criteria at KPIs para sa MVP?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Product/Market Fit Validation",
+            "checks": [
+                "Nasubukan na ba ang produkto sa market kasama ang tunay na users sa aktwal na kondisyon?",
+                "May ebidensya ba ng product/market fit tulad ng repeat usage o positive feedback?",
+                "Naitakda, sinubaybayan, at na-analyze na ba ang key performance indicators (KPIs)?",
+                "May initial sales, signed letters of intent, o committed customers na ba?",
+                "Naipakita na ba ang customer retention at engagement metrics?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Business Model Validation",
+            "checks": [
+                "Nasubukan at na-validate na ba ang business model sa tunay na market conditions?",
+                "May ebidensya ba ng sustainable revenue generation o napatunayang monetization strategy?",
+                "Naitatag, nasubukan, at na-optimize na ba ang operational processes?",
+                "May na-validate na assumptions ba tungkol sa customer acquisition costs at lifetime value?",
+                "Naipakita na ba ang scalability ng business model kasama ang growth projections?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "Handa sa Investment / Early Commercial",
+            "checks": [
+                "Nabuo na ba ang comprehensive business plan na may detalyadong financial projections?",
+                "May kumpletong management team ba na may kaugnay na industry experience?",
+                "Nakakuha na ba ng initial funding, investment, o makabuluhang partnerships?",
+                "Naitatag na ba nang maayos ang intellectual property rights at legal structures?",
+                "Nakamit na ba ang initial commercial sales o revenue milestones?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "Commercial Scaling",
+            "checks": [
+                "Gumagawa ba ang business ng consistent at lumalaking revenue streams?",
+                "Naitatag na ba ang scalable operations at distribution channels?",
+                "Na-optimize na ba at nauulit ang customer acquisition at retention processes?",
+                "Nakamit na ba ang positive cash flow o malinaw na daan patungo sa profitability?",
+                "May ebidensya ba ng market traction at competitive positioning?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Market Leadership / Expansion",
+            "checks": [
+                "Nakamit na ba ng business ang sustainable profitability at market leadership?",
+                "Nag-eexpand ba kayo sa bagong markets, products, o customer segments?",
+                "Naitatag na ba ang malakas na brand recognition at customer loyalty?",
+                "May strategic partnerships o acquisition opportunities ba na sinusubaybayan?",
+                "May malinaw na estratehiya ba para sa long-term growth at market expansion?"
+            ]
+        }
+    ]
+}
 
-# Initialize database on startup
-init_database()
-
-# [Keep all the question databases from previous implementation]
-# TRL_QUESTIONS, IRL_QUESTIONS, MRL_QUESTIONS, TCP_QUESTIONS...
-
-# Google Drive Manager (same as before)
-class GoogleDriveManager:
-    def __init__(self):
-        self.service = None
-        self.root_folder_id = None
-        self._initialize_service()
-    
-    def _initialize_service(self):
-        if not GOOGLE_DRIVE_AVAILABLE:
-            print("Google Drive integration disabled - missing dependencies")
-            return
-            
-        try:
-            if os.path.exists('google-drive-credentials.json'):
-                credentials = Credentials.from_service_account_file(
-                    'google-drive-credentials.json',
-                    scopes=['https://www.googleapis.com/auth/drive']
-                )
-                self.service = build('drive', 'v3', credentials=credentials)
-                self._setup_folder_structure()
-                print("Google Drive integration initialized successfully")
-            else:
-                print("Google Drive credentials file not found")
-        except Exception as e:
-            print(f"Failed to initialize Google Drive: {str(e)}")
-    
-    def _setup_folder_structure(self):
-        if not self.service:
-            return
-            
-        try:
-            # Find or create root folder
-            root_folder_name = "MMSU Technology Assessment Reports"
-            folders = self.service.files().list(
-                q=f"name='{root_folder_name}' and mimeType='application/vnd.google-apps.folder'",
-                fields="files(id, name)"
-            ).execute().get('files', [])
-            
-            if folders:
-                self.root_folder_id = folders[0]['id']
-            else:
-                # Create root folder
-                folder_metadata = {
-                    'name': root_folder_name,
-                    'mimeType': 'application/vnd.google-apps.folder'
-                }
-                folder = self.service.files().create(body=folder_metadata, fields='id').execute()
-                self.root_folder_id = folder.get('id')
-                
-                # Make folder publicly viewable
-                permission = {
-                    'type': 'anyone',
-                    'role': 'reader'
-                }
-                self.service.permissions().create(
-                    fileId=self.root_folder_id,
-                    body=permission
-                ).execute()
-                
-        except Exception as e:
-            print(f"Error setting up folder structure: {str(e)}")
-    
-    def _get_or_create_folder(self, parent_folder_id, folder_name):
-        if not self.service:
-            return None
-            
-        try:
-            # Check if folder exists
-            folders = self.service.files().list(
-                q=f"name='{folder_name}' and '{parent_folder_id}' in parents and mimeType='application/vnd.google-apps.folder'",
-                fields="files(id, name)"
-            ).execute().get('files', [])
-            
-            if folders:
-                return folders[0]['id']
-            else:
-                # Create folder
-                folder_metadata = {
-                    'name': folder_name,
-                    'mimeType': 'application/vnd.google-apps.folder',
-                    'parents': [parent_folder_id]
-                }
-                folder = self.service.files().create(body=folder_metadata, fields='id').execute()
-                return folder.get('id')
-                
-        except Exception as e:
-            print(f"Error creating folder {folder_name}: {str(e)}")
-            return None
-    
-    def upload_pdf(self, pdf_buffer, filename, assessment_type, timestamp):
-        if not self.service or not self.root_folder_id:
-            return None
-            
-        try:
-            # Create folder structure: Year/Month/AssessmentType
-            year = timestamp.strftime('%Y')
-            month = timestamp.strftime('%B')
-            
-            year_folder_id = self._get_or_create_folder(self.root_folder_id, year)
-            if not year_folder_id:
-                return None
-                
-            month_folder_id = self._get_or_create_folder(year_folder_id, month)
-            if not month_folder_id:
-                return None
-                
-            type_folder_id = self._get_or_create_folder(month_folder_id, assessment_type.upper())
-            if not type_folder_id:
-                return None
-            
-            # Upload file
-            media = MediaIoBaseUpload(pdf_buffer, mimetype='application/pdf')
-            file_metadata = {
-                'name': filename,
-                'parents': [type_folder_id]
-            }
-            
-            file = self.service.files().create(
-                body=file_metadata,
-                media_body=media,
-                fields='id,webViewLink'
-            ).execute()
-            
-            # Make file publicly viewable
-            permission = {
-                'type': 'anyone',
-                'role': 'reader'
-            }
-            self.service.permissions().create(
-                fileId=file.get('id'),
-                body=permission
-            ).execute()
-            
-            return file.get('webViewLink')
-            
-        except Exception as e:
-            print(f"Error uploading to Google Drive: {str(e)}")
-            return None
-    
-    def get_public_folder_link(self):
-        if self.root_folder_id:
-            return f"https://drive.google.com/drive/folders/{self.root_folder_id}"
-        return None
-
-# Initialize Google Drive Manager
-drive_manager = GoogleDriveManager()
-
-# Statistics Functions (Updated for PostgreSQL)
-def get_statistics():
-    """Get comprehensive statistics from PostgreSQL database"""
-    conn = get_db_connection()
-    if not conn:
-        return {}
-    
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            # Total assessments
-            cur.execute('SELECT COUNT(*) as count FROM assessments WHERE completed = true')
-            total = cur.fetchone()['count']
-            
-            # Assessments by type
-            cur.execute('''
-                SELECT assessment_type, COUNT(*) as count 
-                FROM assessments 
-                WHERE completed = true 
-                GROUP BY assessment_type
-                ORDER BY count DESC
-            ''')
-            by_type = cur.fetchall()
-            
-            # Monthly statistics (last 12 months)
-            cur.execute('''
-                SELECT 
-                    TO_CHAR(timestamp, 'YYYY-MM') as month,
-                    assessment_type,
-                    COUNT(*) as count
-                FROM assessments 
-                WHERE completed = true AND timestamp >= CURRENT_DATE - INTERVAL '12 months'
-                GROUP BY TO_CHAR(timestamp, 'YYYY-MM'), assessment_type
-                ORDER BY month
-            ''')
-            monthly = cur.fetchall()
-            
-            # Success rates (average levels achieved)
-            cur.execute('''
-                SELECT 
-                    assessment_type,
-                    ROUND(AVG(level_achieved)::numeric, 2) as avg_level,
-                    COUNT(*) as count
-                FROM assessments 
-                WHERE completed = true AND level_achieved IS NOT NULL
-                GROUP BY assessment_type
-            ''')
-            success_rates = cur.fetchall()
-            
-            # TCP pathway distribution
-            cur.execute('''
-                SELECT 
-                    recommended_pathway,
-                    COUNT(*) as count
-                FROM assessments 
-                WHERE completed = true AND assessment_type = 'TCP' AND recommended_pathway IS NOT NULL
-                GROUP BY recommended_pathway
-                ORDER BY count DESC
-            ''')
-            tcp_pathways = cur.fetchall()
-            
-            # Recent activity (last 20 assessments)
-            cur.execute('''
-                SELECT 
-                    assessment_type,
-                    technology_title,
-                    level_achieved,
-                    recommended_pathway,
-                    timestamp,
-                    language
-                FROM assessments 
-                WHERE completed = true
-                ORDER BY timestamp DESC 
-                LIMIT 20
-            ''')
-            recent = cur.fetchall()
-            
-            # Completion rates
-            cur.execute('SELECT COUNT(*) as count FROM assessments')
-            total_started = cur.fetchone()['count']
-            completion_rate = (total / total_started * 100) if total_started > 0 else 0
-            
-            # Geographic distribution (by IP address prefix)
-            cur.execute('''
-                SELECT 
-                    HOST(ip_address) as ip_address,
-                    COUNT(*) as count
-                FROM assessments 
-                WHERE completed = true AND ip_address IS NOT NULL
-                GROUP BY HOST(ip_address)
-                ORDER BY count DESC
-                LIMIT 10
-            ''')
-            geographic = cur.fetchall()
-            
-            # Daily statistics for the last 30 days
-            cur.execute('''
-                SELECT 
-                    DATE(timestamp) as date,
-                    COUNT(*) as count
-                FROM assessments 
-                WHERE completed = true AND timestamp >= CURRENT_DATE - INTERVAL '30 days'
-                GROUP BY DATE(timestamp)
-                ORDER BY date
-            ''')
-            daily_stats = cur.fetchall()
-            
-            return {
-                'total_assessments': total,
-                'assessments_by_type': [dict(row) for row in by_type],
-                'monthly_statistics': [dict(row) for row in monthly],
-                'success_rates': [dict(row) for row in success_rates],
-                'tcp_pathways': [dict(row) for row in tcp_pathways],
-                'recent_activity': [dict(row) for row in recent],
-                'completion_rate': round(completion_rate, 2),
-                'geographic_distribution': [dict(row) for row in geographic],
-                'daily_statistics': [dict(row) for row in daily_stats],
-                'total_started': total_started
-            }
-            
-    except Exception as e:
-        print(f"Error getting statistics: {e}")
-        return {}
-    finally:
-        conn.close()
-
-def save_assessment_to_db(assessment_data, answers_data, google_drive_link=None):
-    """Save assessment data to PostgreSQL database"""
-    conn = get_db_connection()
-    if not conn:
-        return None
-    
-    try:
-        with conn.cursor() as cur:
-            # Insert main assessment record
-            cur.execute('''
-                INSERT INTO assessments (
-                    session_id, assessment_type, technology_title, description,
-                    level_achieved, recommended_pathway, language, timestamp,
-                    google_drive_link, ip_address, user_agent, consent_given, completed
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s,
+# Market Readiness Level (MRL) Questions Database (1-9)
+MRL_QUESTIONS = {
+    "english": [
+        {
+            "level": 1,
+            "title": "Market Need Identification",
+            "checks": [
+                "Has a specific market problem or unmet need been clearly identified?",
+                "Is there preliminary evidence that the identified need is significant and widespread?",
+                "Have initial market pain points been documented through observations or informal discussions?",
+                "Is there awareness of existing solutions and their limitations in addressing the identified need?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Market Research and Analysis",
+            "checks": [
+                "Has formal market research been conducted to validate the identified market need?",
+                "Is there documented analysis of market size, growth trends, and dynamics?",
+                "Have target customer segments been preliminarily identified and characterized?",
+                "Is there understanding of market drivers, barriers, and key success factors?",
+                "Have relevant industry reports, studies, or expert opinions been gathered and analyzed?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Customer Discovery and Validation",
+            "checks": [
+                "Have direct interviews or surveys been conducted with potential customers?",
+                "Is there validated evidence that customers experience the identified problem?",
+                "Have customer personas and use cases been developed based on real feedback?",
+                "Is there documented willingness from customers to consider alternative solutions?",
+                "Have customer requirements and decision-making criteria been identified?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Market Segmentation and Sizing",
+            "checks": [
+                "Have distinct market segments been identified and priorit
