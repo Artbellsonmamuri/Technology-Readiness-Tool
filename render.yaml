@@ -13,3 +13,27 @@ services:
         value: 3.11.9
       - key: PORT
         value: 10000
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: mmsu-assessment-db
+          property: host
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: mmsu-assessment-db
+          property: database
+      - key: DATABASE_USER
+        fromDatabase:
+          name: mmsu-assessment-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: mmsu-assessment-db
+          property: password
+
+databases:
+  - name: mmsu-assessment-db
+    databaseName: mmsu_assessments
+    user: mmsu_user
+    plan: free
