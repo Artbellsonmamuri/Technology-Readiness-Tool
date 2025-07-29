@@ -1459,10 +1459,11 @@ def generate_tcp_explanation(pathway_scores, recommended_pathway, detailed_analy
     return text
 
 # PDF GENERATION
+# PDF GENERATION - CORRECTED VERSION
 def create_enhanced_pdf(data):
     """Create enhanced PDF report"""
     buf = io.BytesIO()
-    doc = SimpleDocumentTemplate(buf, pagesize=A4, topMargin=0.5*inch)
+    doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=0.5*inch)  # FIXED: was SimpleDocumentTemplate
     styles = getSampleStyleSheet()
     
     title_style = ParagraphStyle("Title", parent=styles["Heading1"], fontSize=16, textColor=colors.darkgreen, alignment=1, spaceAfter=6)
@@ -1483,9 +1484,10 @@ def create_enhanced_pdf(data):
     # Technology Information
     tech_info = [
         ["Technology Title:", data.get('technology_title', 'N/A')],
-        ["Description:", data.get('description', 'N/A')],
+        ["Description:", data.get('description', 'N/A')[:100] + "..." if len(data.get('description', '')) > 100 else data.get('description', 'N/A')],
         ["Assessment Date:", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')],
-        ["Enhancement Level:", "📊 Comprehensive Analysis with Smart Recommendations"]
+        ["Assessment Type:", data.get('mode_full', data['mode'])],
+        ["Language:", data.get('language', 'english').title()]
     ]
     
     if data['mode'] == 'TCP':
@@ -1493,6 +1495,8 @@ def create_enhanced_pdf(data):
         detailed_analysis = data.get('detailed_analysis', {})
         confidence = detailed_analysis.get('confidence_score', 0)
         tech_info.append(["Confidence Level:", f"{confidence}%"])
+        overall_readiness = detailed_analysis.get('overall_readiness', 'N/A')
+        tech_info.append(["Overall Readiness:", overall_readiness])
     else:
         tech_info.append(["Level Achieved:", str(data.get('level', 'N/A'))])
     
@@ -1501,9 +1505,11 @@ def create_enhanced_pdf(data):
         ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP')
     ]))
     
     elements.append(tech_table)
@@ -1511,39 +1517,140 @@ def create_enhanced_pdf(data):
     
     # Assessment Summary
     elements.append(Paragraph("📊 Assessment Summary", heading_style))
-    elements.append(Paragraph(data.get("explanation", "No explanation available."), styles["Normal"]))
+    explanation_text = data.get("explanation", "No explanation available.")
+    # Clean up explanation text for PDF
+    explanation_text = explanation_text.replace("**", "").replace("*", "")
+    elements.append(Paragraph(explanation_text[:1000] + "..." if len(explanation_text) > 1000 else explanation_text, styles["Normal"]))
     elements.append(Spacer(1, 14))
     
-    # Enhanced Analysis Section
-    if data.get('detailed_analysis'):
+    # Enhanced Analysis Section for TCP
+    if data.get('mode') == 'TCP' and data.get('detailed_analysis'):
         analysis = data['detailed_analysis']
         
         elements.append(Paragraph("🔍 Detailed Analysis", heading_style))
         
+        # Dimension Analysis
         if 'dimension_scores' in analysis:
             elements.append(Paragraph("📋 Dimension Analysis:", styles["Heading3"]))
+            elements.append(Spacer(1, 6))
+            
+            dimension_data = []
+            dimension_data.append(["Dimension", "Score", "Percentage", "Level"])
+            
             for dim_name, dim_data in analysis['dimension_scores'].items():
-                dim_text = f"• {dim_name}: {dim_data['percentage']}% ({dim_data['level']})"
-                elements.append(Paragraph(dim_text, styles["Normal"]))
-            elements.append(Spacer(1, 10))
+                dimension_data.append([
+                    dim_name,
+                    f"{dim_data['score']}/{dim_data['max_score']}",
+                    f"{dim_data['percentage']}%",
+                    dim_data['level']
+                ])
+            
+            dim_table = Table(dimension_data, colWidths=[2.5*inch, 0.8*inch, 0.8*inch, 0.9*inch])
+            dim_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.darkgreen),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 8),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+            ]))
+            
+            elements.append(dim_table)
+            elements.append(Spacer(1, 12))
         
+        # Key Recommendations
         if 'recommendations' in analysis:
             recommendations = analysis['recommendations']
             elements.append(Paragraph("💡 Key Recommendations:", styles["Heading3"]))
             
-            if 'immediate_actions' in recommendations:
-                for action in recommendations['immediate_actions'][:3]:
-                    elements.append(Paragraph(f"• {action}", styles["Normal"]))
-            elements.append(Spacer(1, 10))
+            if 'immediate_actions' in recommendations and recommendations['immediate_actions']:
+                elements.append(Paragraph("Immediate Actions:", styles["Heading4"]))
+                for i, action in enumerate(recommendations['immediate_actions'][:4], 1):
+                    clean_action = action.replace("🔧", "").replace("📊", "").replace("💼", "").strip()
+                    elements.append(Paragraph(f"{i}. {clean_action}", styles["Normal"]))
+                elements.append(Spacer(1, 8))
+            
+            if 'strategic_priorities' in recommendations and recommendations['strategic_priorities']:
+                elements.append(Paragraph("Strategic Priorities:", styles["Heading4"]))
+                for i, priority in enumerate(recommendations['strategic_priorities'][:4], 1):
+                    clean_priority = priority.replace("🎯", "").replace("📈", "").replace("🤝", "").replace("💰", "").strip()
+                    elements.append(Paragraph(f"{i}. {clean_priority}", styles["Normal"]))
+                elements.append(Spacer(1, 8))
+    
+    # Standard Assessment Results (TRL, IRL, MRL)
+    elif data.get('mode') in ['TRL', 'IRL', 'MRL'] and data.get('questions'):
+        elements.append(Paragraph("📋 Assessment Results", heading_style))
+        
+        if data.get('answers') and data.get('questions'):
+            # Create summary table
+            level_data = [["Level", "Title", "Completion", "Status"]]
+            
+            answers = data.get('answers', [])
+            questions = data.get('questions', [])
+            
+            for idx, (level_answers, question_level) in enumerate(zip(answers, questions)):
+                if idx < len(answers) and idx < len(questions):
+                    yes_count = sum(level_answers) if level_answers else 0
+                    total_count = len(level_answers) if level_answers else 0
+                    completion_rate = (yes_count / total_count * 100) if total_count > 0 else 0
+                    
+                    status = "✓ Complete" if completion_rate == 100 else "~ Partial" if completion_rate > 0 else "✗ Not Started"
+                    
+                    level_data.append([
+                        f"Level {question_level.get('level', idx)}",
+                        question_level.get('title', 'N/A')[:30] + "..." if len(question_level.get('title', '')) > 30 else question_level.get('title', 'N/A'),
+                        f"{completion_rate:.0f}%",
+                        status
+                    ])
+            
+            if len(level_data) > 1:  # Has data beyond header
+                level_table = Table(level_data, colWidths=[0.8*inch, 2.5*inch, 0.8*inch, 1.4*inch])
+                level_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, -1), 8),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                    ('TOPPADDING', (0, 0), (-1, -1), 4),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+                ]))
+                
+                elements.append(level_table)
+                elements.append(Spacer(1, 12))
     
     # Footer
-    elements.append(Spacer(1, 14))
+    elements.append(Spacer(1, 20))
     footer_style = ParagraphStyle("Footer", parent=styles["Normal"], fontSize=8, textColor=colors.grey, alignment=1)
+    elements.append(Paragraph("───────────────────────────────────────────", footer_style))
     elements.append(Paragraph("📊 Generated by MMSU Enhanced Technology Assessment Tool", footer_style))
-    elements.append(Paragraph("Innovation and Technology Support Office • Comprehensive Analysis Report", footer_style))
+    elements.append(Paragraph("Innovation and Technology Support Office", footer_style))
+    elements.append(Paragraph(f"Report generated on {datetime.utcnow().strftime('%B %d, %Y at %H:%M UTC')}", footer_style))
     
-    doc.build(elements)
+    # Build PDF
+    try:
+        doc.build(elements)
+        print("✅ PDF built successfully")
+    except Exception as e:
+        print(f"❌ Error building PDF: {e}")
+        # Create a simple fallback PDF
+        elements = [
+            Paragraph("MMSU Technology Assessment Report", styles["Title"]),
+            Spacer(1, 12),
+            Paragraph(f"Technology: {data.get('technology_title', 'N/A')}", styles["Normal"]),
+            Paragraph(f"Assessment Type: {data.get('mode', 'N/A')}", styles["Normal"]),
+            Paragraph(f"Result: {data.get('level', data.get('recommended_pathway', 'N/A'))}", styles["Normal"]),
+            Spacer(1, 12),
+            Paragraph("Complete analysis available in the web interface.", styles["Normal"])
+        ]
+        doc.build(elements)
+    
     return buf
+
 
 # Initialize components
 init_database()
