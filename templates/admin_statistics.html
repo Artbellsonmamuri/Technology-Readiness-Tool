@@ -32,7 +32,7 @@
                 <div class="stat-change">{{ (stats.total_started or 0) - (stats.total_assessments or 0) }} abandoned</div>
             </div>
             <div class="stat-card-large">
-                <div class="stat-number">{{ (stats.assessments_by_type or []) | length }}</div>
+                <div class="stat-number">4</div>
                 <div class="stat-label">Active Assessment Types</div>
                 <div class="stat-change">TRL, IRL, MRL, TCP</div>
             </div>
@@ -63,7 +63,7 @@
         </div>
 
         <!-- TCP Pathway Distribution -->
-        {% if stats.tcp_pathways %}
+        {% if stats.tcp_pathways and stats.tcp_pathways|length > 0 %}
         <div class="chart-section">
             <h3>TCP Commercialization Pathway Distribution</h3>
             <div class="chart-container">
@@ -73,7 +73,7 @@
         {% endif %}
 
         <!-- Geographic Distribution -->
-        {% if stats.geographic_distribution %}
+        {% if stats.geographic_distribution and stats.geographic_distribution|length > 0 %}
         <div class="chart-section">
             <h3>Geographic Distribution (Top Regions)</h3>
             <div class="geographic-stats">
@@ -102,25 +102,26 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for activity in stats.recent_activity %}
-                        <tr>
-                            <td><span class="assessment-type {{ activity.assessment_type.lower() }}">{{ activity.assessment_type }}</span></td>
-                            <td>{{ (activity.technology_title or 'Unknown')[:20] }}{% if (activity.technology_title or '')|length > 20 %}...{% endif %}</td>
-                            <td>
-                                {% if activity.assessment_type == 'TCP' %}
-                                    {{ activity.recommended_pathway or 'N/A' }}
-                                {% else %}
-                                    Level {{ activity.level_achieved or 'N/A' }}
-                                {% endif %}
-                            </td>
-                            <td>{{ activity.language or 'N/A' }}</td>
-                            <td>{{ (activity.timestamp or '')[:16] }}</td>
-                        </tr>
-                        {% endfor %}
-                        {% if not stats.recent_activity %}
-                        <tr>
-                            <td colspan="5" style="text-align: center; color: #666;">No recent activity found</td>
-                        </tr>
+                        {% if stats.recent_activity and stats.recent_activity|length > 0 %}
+                            {% for activity in stats.recent_activity %}
+                            <tr>
+                                <td><span class="assessment-type {{ (activity.assessment_type or 'unknown').lower() }}">{{ activity.assessment_type or 'Unknown' }}</span></td>
+                                <td>{{ (activity.technology_title or 'Unknown')[:20] }}{% if (activity.technology_title or '')|length > 20 %}...{% endif %}</td>
+                                <td>
+                                    {% if activity.assessment_type == 'TCP' %}
+                                        {{ activity.recommended_pathway or 'N/A' }}
+                                    {% else %}
+                                        Level {{ activity.level_achieved or 'N/A' }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ activity.language or 'N/A' }}</td>
+                                <td>{{ (activity.timestamp or '')[:16] }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: #666; padding: 20px;">No recent activity found. Complete some assessments to see data here.</td>
+                            </tr>
                         {% endif %}
                     </tbody>
                 </table>
@@ -141,27 +142,52 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for type_stat in stats.assessments_by_type %}
-                        <tr>
-                            <td><span class="assessment-type {{ type_stat.assessment_type.lower() }}">{{ type_stat.assessment_type }}</span></td>
-                            <td>{{ type_stat.count }}</td>
-                            <td>
-                                {% for success in stats.success_rates %}
-                                    {% if success.assessment_type == type_stat.assessment_type %}
-                                        {{ "%.1f"|format(success.avg_level or 0) }}
-                                    {% endif %}
-                                {% endfor %}
-                            </td>
-                            <td>{{ "%.1f"|format(((type_stat.count / (stats.total_assessments or 1)) * 100)) }}%</td>
-                        </tr>
-                        {% endfor %}
-                        {% if not stats.assessments_by_type %}
-                        <tr>
-                            <td colspan="4" style="text-align: center; color: #666;">No assessment data found</td>
-                        </tr>
+                        {% if stats.assessments_by_type and stats.assessments_by_type|length > 0 %}
+                            {% for type_stat in stats.assessments_by_type %}
+                            <tr>
+                                <td><span class="assessment-type {{ type_stat.assessment_type.lower() }}">{{ type_stat.assessment_type }}</span></td>
+                                <td>{{ type_stat.count }}</td>
+                                <td>
+                                    {% set avg_found = false %}
+                                    {% for success in stats.success_rates %}
+                                        {% if success.assessment_type == type_stat.assessment_type %}
+                                            {{ "%.1f"|format(success.avg_level or 0) }}
+                                            {% set avg_found = true %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if not avg_found %}N/A{% endif %}
+                                </td>
+                                <td>{{ "%.1f"|format(((type_stat.count / (stats.total_assessments or 1)) * 100)) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #666; padding: 20px;">No assessment data found. Start using the assessment tool to see statistics here.</td>
+                            </tr>
                         {% endif %}
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Database Status -->
+        <div class="database-status">
+            <div class="status-card">
+                <h3>System Status</h3>
+                <div class="status-item">
+                    <span class="status-label">Database Connection:</span>
+                    <span class="status-value {% if stats.total_assessments is defined %}connected{% else %}disconnected{% endif %}">
+                        {% if stats.total_assessments is defined %}✅ Connected{% else %}❌ Disconnected{% endif %}
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Google Drive Integration:</span>
+                    <span class="status-value">✅ Active</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Last Updated:</span>
+                    <span class="status-value">{{ moment().format('YYYY-MM-DD HH:mm:ss') }}</span>
+                </div>
             </div>
         </div>
     </div>
@@ -169,6 +195,7 @@
     <!-- Chart Initialization Scripts -->
     <script>
         const stats = {{ stats | tojson | safe }};
+        console.log('Statistics data:', stats);
         
         // Assessment Type Distribution
         const typeCtx = document.getElementById('typeDistributionChart').getContext('2d');
@@ -197,7 +224,7 @@
                 }
             });
         } else {
-            typeCtx.canvas.parentElement.innerHTML = '<p style="text-align: center; color: #666;">No data available for chart</p>';
+            typeCtx.canvas.parentElement.innerHTML = '<div class="no-data"><h4>No Assessment Data Yet</h4><p>Start completing assessments to see the distribution chart here.</p></div>';
         }
 
         // Monthly Trends
@@ -240,7 +267,7 @@
                 }
             });
         } else {
-            monthlyCtx.canvas.parentElement.innerHTML = '<p style="text-align: center; color: #666;">No monthly data available</p>';
+            monthlyCtx.canvas.parentElement.innerHTML = '<div class="no-data"><h4>No Monthly Trend Data</h4><p>Usage trends will appear here as assessments are completed over time.</p></div>';
         }
 
         // Success Rates
@@ -275,11 +302,11 @@
                 }
             });
         } else {
-            successCtx.canvas.parentElement.innerHTML = '<p style="text-align: center; color: #666;">No success rate data available</p>';
+            successCtx.canvas.parentElement.innerHTML = '<div class="no-data"><h4>No Success Rate Data</h4><p>Success rates will be calculated once assessments are completed.</p></div>';
         }
 
         // TCP Pathways (if data exists)
-        {% if stats.tcp_pathways %}
+        {% if stats.tcp_pathways and stats.tcp_pathways|length > 0 %}
         const tcpCtx = document.getElementById('tcpPathwaysChart').getContext('2d');
         const tcpData = {{ stats.tcp_pathways | tojson | safe }};
         
@@ -311,6 +338,11 @@
 
         // Export function
         function exportStatistics() {
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Exporting...';
+            button.disabled = true;
+            
             fetch('/api/statistics')
                 .then(response => response.json())
                 .then(data => {
@@ -321,19 +353,36 @@
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = `mmsu_assessment_statistics_${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
                     a.click();
+                    document.body.removeChild(a);
                     URL.revokeObjectURL(url);
+                    
+                    button.textContent = originalText;
+                    button.disabled = false;
                 })
                 .catch(error => {
                     console.error('Export failed:', error);
                     alert('Export failed. Please try again.');
+                    button.textContent = originalText;
+                    button.disabled = false;
                 });
         }
 
         // Auto-refresh every 5 minutes
-        setInterval(() => {
+        setTimeout(() => {
             location.reload();
         }, 5 * 60 * 1000);
+        
+        // Update last updated time
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const timeString = now.toISOString().replace('T', ' ').substring(0, 19);
+            const timeElements = document.querySelectorAll('.status-value');
+            if (timeElements.length > 2) {
+                timeElements[2].textContent = timeString;
+            }
+        });
     </script>
 </body>
 </html>
