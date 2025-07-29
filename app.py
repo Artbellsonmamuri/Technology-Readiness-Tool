@@ -936,11 +936,11 @@ def init_database():
 # Initialize database on startup
 init_database()
 
-# Google Drive Manager
+# Google Drive Manager with Your Folder Configuration
 class GoogleDriveManager:
     def __init__(self):
         self.service = None
-        self.root_folder_id = None
+        self.root_folder_id = "1dYLWBAq9IKMzY_L8x0ihS-6Egt1Gl6UV"  # Your specific folder ID
         self._initialize_service()
     
     def _initialize_service(self):
@@ -955,48 +955,20 @@ class GoogleDriveManager:
                     scopes=['https://www.googleapis.com/auth/drive']
                 )
                 self.service = build('drive', 'v3', credentials=credentials)
-                self._setup_folder_structure()
                 print("Google Drive integration initialized successfully")
+                print(f"Using existing folder ID: {self.root_folder_id}")
+                
+                # Verify folder exists and is accessible
+                try:
+                    folder_info = self.service.files().get(fileId=self.root_folder_id).execute()
+                    print(f"Connected to folder: {folder_info.get('name', 'Unknown')}")
+                except Exception as e:
+                    print(f"Warning: Could not access folder {self.root_folder_id}: {e}")
+                    
             else:
                 print("Google Drive credentials file not found")
         except Exception as e:
             print(f"Failed to initialize Google Drive: {str(e)}")
-    
-    def _setup_folder_structure(self):
-        if not self.service:
-            return
-            
-        try:
-            # Find or create root folder
-            root_folder_name = "MMSU Technology Assessment Reports"
-            folders = self.service.files().list(
-                q=f"name='{root_folder_name}' and mimeType='application/vnd.google-apps.folder'",
-                fields="files(id, name)"
-            ).execute().get('files', [])
-            
-            if folders:
-                self.root_folder_id = folders[0]['id']
-            else:
-                # Create root folder
-                folder_metadata = {
-                    'name': root_folder_name,
-                    'mimeType': 'application/vnd.google-apps.folder'
-                }
-                folder = self.service.files().create(body=folder_metadata, fields='id').execute()
-                self.root_folder_id = folder.get('id')
-                
-                # Make folder publicly viewable
-                permission = {
-                    'type': 'anyone',
-                    'role': 'reader'
-                }
-                self.service.permissions().create(
-                    fileId=self.root_folder_id,
-                    body=permission
-                ).execute()
-                
-        except Exception as e:
-            print(f"Error setting up folder structure: {str(e)}")
     
     def _get_or_create_folder(self, parent_folder_id, folder_name):
         if not self.service:
@@ -1076,9 +1048,7 @@ class GoogleDriveManager:
             return None
     
     def get_public_folder_link(self):
-        if self.root_folder_id:
-            return f"https://drive.google.com/drive/folders/{self.root_folder_id}"
-        return None
+        return "https://drive.google.com/drive/folders/1dYLWBAq9IKMzY_L8x0ihS-6Egt1Gl6UV?usp=sharing"
 
 # Initialize Google Drive Manager
 drive_manager = GoogleDriveManager()
