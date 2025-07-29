@@ -28,7 +28,7 @@ services:
       - key: DATABASE_PASSWORD
         fromDatabase:
           name: mmsu-assessment-db
-          property: password
+          property: kulsmZ8dbrLeCccOy8h1C5eFB37l0JsJ
       - key: DATABASE_PORT
         value: 5432
 
