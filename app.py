@@ -24,7 +24,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
 
-# Complete TRL Questions Database (0-9) - keeping as is since they work well
+# Complete TRL Questions Database (0-9)
 TRL_QUESTIONS = {
     "english": [
         {
@@ -234,7 +234,7 @@ TRL_QUESTIONS = {
     ]
 }
 
-# Complete IRL Questions Database (1-9)
+# IRL Questions Database (1-9)
 IRL_QUESTIONS = {
     "english": [
         {
@@ -440,7 +440,7 @@ IRL_QUESTIONS = {
     ]
 }
 
-# Market Readiness Level (MRL) Questions Database (1-9)
+# MRL Questions Database (1-9)
 MRL_QUESTIONS = {
     "english": [
         {
@@ -642,7 +642,7 @@ MRL_QUESTIONS = {
     ]
 }
 
-# IMPROVED TCP Questions Database - Fixed to make sense with Low/Medium/High ratings
+# IMPROVED TCP Questions Database - Fixed for Low/Medium/High ratings
 TCP_QUESTIONS = {
     "english": {
         "dimensions": [
@@ -810,71 +810,43 @@ TCP_QUESTIONS = {
             {
                 "name": "Direct Sale",
                 "description": "Direktang pagbenta ng teknolohiya sa end users o customers",
-                "criteria": ["Mataas na technology readiness", "Malakas na internal resources", "Established market channels"],
-                "best_for": "Mga organisasyon na may malakas na internal capabilities at established market presence",
-                "timeline": "12-24 buwan papunta sa market",
-                "investment_required": "Medium hanggang High",
-                "risk_level": "Medium"
+                "criteria": ["Mataas na technology readiness", "Malakas na internal resources", "Established market channels"]
             },
             {
                 "name": "Licensing",
                 "description": "Pag-license ng teknolohiya sa ibang companies para sa commercialization",
-                "criteria": ["Malakas na IP protection", "Market demand", "Limited internal resources"],
-                "best_for": "Mga teknolohiya na may malakas na IP at limited internal commercialization resources",
-                "timeline": "6-18 buwan para sa licensing deal",
-                "investment_required": "Low hanggang Medium",
-                "risk_level": "Low hanggang Medium"
+                "criteria": ["Malakas na IP protection", "Market demand", "Limited internal resources"]
             },
             {
                 "name": "Startup/Spin-out",
                 "description": "Paggawa ng bagong company para i-commercialize ang teknolohiya",
-                "criteria": ["Mataas na innovation potential", "Entrepreneurial team", "Growth market"],
-                "best_for": "Breakthrough technologies na may dedicated entrepreneurial teams",
-                "timeline": "18-36 buwan papunta sa market",
-                "investment_required": "High",
-                "risk_level": "High"
+                "criteria": ["Mataas na innovation potential", "Entrepreneurial team", "Growth market"]
             },
             {
                 "name": "Assignment",
                 "description": "Pagbenta o paglilipat ng technology rights sa ibang organisasyon",
-                "criteria": ["Valuable IP", "Mababang internal interest", "Mas bagay sa iba"],
-                "best_for": "Mga teknolohiya na hindi core mission na may clear value sa iba",
-                "timeline": "3-12 buwan para sa transaction",
-                "investment_required": "Low",
-                "risk_level": "Low"
+                "criteria": ["Valuable IP", "Mababang internal interest", "Mas bagay sa iba"]
             },
             {
                 "name": "Research Collaboration",
                 "description": "Pakikipag-partner sa ibang organisasyon para sa further development",
-                "criteria": ["Early-stage technology", "Pangangailangan ng development", "Research partnerships"],
-                "best_for": "Early-stage technologies na nangangailangan ng additional development resources",
-                "timeline": "12-36 buwan para sa commercial readiness",
-                "investment_required": "Medium",
-                "risk_level": "Medium"
+                "criteria": ["Early-stage technology", "Pangangailangan ng development", "Research partnerships"]
             },
             {
                 "name": "Open Source",
                 "description": "Pag-release ng teknolohiya bilang open source para sa broad adoption",
-                "criteria": ["Broad adoption potential", "Service-based value", "Community building"],
-                "best_for": "Platform technologies na nakikinabang sa community development",
-                "timeline": "6-12 buwan para sa community adoption",
-                "investment_required": "Low hanggang Medium",
-                "risk_level": "Low"
+                "criteria": ["Broad adoption potential", "Service-based value", "Community building"]
             },
             {
                 "name": "Government Procurement",
                 "description": "Pag-target sa government agencies bilang primary customers",
-                "criteria": ["Public sector relevance", "Regulatory compliance", "Government needs"],
-                "best_for": "Mga teknolohiya na tumutugon sa government o public sector needs",
-                "timeline": "12-36 buwan para sa procurement",
-                "investment_required": "Medium",
-                "risk_level": "Medium"
+                "criteria": ["Public sector relevance", "Regulatory compliance", "Government needs"]
             }
         ]
     }
 }
 
-# Database connection and initialization
+# Database Functions
 def get_db_connection():
     """Get PostgreSQL database connection using psycopg3"""
     try:
@@ -1000,7 +972,6 @@ class EmailManager:
 • Language: {assessment_data.get('language', 'N/A')}
 • Result: {assessment_data.get('level', assessment_data.get('recommended_pathway', 'N/A'))}
 • Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-• Enhanced with: Comprehensive analysis and recommendations
 
 📎 The complete enhanced assessment report is attached.
 
@@ -1030,7 +1001,7 @@ Innovation and Technology Support Office
 
 email_manager = EmailManager()
 
-# Helper functions
+# Helper Functions
 def get_client_ip_address():
     """Get client IP address"""
     try:
@@ -1195,7 +1166,6 @@ def save_assessment_to_db(assessment_data, answers_data):
                             ''', (assessment_id, dimension['name'], q_idx, answers[answer_idx]))
                             answer_idx += 1
             else:
-                # Save standard assessment answers
                 answers = assessment_data.get('answers', [])
                 for level_idx, level_answers in enumerate(answers):
                     for q_idx, answer in enumerate(level_answers):
@@ -1211,6 +1181,10 @@ def save_assessment_to_db(assessment_data, answers_data):
         return None
     finally:
         conn.close()
+
+# Continue to Part 2...
+# This is Part 2 - Copy this content and append it to the end of your app.py file
+# (After copying Part 1, add this content to complete the file)
 
 # ALL ROUTES
 @app.route("/")
@@ -1315,6 +1289,7 @@ def assess_technology():
     else:
         return assess_standard(data)
 
+# Assessment Functions
 def assess_standard(data):
     mode = data["mode"]
     language = data["language"]
@@ -1455,135 +1430,135 @@ def generate_mode_specific_recommendations(level_achieved, mode, language):
         if mode == "TRL":
             if level_achieved < 3:
                 recommendations = [
-                    "Mag-focus sa fundamental research at proof-of-concept development",
-                    "Mag-establish ng clear technical requirements at specifications",
-                    "Mag-conduct ng literature review at prior art analysis",
-                    "Mag-develop ng theoretical models at simulations"
+                    "🔬 Mag-focus sa fundamental research at proof-of-concept development",
+                    "📋 Mag-establish ng clear technical requirements at specifications",
+                    "📚 Mag-conduct ng literature review at prior art analysis",
+                    "🧮 Mag-develop ng theoretical models at simulations"
                 ]
             elif level_achieved < 6:
                 recommendations = [
-                    "Mag-build ng prototypes para sa laboratory testing",
-                    "Mag-validate ng performance metrics at benchmarks",
-                    "Mag-conduct ng environmental testing",
-                    "Mag-prepare para sa relevant environment validation"
+                    "🔧 Mag-build ng prototypes para sa laboratory testing",
+                    "📊 Mag-validate ng performance metrics at benchmarks",
+                    "🌡️ Mag-conduct ng environmental testing",
+                    "✅ Mag-prepare para sa relevant environment validation"
                 ]
             else:
                 recommendations = [
-                    "Mag-prepare para sa operational environment deployment",
-                    "Mag-develop ng manufacturing at scaling plans",
-                    "Mag-establish ng quality assurance systems",
-                    "Mag-prepare para sa commercial launch"
+                    "🚀 Mag-prepare para sa operational environment deployment",
+                    "🏭 Mag-develop ng manufacturing at scaling plans",
+                    "✅ Mag-establish ng quality assurance systems",
+                    "💼 Mag-prepare para sa commercial launch"
                 ]
         elif mode == "IRL":
             if level_achieved < 3:
                 recommendations = [
-                    "Mag-develop ng comprehensive business plan",
-                    "Mag-conduct ng market research at validation",
-                    "Mag-establish ng founding team",
-                    "Mag-secure ng initial funding sources"
+                    "📈 Mag-develop ng comprehensive business plan",
+                    "🎯 Mag-conduct ng market research at validation",
+                    "👥 Mag-establish ng founding team",
+                    "💰 Mag-secure ng initial funding sources"
                 ]
             elif level_achieved < 6:
                 recommendations = [
-                    "Mag-build ng MVP at mag-test sa market",
-                    "Mag-establish ng customer acquisition strategies",
-                    "Mag-develop ng revenue models",
-                    "Mag-secure ng growth funding"
+                    "🛠️ Mag-build ng MVP at mag-test sa market",
+                    "📊 Mag-establish ng customer acquisition strategies",
+                    "💵 Mag-develop ng revenue models",
+                    "🚀 Mag-secure ng growth funding"
                 ]
             else:
                 recommendations = [
-                    "Mag-focus sa scaling operations",
-                    "Mag-establish ng strategic partnerships",
-                    "Mag-expand sa new markets",
-                    "Mag-prepare para sa exit strategies"
+                    "📈 Mag-focus sa scaling operations",
+                    "🤝 Mag-establish ng strategic partnerships",
+                    "🌐 Mag-expand sa new markets",
+                    "🎯 Mag-prepare para sa exit strategies"
                 ]
         elif mode == "MRL":
             if level_achieved < 3:
                 recommendations = [
-                    "Mag-conduct ng comprehensive market research",
-                    "Mag-identify ng target customer segments",
-                    "Mag-validate ng market demand",
-                    "Mag-analyze ng competitive landscape"
+                    "🔍 Mag-conduct ng comprehensive market research",
+                    "🎯 Mag-identify ng target customer segments",
+                    "✅ Mag-validate ng market demand",
+                    "⚔️ Mag-analyze ng competitive landscape"
                 ]
             elif level_achieved < 6:
                 recommendations = [
-                    "Mag-develop ng go-to-market strategy",
-                    "Mag-establish ng distribution channels",
-                    "Mag-build ng marketing capabilities",
-                    "Mag-test ng pricing strategies"
+                    "🚀 Mag-develop ng go-to-market strategy",
+                    "📦 Mag-establish ng distribution channels",
+                    "📢 Mag-build ng marketing capabilities",
+                    "💰 Mag-test ng pricing strategies"
                 ]
             else:
                 recommendations = [
-                    "Mag-execute ng market launch plan",
-                    "Mag-monitor ng market performance",
-                    "Mag-optimize ng customer acquisition",
-                    "Mag-scale ng market operations"
+                    "🎬 Mag-execute ng market launch plan",
+                    "📊 Mag-monitor ng market performance",
+                    "🎯 Mag-optimize ng customer acquisition",
+                    "📈 Mag-scale ng market operations"
                 ]
     else:
         if mode == "TRL":
             if level_achieved < 3:
                 recommendations = [
-                    "Focus on fundamental research and proof-of-concept development",
-                    "Establish clear technical requirements and specifications",
-                    "Conduct comprehensive literature review and prior art analysis",
-                    "Develop theoretical models and simulations"
+                    "🔬 Focus on fundamental research and proof-of-concept development",
+                    "📋 Establish clear technical requirements and specifications",
+                    "📚 Conduct comprehensive literature review and prior art analysis",
+                    "🧮 Develop theoretical models and simulations"
                 ]
             elif level_achieved < 6:
                 recommendations = [
-                    "Build prototypes for rigorous laboratory testing",
-                    "Validate performance metrics against established benchmarks",
-                    "Conduct environmental testing under relevant conditions",
-                    "Prepare for relevant environment validation"
+                    "🔧 Build prototypes for rigorous laboratory testing",
+                    "📊 Validate performance metrics against established benchmarks",
+                    "🌡️ Conduct environmental testing under relevant conditions",
+                    "✅ Prepare for relevant environment validation"
                 ]
             else:
                 recommendations = [
-                    "Prepare for operational environment deployment",
-                    "Develop manufacturing and scaling plans",
-                    "Establish quality assurance and control systems",
-                    "Prepare for commercial launch and market entry"
+                    "🚀 Prepare for operational environment deployment",
+                    "🏭 Develop manufacturing and scaling plans",
+                    "✅ Establish quality assurance and control systems",
+                    "💼 Prepare for commercial launch and market entry"
                 ]
         elif mode == "IRL":
             if level_achieved < 3:
                 recommendations = [
-                    "Develop comprehensive business plan with financial projections",
-                    "Conduct thorough market research and validation",
-                    "Establish experienced founding team with complementary skills",
-                    "Secure initial funding sources and investor relationships"
+                    "📈 Develop comprehensive business plan with financial projections",
+                    "🎯 Conduct thorough market research and validation",
+                    "👥 Establish experienced founding team with complementary skills",
+                    "💰 Secure initial funding sources and investor relationships"
                 ]
             elif level_achieved < 6:
                 recommendations = [
-                    "Build and test minimum viable product (MVP) with target customers",
-                    "Establish proven customer acquisition and retention strategies",
-                    "Develop sustainable revenue models and pricing strategies",
-                    "Secure growth funding for scaling operations"
+                    "🛠️ Build and test minimum viable product (MVP) with target customers",
+                    "📊 Establish proven customer acquisition and retention strategies",
+                    "💵 Develop sustainable revenue models and pricing strategies",
+                    "🚀 Secure growth funding for scaling operations"
                 ]
             else:
                 recommendations = [
-                    "Focus on scaling operations and expanding market reach",
-                    "Establish strategic partnerships and alliances",
-                    "Expand into new markets and customer segments",
-                    "Prepare for potential exit strategies or IPO"
+                    "📈 Focus on scaling operations and expanding market reach",
+                    "🤝 Establish strategic partnerships and alliances",
+                    "🌐 Expand into new markets and customer segments",
+                    "🎯 Prepare for potential exit strategies or IPO"
                 ]
         elif mode == "MRL":
             if level_achieved < 3:
                 recommendations = [
-                    "Conduct comprehensive market research and analysis",
-                    "Identify and characterize target customer segments",
-                    "Validate market demand through customer discovery",
-                    "Analyze competitive landscape and positioning opportunities"
+                    "🔍 Conduct comprehensive market research and analysis",
+                    "🎯 Identify and characterize target customer segments",
+                    "✅ Validate market demand through customer discovery",
+                    "⚔️ Analyze competitive landscape and positioning opportunities"
                 ]
             elif level_achieved < 6:
                 recommendations = [
-                    "Develop comprehensive go-to-market strategy",
-                    "Establish distribution channels and sales partnerships",
-                    "Build marketing capabilities and brand awareness",
-                    "Test and optimize pricing strategies"
+                    "🚀 Develop comprehensive go-to-market strategy",
+                    "📦 Establish distribution channels and sales partnerships",
+                    "📢 Build marketing capabilities and brand awareness",
+                    "💰 Test and optimize pricing strategies"
                 ]
             else:
                 recommendations = [
-                    "Execute market launch plan with defined milestones",
-                    "Monitor market performance and customer feedback",
-                    "Optimize customer acquisition and retention processes",
-                    "Scale market operations for sustainable growth"
+                    "🎬 Execute market launch plan with defined milestones",
+                    "📊 Monitor market performance and customer feedback",
+                    "🎯 Optimize customer acquisition and retention processes",
+                    "📈 Scale market operations for sustainable growth"
                 ]
     
     return recommendations
@@ -1595,52 +1570,52 @@ def generate_success_factors(mode, language):
     if language == "filipino":
         if mode == "TRL":
             success_factors = [
-                "Malakas na technical expertise at research capabilities",
-                "Adequate funding para sa R&D activities",
-                "Access sa specialized equipment at facilities",
-                "Collaboration sa academic at industry partners",
-                "Clear technical milestones at success metrics"
+                "💪 Malakas na technical expertise at research capabilities",
+                "💰 Adequate funding para sa R&D activities",
+                "🔬 Access sa specialized equipment at facilities",
+                "🤝 Collaboration sa academic at industry partners",
+                "🎯 Clear technical milestones at success metrics"
             ]
         elif mode == "IRL":
             success_factors = [
-                "Experienced management team na may business acumen",
-                "Clear market opportunity at customer validation",
-                "Sustainable business model at revenue streams",
-                "Access sa funding at investment opportunities",
-                "Strong execution capabilities at operational excellence"
+                "👥 Experienced management team na may business acumen",
+                "🎯 Clear market opportunity at customer validation",
+                "💵 Sustainable business model at revenue streams",
+                "💰 Access sa funding at investment opportunities",
+                "🚀 Strong execution capabilities at operational excellence"
             ]
         elif mode == "MRL":
             success_factors = [
-                "Deep understanding ng target market at customers",
-                "Strong competitive positioning at differentiation",
-                "Effective marketing at sales capabilities",
-                "Established distribution channels at partnerships",
-                "Continuous market monitoring at adaptation"
+                "🧠 Deep understanding ng target market at customers",
+                "⚔️ Strong competitive positioning at differentiation",
+                "📢 Effective marketing at sales capabilities",
+                "📦 Established distribution channels at partnerships",
+                "📊 Continuous market monitoring at adaptation"
             ]
     else:
         if mode == "TRL":
             success_factors = [
-                "Strong technical expertise and research capabilities",
-                "Adequate funding for sustained R&D activities",
-                "Access to specialized equipment and testing facilities",
-                "Collaboration with academic and industry partners",
-                "Clear technical milestones and success metrics"
+                "💪 Strong technical expertise and research capabilities",
+                "💰 Adequate funding for sustained R&D activities",
+                "🔬 Access to specialized equipment and testing facilities",
+                "🤝 Collaboration with academic and industry partners",
+                "🎯 Clear technical milestones and success metrics"
             ]
         elif mode == "IRL":
             success_factors = [
-                "Experienced management team with proven business acumen",
-                "Clear market opportunity with validated customer demand",
-                "Sustainable business model with multiple revenue streams",
-                "Access to funding and investment opportunities",
-                "Strong execution capabilities and operational excellence"
+                "👥 Experienced management team with proven business acumen",
+                "🎯 Clear market opportunity with validated customer demand",
+                "💵 Sustainable business model with multiple revenue streams",
+                "💰 Access to funding and investment opportunities",
+                "🚀 Strong execution capabilities and operational excellence"
             ]
         elif mode == "MRL":
             success_factors = [
-                "Deep understanding of target market and customer needs",
-                "Strong competitive positioning and clear differentiation",
-                "Effective marketing and sales capabilities",
-                "Established distribution channels and strategic partnerships",
-                "Continuous market monitoring and adaptive strategy"
+                "🧠 Deep understanding of target market and customer needs",
+                "⚔️ Strong competitive positioning and clear differentiation",
+                "📢 Effective marketing and sales capabilities",
+                "📦 Established distribution channels and strategic partnerships",
+                "📊 Continuous market monitoring and adaptive strategy"
             ]
     
     return success_factors
@@ -1721,104 +1696,104 @@ def generate_standard_risk_assessment(level_achieved, mode, language):
     if language == "filipino":
         if mode == "TRL":
             if level_achieved < 3:
-                risks["high_risks"] = ["Technical feasibility hindi pa proven", "Limited funding para sa R&D"]
-                risks["medium_risks"] = ["Competition sa research area", "IP protection challenges"]
+                risks["high_risks"] = ["⚠️ Technical feasibility hindi pa proven", "💰 Limited funding para sa R&D"]
+                risks["medium_risks"] = ["⚔️ Competition sa research area", "📄 IP protection challenges"]
                 risks["mitigation_strategies"] = [
-                    "Mag-conduct ng systematic technical validation",
-                    "Mag-secure ng multiple funding sources",
-                    "Mag-establish ng IP protection strategy"
+                    "🔬 Mag-conduct ng systematic technical validation",
+                    "💰 Mag-secure ng multiple funding sources",
+                    "📄 Mag-establish ng IP protection strategy"
                 ]
             elif level_achieved < 6:
-                risks["high_risks"] = ["Scaling challenges", "Manufacturing feasibility"]
-                risks["medium_risks"] = ["Market acceptance", "Regulatory approvals"]
+                risks["high_risks"] = ["📈 Scaling challenges", "🏭 Manufacturing feasibility"]
+                risks["medium_risks"] = ["🎯 Market acceptance", "📋 Regulatory approvals"]
                 risks["mitigation_strategies"] = [
-                    "Mag-develop ng detailed scaling plan",
-                    "Mag-engage sa early customer validation",
-                    "Mag-work closely sa regulatory bodies"
+                    "📈 Mag-develop ng detailed scaling plan",
+                    "👥 Mag-engage sa early customer validation",
+                    "📋 Mag-work closely sa regulatory bodies"
                 ]
             else:
-                risks["high_risks"] = ["Market competition", "Commercial viability"]
-                risks["medium_risks"] = ["Technology adoption rate", "Supply chain risks"]
+                risks["high_risks"] = ["⚔️ Market competition", "💼 Commercial viability"]
+                risks["medium_risks"] = ["📊 Technology adoption rate", "📦 Supply chain risks"]
                 risks["mitigation_strategies"] = [
-                    "Mag-establish ng strong market position",
-                    "Mag-develop ng robust supply chain",
-                    "Mag-monitor ng technology trends"
+                    "💪 Mag-establish ng strong market position",
+                    "📦 Mag-develop ng robust supply chain",
+                    "📊 Mag-monitor ng technology trends"
                 ]
     else:
         if mode == "TRL":
             if level_achieved < 3:
-                risks["high_risks"] = ["Technical feasibility not yet proven", "Limited funding for sustained R&D"]
-                risks["medium_risks"] = ["Competition in research area", "IP protection challenges"]
+                risks["high_risks"] = ["⚠️ Technical feasibility not yet proven", "💰 Limited funding for sustained R&D"]
+                risks["medium_risks"] = ["⚔️ Competition in research area", "📄 IP protection challenges"]
                 risks["mitigation_strategies"] = [
-                    "Conduct systematic technical validation studies",
-                    "Secure multiple funding sources and partnerships",
-                    "Establish comprehensive IP protection strategy"
+                    "🔬 Conduct systematic technical validation studies",
+                    "💰 Secure multiple funding sources and partnerships",
+                    "📄 Establish comprehensive IP protection strategy"
                 ]
             elif level_achieved < 6:
-                risks["high_risks"] = ["Technology scaling challenges", "Manufacturing feasibility concerns"]
-                risks["medium_risks"] = ["Market acceptance uncertainty", "Regulatory approval delays"]
+                risks["high_risks"] = ["📈 Technology scaling challenges", "🏭 Manufacturing feasibility concerns"]
+                risks["medium_risks"] = ["🎯 Market acceptance uncertainty", "📋 Regulatory approval delays"]
                 risks["mitigation_strategies"] = [
-                    "Develop detailed scaling and manufacturing plan",
-                    "Engage in early customer validation activities",
-                    "Work closely with regulatory bodies for compliance"
+                    "📈 Develop detailed scaling and manufacturing plan",
+                    "👥 Engage in early customer validation activities",
+                    "📋 Work closely with regulatory bodies for compliance"
                 ]
             else:
-                risks["high_risks"] = ["Intense market competition", "Commercial viability pressures"]
-                risks["medium_risks"] = ["Technology adoption rate", "Supply chain disruptions"]
+                risks["high_risks"] = ["⚔️ Intense market competition", "💼 Commercial viability pressures"]
+                risks["medium_risks"] = ["📊 Technology adoption rate", "📦 Supply chain disruptions"]
                 risks["mitigation_strategies"] = [
-                    "Establish strong competitive market position",
-                    "Develop robust and diversified supply chain",
-                    "Continuously monitor technology and market trends"
+                    "💪 Establish strong competitive market position",
+                    "📦 Develop robust and diversified supply chain",
+                    "📊 Continuously monitor technology and market trends"
                 ]
         elif mode == "IRL":
             if level_achieved < 3:
-                risks["high_risks"] = ["Market validation uncertainty", "Team capability gaps"]
-                risks["medium_risks"] = ["Funding accessibility", "Business model viability"]
+                risks["high_risks"] = ["🎯 Market validation uncertainty", "👥 Team capability gaps"]
+                risks["medium_risks"] = ["💰 Funding accessibility", "💼 Business model viability"]
                 risks["mitigation_strategies"] = [
-                    "Conduct thorough market research and validation",
-                    "Build experienced team with complementary skills",
-                    "Develop multiple revenue stream opportunities"
+                    "🔍 Conduct thorough market research and validation",
+                    "👥 Build experienced team with complementary skills",
+                    "💵 Develop multiple revenue stream opportunities"
                 ]
             elif level_achieved < 6:
-                risks["high_risks"] = ["Customer acquisition challenges", "Competitive pressure"]
-                risks["medium_risks"] = ["Scaling operational complexity", "Cash flow management"]
+                risks["high_risks"] = ["📊 Customer acquisition challenges", "⚔️ Competitive pressure"]
+                risks["medium_risks"] = ["📈 Scaling operational complexity", "💰 Cash flow management"]
                 risks["mitigation_strategies"] = [
-                    "Implement proven customer acquisition strategies",
-                    "Establish strong competitive differentiation",
-                    "Maintain adequate cash flow and working capital"
+                    "📊 Implement proven customer acquisition strategies",
+                    "💪 Establish strong competitive differentiation",
+                    "💰 Maintain adequate cash flow and working capital"
                 ]
             else:
-                risks["high_risks"] = ["Market saturation", "Scaling execution risks"]
-                risks["medium_risks"] = ["Technology disruption", "Talent acquisition"]
+                risks["high_risks"] = ["🌐 Market saturation", "📈 Scaling execution risks"]
+                risks["medium_risks"] = ["🔄 Technology disruption", "👥 Talent acquisition"]
                 risks["mitigation_strategies"] = [
-                    "Diversify into new markets and customer segments",
-                    "Invest in continuous innovation and R&D",
-                    "Build strong organizational capabilities"
+                    "🌐 Diversify into new markets and customer segments",
+                    "🔬 Invest in continuous innovation and R&D",
+                    "🏢 Build strong organizational capabilities"
                 ]
         elif mode == "MRL":
             if level_achieved < 3:
-                risks["high_risks"] = ["Market need not validated", "Customer segment unclear"]
-                risks["medium_risks"] = ["Competitive landscape uncertainty", "Pricing strategy risks"]
+                risks["high_risks"] = ["❓ Market need not validated", "🎯 Customer segment unclear"]
+                risks["medium_risks"] = ["⚔️ Competitive landscape uncertainty", "💰 Pricing strategy risks"]
                 risks["mitigation_strategies"] = [
-                    "Conduct extensive customer discovery and validation",
-                    "Perform comprehensive competitive analysis",
-                    "Test multiple pricing and positioning strategies"
+                    "🔍 Conduct extensive customer discovery and validation",
+                    "⚔️ Perform comprehensive competitive analysis",
+                    "💰 Test multiple pricing and positioning strategies"
                 ]
             elif level_achieved < 6:
-                risks["high_risks"] = ["Go-to-market execution challenges", "Channel partnership risks"]
-                risks["medium_risks"] = ["Brand recognition barriers", "Customer acquisition costs"]
+                risks["high_risks"] = ["🚀 Go-to-market execution challenges", "🤝 Channel partnership risks"]
+                risks["medium_risks"] = ["📢 Brand recognition barriers", "💰 Customer acquisition costs"]
                 risks["mitigation_strategies"] = [
-                    "Develop comprehensive go-to-market plan with milestones",
-                    "Establish strategic channel partnerships",
-                    "Invest in brand building and marketing capabilities"
+                    "🚀 Develop comprehensive go-to-market plan with milestones",
+                    "🤝 Establish strategic channel partnerships",
+                    "📢 Invest in brand building and marketing capabilities"
                 ]
             else:
-                risks["high_risks"] = ["Market penetration limitations", "Competitive response"]
-                risks["medium_risks"] = ["Customer retention challenges", "Market evolution"]
+                risks["high_risks"] = ["📊 Market penetration limitations", "⚔️ Competitive response"]
+                risks["medium_risks"] = ["👥 Customer retention challenges", "🔄 Market evolution"]
                 risks["mitigation_strategies"] = [
-                    "Implement customer retention and loyalty programs",
-                    "Continuously monitor and adapt to market changes",
-                    "Build sustainable competitive advantages"
+                    "👥 Implement customer retention and loyalty programs",
+                    "🔄 Continuously monitor and adapt to market changes",
+                    "💪 Build sustainable competitive advantages"
                 ]
     
     return risks
@@ -1839,8 +1814,8 @@ def generate_next_steps(level_achieved, mode, questions, language):
         
         if language == "filipino":
             next_steps = [
-                f"Mag-focus sa {next_level['title']} (Level {next_level['level']})",
-                "Mag-address ng mga requirements sa susunod na level:",
+                f"🎯 Mag-focus sa {next_level['title']} (Level {next_level['level']})",
+                "📋 Mag-address ng mga requirements sa susunod na level:",
             ]
             
             # Add specific requirements from next level
@@ -1849,8 +1824,8 @@ def generate_next_steps(level_achieved, mode, questions, language):
                 
         else:
             next_steps = [
-                f"Focus on achieving {next_level['title']} (Level {next_level['level']})",
-                "Address the following requirements for the next level:",
+                f"🎯 Focus on achieving {next_level['title']} (Level {next_level['level']})",
+                "📋 Address the following requirements for the next level:",
             ]
             
             # Add specific requirements from next level
@@ -1859,15 +1834,15 @@ def generate_next_steps(level_achieved, mode, questions, language):
     else:
         if language == "filipino":
             next_steps = [
-                "Nakamit na ang pinakamataas na level!",
-                "Mag-focus sa continuous improvement at maintenance",
-                "Mag-monitor ng emerging technologies at market changes"
+                "🏆 Nakamit na ang pinakamataas na level!",
+                "📈 Mag-focus sa continuous improvement at maintenance",
+                "🔍 Mag-monitor ng emerging technologies at market changes"
             ]
         else:
             next_steps = [
-                "Highest level achieved! Focus on continuous improvement and maintenance",
-                "Monitor emerging technologies and market changes",
-                "Consider expansion into new applications or markets"
+                "🏆 Highest level achieved! Focus on continuous improvement and maintenance",
+                "🔍 Monitor emerging technologies and market changes",
+                "🌐 Consider expansion into new applications or markets"
             ]
     
     return next_steps
@@ -1878,22 +1853,22 @@ def generate_enhanced_explanation(level_achieved, mode, language, questions):
         if level_achieved < (0 if mode == "TRL" else 1):
             start_level = 0 if mode == "TRL" else 1
             text = f"🔍 **Assessment Result**: Hindi pa naaabot ng inyong teknolohiya ang antas {start_level} ng {mode}.\n\n"
-            text += f"**Kahulugan**: Ang teknolohiya ay nasa napakaunang yugto pa lamang at kailangan ng malawakang development bago maabot ang basic requirements.\n\n"
-            text += f"**Mga Hakbang**: Mag-focus sa fundamental research, proof-of-concept development, at basic validation activities."
+            text += f"**📊 Kahulugan**: Ang teknolohiya ay nasa napakaunang yugto pa lamang at kailangan ng malawakang development bago maabot ang basic requirements.\n\n"
+            text += f"**🚀 Mga Hakbang**: Mag-focus sa fundamental research, proof-of-concept development, at basic validation activities."
         else:
             current_level = next((q for q in questions if q["level"] == level_achieved), None)
             if current_level:
                 text = f"🎯 **Assessment Result**: Naabot ng inyong teknolohiya ang {mode} antas {level_achieved} - {current_level['title']}.\n\n"
-                text += f"**Kahulugan**: Ang teknolohiya ay successfully na-complete ang mga requirements para sa level na ito, na nagpapakita ng {current_level['title'].lower()}.\n\n"
+                text += f"**📊 Kahulugan**: Ang teknolohiya ay successfully na-complete ang mga requirements para sa level na ito, na nagpapakita ng {current_level['title'].lower()}.\n\n"
                 
                 # Find next level
                 next_level = next((q for q in questions if q["level"] > level_achieved), None)
                 if next_level:
-                    text += f"**Susunod na Target**: Para umusad sa Level {next_level['level']} ({next_level['title']}), kailangan ninyo ng mga sumusunod:\n"
+                    text += f"**🎯 Susunod na Target**: Para umusad sa Level {next_level['level']} ({next_level['title']}), kailangan ninyo ng mga sumusunod:\n"
                     for req in next_level['checks'][:3]:
                         text += f"• {req}\n"
                 else:
-                    text += f"**Congratulations**: Nakamit ninyo na ang pinakamataas na level! Focus na lang sa continuous improvement at innovation."
+                    text += f"**🏆 Congratulations**: Nakamit ninyo na ang pinakamataas na level! Focus na lang sa continuous improvement at innovation."
             else:
                 text = f"Naabot ng inyong teknolohiya ang {mode} level {level_achieved}."
         
@@ -1902,30 +1877,30 @@ def generate_enhanced_explanation(level_achieved, mode, language, questions):
         start_level = 0 if mode == "TRL" else 1
         if level_achieved < start_level:
             text = f"🔍 **Assessment Result**: Your technology has not yet satisfied the basic requirements for {mode} level {start_level}.\n\n"
-            text += f"**Interpretation**: The technology is in very early stages and requires substantial development before meeting basic requirements.\n\n"
-            text += f"**Immediate Actions**: Focus on fundamental research, proof-of-concept development, and basic validation activities."
+            text += f"**📊 Interpretation**: The technology is in very early stages and requires substantial development before meeting basic requirements.\n\n"
+            text += f"**🚀 Immediate Actions**: Focus on fundamental research, proof-of-concept development, and basic validation activities."
         else:
             current_level = next((q for q in questions if q["level"] == level_achieved), None)
             if current_level:
                 text = f"🎯 **Assessment Result**: Your technology has achieved {mode} Level {level_achieved} - {current_level['title']}.\n\n"
-                text += f"**Interpretation**: The technology has successfully completed the requirements for this level, demonstrating {current_level['title'].lower()}.\n\n"
+                text += f"**📊 Interpretation**: The technology has successfully completed the requirements for this level, demonstrating {current_level['title'].lower()}.\n\n"
                 
                 # Find next level
                 next_level = next((q for q in questions if q["level"] > level_achieved), None)
                 if next_level:
-                    text += f"**Next Target**: To advance to Level {next_level['level']} ({next_level['title']}), you need to address:\n"
+                    text += f"**🎯 Next Target**: To advance to Level {next_level['level']} ({next_level['title']}), you need to address:\n"
                     for req in next_level['checks'][:3]:
                         text += f"• {req}\n"
                 else:
-                    text += f"**Congratulations**: You have achieved the highest level! Focus on continuous improvement and innovation."
+                    text += f"**🏆 Congratulations**: You have achieved the highest level! Focus on continuous improvement and innovation."
             else:
                 text = f"Your technology has achieved {mode} level {level_achieved}."
         
         return text
 
-# Enhanced TCP Assessment Function (No AI Dependencies)
+# Enhanced TCP Assessment Function
 def assess_tcp_enhanced(data):
-    """Enhanced TCP assessment with comprehensive analysis (No AI)"""
+    """Enhanced TCP assessment with comprehensive analysis"""
     print("📊 Starting Enhanced TCP Analysis...")
     
     language = data["language"]
@@ -1946,7 +1921,7 @@ def assess_tcp_enhanced(data):
     
     print(f"📊 Basic analysis complete. Recommended pathway: {recommended_pathway}")
     
-    # Generate comprehensive analysis (No AI)
+    # Generate comprehensive analysis
     detailed_analysis = generate_comprehensive_tcp_analysis(
         answers, tcp_data, pathway_scores, recommended_pathway,
         technology_title, technology_description, language
@@ -1996,7 +1971,7 @@ def calculate_pathway_scores(answers, tcp_data):
 
 def generate_comprehensive_tcp_analysis(answers, tcp_data, pathway_scores, recommended_pathway,
                                       technology_title, technology_description, language):
-    """Generate comprehensive analysis (No AI Dependencies)"""
+    """Generate comprehensive TCP analysis"""
     print("📊 Generating comprehensive TCP analysis...")
     
     # Basic analysis components
@@ -2123,7 +2098,7 @@ def analyze_strengths_weaknesses(dimension_scores, language):
             strengths.append({
                 "dimension": dim_name,
                 "score": percentage,
-                "note": "Excellent capability in this area"
+                "note": "Excellent capability in this area" if language == "english" else "Napakagaling na kakayahan sa larangan na ito"
             })
         elif percentage < 50:
             weaknesses.append({
@@ -2137,7 +2112,7 @@ def analyze_strengths_weaknesses(dimension_scores, language):
                 "dimension": dim_name,
                 "score": percentage,
                 "potential": dim_data["improvement_potential"],
-                "note": "Good foundation with room for improvement"
+                "note": "Good foundation with room for improvement" if language == "english" else "Magandang pundasyon na may puwang para sa pagpapabuti"
             })
     
     return {
@@ -2151,22 +2126,22 @@ def generate_overall_swot_assessment(strengths, weaknesses, opportunities, langu
     """Generate overall SWOT assessment"""
     if language == "filipino":
         if len(strengths) >= 3:
-            return "Malakas na overall readiness na may mga established capabilities"
+            return "💪 Malakas na overall readiness na may mga established capabilities"
         elif len(weaknesses) >= 3:
-            return "Kailangan ng significant improvement sa maraming areas"
+            return "⚠️ Kailangan ng significant improvement sa maraming areas"
         elif len(opportunities) >= 2:
-            return "Magandang foundation na may malaking potential para sa improvement"
+            return "🎯 Magandang foundation na may malaking potential para sa improvement"
         else:
-            return "Balanced na readiness na may specific areas para sa enhancement"
+            return "⚖️ Balanced na readiness na may specific areas para sa enhancement"
     else:
         if len(strengths) >= 3:
-            return "Strong overall readiness with established capabilities across multiple dimensions"
+            return "💪 Strong overall readiness with established capabilities across multiple dimensions"
         elif len(weaknesses) >= 3:
-            return "Requires significant improvement across multiple areas before commercialization"
+            return "⚠️ Requires significant improvement across multiple areas before commercialization"
         elif len(opportunities) >= 2:
-            return "Good foundation with substantial potential for improvement"
+            return "🎯 Good foundation with substantial potential for improvement"
         else:
-            return "Balanced readiness with specific areas identified for enhancement"
+            return "⚖️ Balanced readiness with specific areas identified for enhancement"
 
 def generate_tcp_success_strategies(dimension_scores, recommended_pathway, language):
     """Generate comprehensive success strategies"""
@@ -2174,122 +2149,109 @@ def generate_tcp_success_strategies(dimension_scores, recommended_pathway, langu
         "immediate_actions": [],
         "short_term_strategies": [],
         "long_term_strategies": [],
-        "pathway_specific": [],
-        "capability_building": []
+        "pathway_specific": []
     }
-    
-    # Get pathway details
-    pathway_info = next((p for p in TCP_QUESTIONS["english"]["pathways"] if p["name"] == recommended_pathway), None)
     
     if language == "filipino":
         # Immediate actions based on weaknesses
         weak_dimensions = [dim for dim, data in dimension_scores.items() if data["percentage"] < 50]
         for dim in weak_dimensions[:2]:  # Focus on top 2 weakest
             if "Technology" in dim:
-                strategies["immediate_actions"].append(f"Palakasin ang technology development at validation para sa {dim}")
+                strategies["immediate_actions"].append(f"🔧 Palakasin ang technology development at validation para sa {dim}")
             elif "Market" in dim:
-                strategies["immediate_actions"].append(f"Mag-conduct ng comprehensive market research para sa {dim}")
+                strategies["immediate_actions"].append(f"📊 Mag-conduct ng comprehensive market research para sa {dim}")
             elif "Business" in dim:
-                strategies["immediate_actions"].append(f"Mag-develop ng business capabilities para sa {dim}")
+                strategies["immediate_actions"].append(f"💼 Mag-develop ng business capabilities para sa {dim}")
             elif "Team" in dim:
-                strategies["immediate_actions"].append(f"Mag-strengthen ng team expertise para sa {dim}")
+                strategies["immediate_actions"].append(f"👥 Mag-strengthen ng team expertise para sa {dim}")
         
         # Pathway-specific strategies
         if recommended_pathway == "Direct Sale":
             strategies["pathway_specific"] = [
-                "Mag-build ng direct sales team na may industry experience",
-                "Mag-establish ng customer support at service infrastructure",
-                "Mag-develop ng competitive pricing strategy",
-                "Mag-create ng comprehensive marketing materials"
+                "🎯 Mag-build ng direct sales team na may industry experience",
+                "📞 Mag-establish ng customer support at service infrastructure",
+                "💰 Mag-develop ng competitive pricing strategy",
+                "📢 Mag-create ng comprehensive marketing materials"
             ]
         elif recommended_pathway == "Licensing":
             strategies["pathway_specific"] = [
-                "Mag-strengthen ng IP portfolio at protection strategy",
-                "Mag-identify ng potential licensing partners sa target industry",
-                "Mag-prepare ng comprehensive technology packages",
-                "Mag-develop ng licensing terms at negotiation strategy"
+                "📄 Mag-strengthen ng IP portfolio at protection strategy",
+                "🏢 Mag-identify ng potential licensing partners sa target industry",
+                "📦 Mag-prepare ng comprehensive technology packages",
+                "🤝 Mag-develop ng licensing terms at negotiation strategy"
             ]
         elif recommended_pathway == "Startup/Spin-out":
             strategies["pathway_specific"] = [
-                "Mag-assemble ng experienced founding team",
-                "Mag-develop ng detailed business plan at financial projections",
-                "Mag-secure ng initial seed funding",
-                "Mag-establish ng legal structure at governance"
+                "👥 Mag-assemble ng experienced founding team",
+                "📈 Mag-develop ng detailed business plan at financial projections",
+                "💰 Mag-secure ng initial seed funding",
+                "🏢 Mag-establish ng legal structure at governance"
             ]
         
         # Long-term strategies
         strategies["long_term_strategies"] = [
-            "Mag-establish ng sustainable competitive advantage",
-            "Mag-build ng strong brand recognition sa target market",
-            "Mag-develop ng strategic partnerships para sa growth",
-            "Mag-create ng innovation pipeline para sa future products"
+            "💪 Mag-establish ng sustainable competitive advantage",
+            "📢 Mag-build ng strong brand recognition sa target market",
+            "🤝 Mag-develop ng strategic partnerships para sa growth",
+            "🔬 Mag-create ng innovation pipeline para sa future products"
         ]
     else:
         # Immediate actions based on weaknesses
         weak_dimensions = [dim for dim, data in dimension_scores.items() if data["percentage"] < 50]
         for dim in weak_dimensions[:2]:  # Focus on top 2 weakest
             if "Technology" in dim:
-                strategies["immediate_actions"].append(f"Strengthen technology development and validation capabilities in {dim}")
+                strategies["immediate_actions"].append(f"🔧 Strengthen technology development and validation capabilities in {dim}")
             elif "Market" in dim:
-                strategies["immediate_actions"].append(f"Conduct comprehensive market research and validation for {dim}")
+                strategies["immediate_actions"].append(f"📊 Conduct comprehensive market research and validation for {dim}")
             elif "Business" in dim:
-                strategies["immediate_actions"].append(f"Develop business capabilities and resources for {dim}")
+                strategies["immediate_actions"].append(f"💼 Develop business capabilities and resources for {dim}")
             elif "Team" in dim:
-                strategies["immediate_actions"].append(f"Strengthen team expertise and experience in {dim}")
+                strategies["immediate_actions"].append(f"👥 Strengthen team expertise and experience in {dim}")
         
         # Short-term strategies (3-12 months)
         strategies["short_term_strategies"] = [
-            "Establish key performance indicators and monitoring systems",
-            "Build strategic partnerships and alliances",
-            "Develop pilot programs or proof-of-concept demonstrations",
-            "Secure necessary funding and resource commitments"
+            "📊 Establish key performance indicators and monitoring systems",
+            "🤝 Build strategic partnerships and alliances",
+            "🚀 Develop pilot programs or proof-of-concept demonstrations",
+            "💰 Secure necessary funding and resource commitments"
         ]
         
         # Pathway-specific strategies
-        if pathway_info:
-            if recommended_pathway == "Direct Sale":
-                strategies["pathway_specific"] = [
-                    "Build direct sales team with industry experience and networks",
-                    "Establish customer support and service infrastructure",
-                    "Develop competitive pricing strategy based on market analysis",
-                    "Create comprehensive marketing materials and sales tools"
-                ]
-            elif recommended_pathway == "Licensing":
-                strategies["pathway_specific"] = [
-                    "Strengthen IP portfolio and protection strategy",
-                    "Identify and approach potential licensing partners in target industries",
-                    "Prepare comprehensive technology packages and documentation",
-                    "Develop licensing terms and negotiation strategy"
-                ]
-            elif recommended_pathway == "Startup/Spin-out":
-                strategies["pathway_specific"] = [
-                    "Assemble experienced founding team with complementary skills",
-                    "Develop detailed business plan with financial projections",
-                    "Secure initial seed funding through grants, angels, or VCs",
-                    "Establish legal structure and corporate governance"
-                ]
-            elif recommended_pathway == "Government Procurement":
-                strategies["pathway_specific"] = [
-                    "Understand government procurement processes and requirements",
-                    "Ensure compliance with all relevant regulations and standards",
-                    "Build relationships with key government stakeholders",
-                    "Prepare for lengthy procurement cycles and processes"
-                ]
+        if recommended_pathway == "Direct Sale":
+            strategies["pathway_specific"] = [
+                "🎯 Build direct sales team with industry experience and networks",
+                "📞 Establish customer support and service infrastructure",
+                "💰 Develop competitive pricing strategy based on market analysis",
+                "📢 Create comprehensive marketing materials and sales tools"
+            ]
+        elif recommended_pathway == "Licensing":
+            strategies["pathway_specific"] = [
+                "📄 Strengthen IP portfolio and protection strategy",
+                "🏢 Identify and approach potential licensing partners in target industries",
+                "📦 Prepare comprehensive technology packages and documentation",
+                "🤝 Develop licensing terms and negotiation strategy"
+            ]
+        elif recommended_pathway == "Startup/Spin-out":
+            strategies["pathway_specific"] = [
+                "👥 Assemble experienced founding team with complementary skills",
+                "📈 Develop detailed business plan with financial projections",
+                "💰 Secure initial seed funding through grants, angels, or VCs",
+                "🏢 Establish legal structure and corporate governance"
+            ]
+        elif recommended_pathway == "Government Procurement":
+            strategies["pathway_specific"] = [
+                "📋 Understand government procurement processes and requirements",
+                "✅ Ensure compliance with all relevant regulations and standards",
+                "🏛️ Build relationships with key government stakeholders",
+                "⏰ Prepare for lengthy procurement cycles and processes"
+            ]
         
         # Long-term strategies (1-3 years)
         strategies["long_term_strategies"] = [
-            "Establish sustainable competitive advantage through continuous innovation",
-            "Build strong brand recognition and market presence",
-            "Develop strategic partnerships for growth and expansion",
-            "Create innovation pipeline for future products and services"
-        ]
-        
-        # Capability building recommendations
-        strategies["capability_building"] = [
-            "Invest in team development and skill enhancement",
-            "Build organizational processes and systems for scaling",
-            "Establish quality assurance and continuous improvement programs",
-            "Develop crisis management and risk mitigation capabilities"
+            "💪 Establish sustainable competitive advantage through continuous innovation",
+            "📢 Build strong brand recognition and market presence",
+            "🤝 Develop strategic partnerships for growth and expansion",
+            "🔬 Create innovation pipeline for future products and services"
         ]
     
     return strategies
@@ -2300,8 +2262,7 @@ def generate_tcp_risk_assessment(dimension_scores, recommended_pathway, language
         "high_risks": [],
         "medium_risks": [],
         "low_risks": [],
-        "mitigation_strategies": [],
-        "contingency_plans": []
+        "mitigation_strategies": []
     }
     
     # Identify risks based on dimension weaknesses
@@ -2312,14 +2273,14 @@ def generate_tcp_risk_assessment(dimension_scores, recommended_pathway, language
             if language == "filipino":
                 risks["high_risks"].append({
                     "area": dim_name,
-                    "risk": f"Napakababang capability sa {dim_name} ay maaaring mag-cause ng project failure",
+                    "risk": f"⚠️ Napakababang capability sa {dim_name} ay maaaring mag-cause ng project failure",
                     "impact": "Critical",
                     "probability": "High"
                 })
             else:
                 risks["high_risks"].append({
                     "area": dim_name,
-                    "risk": f"Very low capability in {dim_name} may cause project failure",
+                    "risk": f"⚠️ Very low capability in {dim_name} may cause project failure",
                     "impact": "Critical",
                     "probability": "High"
                 })
@@ -2327,90 +2288,78 @@ def generate_tcp_risk_assessment(dimension_scores, recommended_pathway, language
             if language == "filipino":
                 risks["medium_risks"].append({
                     "area": dim_name,
-                    "risk": f"Limited capability sa {dim_name} ay maaaring mag-delay ng commercialization",
+                    "risk": f"⚡ Limited capability sa {dim_name} ay maaaring mag-delay ng commercialization",
                     "impact": "Moderate",
                     "probability": "Medium"
                 })
             else:
                 risks["medium_risks"].append({
                     "area": dim_name,
-                    "risk": f"Limited capability in {dim_name} may delay commercialization",
+                    "risk": f"⚡ Limited capability in {dim_name} may delay commercialization",
                     "impact": "Moderate",
                     "probability": "Medium"
                 })
     
-    # Pathway-specific risks
+    # Pathway-specific risks and mitigation strategies
     if language == "filipino":
         if recommended_pathway == "Direct Sale":
             risks["medium_risks"].append({
                 "area": "Market Execution",
-                "risk": "Direct sales ay nangangailangan ng malaking investment sa marketing at sales",
+                "risk": "🎯 Direct sales ay nangangailangan ng malaking investment sa marketing at sales",
                 "impact": "High",
                 "probability": "Medium"
             })
         elif recommended_pathway == "Licensing":
             risks["medium_risks"].append({
                 "area": "Partner Dependency",
-                "risk": "Success ay dependent sa performance ng licensing partners",
+                "risk": "🤝 Success ay dependent sa performance ng licensing partners",
                 "impact": "Medium",
                 "probability": "Medium"
             })
         elif recommended_pathway == "Startup/Spin-out":
             risks["high_risks"].append({
                 "area": "Entrepreneurial Risk",
-                "risk": "Startup approach ay may mataas na failure rate at resource requirements",
+                "risk": "🚀 Startup approach ay may mataas na failure rate at resource requirements",
                 "impact": "Critical",
                 "probability": "High"
             })
         
         # General mitigation strategies
         risks["mitigation_strategies"] = [
-            "Mag-develop ng comprehensive risk monitoring system",
-            "Mag-establish ng emergency contingency plans",
-            "Mag-build ng diverse partnerships para sa risk distribution",
-            "Mag-maintain ng adequate financial reserves"
-        ]
-        
-        risks["contingency_plans"] = [
-            f"Kung hindi successful ang {recommended_pathway}, consider ang second-best pathway",
-            "Mag-establish ng alternative funding sources",
-            "Mag-develop ng pivot strategies kung mag-change ang market conditions"
+            "📊 Mag-develop ng comprehensive risk monitoring system",
+            "🛡️ Mag-establish ng emergency contingency plans",
+            "🤝 Mag-build ng diverse partnerships para sa risk distribution",
+            "💰 Mag-maintain ng adequate financial reserves"
         ]
     else:
         if recommended_pathway == "Direct Sale":
             risks["medium_risks"].append({
                 "area": "Market Execution",
-                "risk": "Direct sales requires significant investment in marketing and sales infrastructure",
+                "risk": "🎯 Direct sales requires significant investment in marketing and sales infrastructure",
                 "impact": "High",
                 "probability": "Medium"
             })
         elif recommended_pathway == "Licensing":
             risks["medium_risks"].append({
                 "area": "Partner Dependency",
-                "risk": "Success depends heavily on licensing partner performance and commitment",
+                "risk": "🤝 Success depends heavily on licensing partner performance and commitment",
                 "impact": "Medium",
                 "probability": "Medium"
             })
         elif recommended_pathway == "Startup/Spin-out":
             risks["high_risks"].append({
                 "area": "Entrepreneurial Risk",
-                "risk": "Startup approach has high failure rate and significant resource requirements",
+                "risk": "🚀 Startup approach has high failure rate and significant resource requirements",
                 "impact": "Critical",
                 "probability": "High"
             })
         
         # General mitigation strategies
         risks["mitigation_strategies"] = [
-            "Develop comprehensive risk monitoring and early warning systems",
-            "Establish emergency contingency plans and crisis management protocols",
-            "Build diverse partnerships and alliances for risk distribution",
-            "Maintain adequate financial reserves and backup funding options"
-        ]
-        
-        risks["contingency_plans"] = [
-            f"If {recommended_pathway} is not successful, pivot to second-best pathway option",
-            "Establish alternative funding sources and financial backup plans",
-            "Develop pivot strategies for changing market conditions or technology disruption"
+            "📊 Develop comprehensive risk monitoring and early warning systems",
+            "🛡️ Establish emergency contingency plans and crisis management protocols",
+            "🤝 Build diverse partnerships and alliances for risk distribution",
+            "💰 Maintain adequate financial reserves and backup funding options"
         ]
     
     return risks
@@ -2421,246 +2370,148 @@ def generate_tcp_implementation_plan(recommended_pathway, dimension_scores, lang
         "phase_1": {"timeframe": "0-6 months", "activities": [], "milestones": []},
         "phase_2": {"timeframe": "6-18 months", "activities": [], "milestones": []},
         "phase_3": {"timeframe": "18-36 months", "activities": [], "milestones": []},
-        "success_metrics": [],
-        "resource_requirements": []
+        "success_metrics": []
     }
     
     if language == "filipino":
         # Phase 1: Foundation
         plan["phase_1"]["activities"] = [
-            "Mag-address ng identified weaknesses sa dimension scores",
-            "Mag-establish ng core team at organizational structure",
-            "Mag-develop ng detailed commercialization strategy"
+            "🔧 Mag-address ng identified weaknesses sa dimension scores",
+            "👥 Mag-establish ng core team at organizational structure",
+            "📈 Mag-develop ng detailed commercialization strategy"
         ]
         plan["phase_1"]["milestones"] = [
-            "Nakumpleto ang team formation",
-            "Na-finalize ang commercialization strategy",
-            "Na-secure ang initial funding o resources"
+            "✅ Nakumpleto ang team formation",
+            "📋 Na-finalize ang commercialization strategy",
+            "💰 Na-secure ang initial funding o resources"
         ]
         
         # Phase 2: Development
         plan["phase_2"]["activities"] = [
-            "Mag-implement ng pathway-specific strategies",
-            "Mag-build ng necessary capabilities at infrastructure",
-            "Mag-establish ng key partnerships"
+            "🚀 Mag-implement ng pathway-specific strategies",
+            "🏗️ Mag-build ng necessary capabilities at infrastructure",
+            "🤝 Mag-establish ng key partnerships"
         ]
         plan["phase_2"]["milestones"] = [
-            "Na-establish ang key partnerships",
-            "Natapos ang capability building programs",
-            "Na-launch ang pilot programs o prototypes"
+            "🤝 Na-establish ang key partnerships",
+            "🎓 Natapos ang capability building programs",
+            "🚀 Na-launch ang pilot programs o prototypes"
         ]
         
         # Phase 3: Launch
         plan["phase_3"]["activities"] = [
-            "Mag-execute ng full commercialization plan",
-            "Mag-monitor at mag-optimize ng performance",
-            "Mag-scale operations based sa results"
+            "🎬 Mag-execute ng full commercialization plan",
+            "📊 Mag-monitor at mag-optimize ng performance",
+            "📈 Mag-scale operations based sa results"
         ]
         plan["phase_3"]["milestones"] = [
-            "Successful commercial launch",
-            "Na-achieve ang target performance metrics",
-            "Na-establish ang sustainable operations"
+            "🎉 Successful commercial launch",
+            "🎯 Na-achieve ang target performance metrics",
+            "🏢 Na-establish ang sustainable operations"
         ]
         
         # Success metrics
         plan["success_metrics"] = [
-            "Technology readiness improvement scores",
-            "Market penetration rates",
-            "Revenue generation milestones",
-            "Partnership establishment success"
+            "📊 Technology readiness improvement scores",
+            "📈 Market penetration rates",
+            "💰 Revenue generation milestones",
+            "🤝 Partnership establishment success"
         ]
     else:
         # Phase 1: Foundation (0-6 months)
         plan["phase_1"]["activities"] = [
-            "Address identified weaknesses in dimension scores through targeted improvements",
-            "Establish core team and organizational structure for commercialization",
-            "Develop detailed commercialization strategy and execution plan"
+            "🔧 Address identified weaknesses in dimension scores through targeted improvements",
+            "👥 Establish core team and organizational structure for commercialization",
+            "📈 Develop detailed commercialization strategy and execution plan"
         ]
         plan["phase_1"]["milestones"] = [
-            "Complete team formation with all key roles filled",
-            "Finalize comprehensive commercialization strategy",
-            "Secure initial funding or resource commitments"
+            "✅ Complete team formation with all key roles filled",
+            "📋 Finalize comprehensive commercialization strategy",
+            "💰 Secure initial funding or resource commitments"
         ]
         
         # Phase 2: Development (6-18 months)
         plan["phase_2"]["activities"] = [
-            "Implement pathway-specific strategies and action plans",
-            "Build necessary capabilities and infrastructure",
-            "Establish key partnerships and strategic alliances"
+            "🚀 Implement pathway-specific strategies and action plans",
+            "🏗️ Build necessary capabilities and infrastructure",
+            "🤝 Establish key partnerships and strategic alliances"
         ]
         plan["phase_2"]["milestones"] = [
-            "Establish all critical partnerships and alliances",
-            "Complete capability building and infrastructure development",
-            "Launch pilot programs or prototype demonstrations"
+            "🤝 Establish all critical partnerships and alliances",
+            "🎓 Complete capability building and infrastructure development",
+            "🚀 Launch pilot programs or prototype demonstrations"
         ]
         
         # Phase 3: Launch and Scale (18-36 months)
         plan["phase_3"]["activities"] = [
-            "Execute full commercialization plan with market launch",
-            "Monitor performance and optimize operations continuously",
-            "Scale operations based on market response and results"
+            "🎬 Execute full commercialization plan with market launch",
+            "📊 Monitor performance and optimize operations continuously",
+            "📈 Scale operations based on market response and results"
         ]
         plan["phase_3"]["milestones"] = [
-            "Achieve successful commercial launch",
-            "Meet target performance metrics and KPIs",
-            "Establish sustainable and scalable operations"
+            "🎉 Achieve successful commercial launch",
+            "🎯 Meet target performance metrics and KPIs",
+            "🏢 Establish sustainable and scalable operations"
         ]
         
         # Success metrics
         plan["success_metrics"] = [
-            "Technology readiness level improvements across all dimensions",
-            "Market penetration rates and customer acquisition metrics",
-            "Revenue generation and financial performance milestones",
-            "Partnership establishment and collaboration success rates"
-        ]
-        
-        # Resource requirements
-        plan["resource_requirements"] = [
-            f"Estimated investment: {get_pathway_investment_estimate(recommended_pathway)}",
-            f"Timeline to market: {get_pathway_timeline_estimate(recommended_pathway)}",
-            f"Key personnel needed: {get_pathway_personnel_requirements(recommended_pathway)}",
-            f"Infrastructure requirements: {get_pathway_infrastructure_needs(recommended_pathway)}"
+            "📊 Technology readiness level improvements across all dimensions",
+            "📈 Market penetration rates and customer acquisition metrics",
+            "💰 Revenue generation and financial performance milestones",
+            "🤝 Partnership establishment and collaboration success rates"
         ]
     
     return plan
-
-def get_pathway_investment_estimate(pathway):
-    """Get investment estimate for pathway"""
-    estimates = {
-        "Direct Sale": "Medium to High ($100K-$1M+)",
-        "Licensing": "Low to Medium ($10K-$100K)",
-        "Startup/Spin-out": "High ($500K-$5M+)",
-        "Assignment": "Low ($5K-$50K)",
-        "Research Collaboration": "Medium ($50K-$500K)",
-        "Open Source": "Low to Medium ($10K-$100K)",
-        "Government Procurement": "Medium ($100K-$1M)"
-    }
-    return estimates.get(pathway, "Medium ($50K-$500K)")
-
-def get_pathway_timeline_estimate(pathway):
-    """Get timeline estimate for pathway"""
-    timelines = {
-        "Direct Sale": "12-24 months",
-        "Licensing": "6-18 months",
-        "Startup/Spin-out": "18-36 months",
-        "Assignment": "3-12 months",
-        "Research Collaboration": "12-36 months",
-        "Open Source": "6-12 months",
-        "Government Procurement": "12-36 months"
-    }
-    return timelines.get(pathway, "12-24 months")
-
-def get_pathway_personnel_requirements(pathway):
-    """Get personnel requirements for pathway"""
-    requirements = {
-        "Direct Sale": "Sales team, marketing specialists, customer support",
-        "Licensing": "IP specialists, business development, legal support",
-        "Startup/Spin-out": "Founding team, technical leads, business developers",
-        "Assignment": "Legal support, technology transfer specialists",
-        "Research Collaboration": "Research team, project managers, partnerships lead",
-        "Open Source": "Community managers, technical evangelists, developers",
-        "Government Procurement": "Regulatory specialists, government relations, compliance"
-    }
-    return requirements.get(pathway, "General business and technical team")
-
-def get_pathway_infrastructure_needs(pathway):
-    """Get infrastructure needs for pathway"""
-    needs = {
-        "Direct Sale": "Sales infrastructure, customer support systems, distribution",
-        "Licensing": "IP management systems, partner portals, technology packages",
-        "Startup/Spin-out": "Complete business infrastructure, office space, systems",
-        "Assignment": "Legal documentation, technology transfer processes",
-        "Research Collaboration": "Research facilities, collaboration platforms, data sharing",
-        "Open Source": "Development platforms, community tools, documentation",
-        "Government Procurement": "Compliance systems, security infrastructure, certifications"
-    }
-    return needs.get(pathway, "Basic business and technical infrastructure")
 
 def generate_tcp_financial_analysis(recommended_pathway, dimension_scores, language):
     """Generate financial analysis and projections"""
     analysis = {
         "investment_requirements": {},
         "revenue_projections": {},
-        "break_even_analysis": {},
         "funding_recommendations": []
     }
     
-    # Get pathway info
-    pathway_info = next((p for p in TCP_QUESTIONS["english"]["pathways"] if p["name"] == recommended_pathway), None)
-    
     if language == "filipino":
         analysis["investment_requirements"] = {
-            "initial_investment": get_pathway_investment_estimate(recommended_pathway),
+            "initial_investment": "Depende sa pathway - Direct Sale (High), Licensing (Low-Medium), Startup (High)",
             "ongoing_costs": "Monthly operational costs na mag-vary depende sa scale",
-            "risk_level": pathway_info["risk_level"] if pathway_info else "Medium"
+            "risk_level": "Medium hanggang High depende sa pathway"
         }
         
         analysis["revenue_projections"] = {
-            "timeline_to_revenue": get_pathway_timeline_estimate(recommended_pathway),
-            "revenue_model": get_pathway_revenue_model(recommended_pathway, language),
+            "timeline_to_revenue": "6-36 months depende sa pathway at market conditions",
+            "revenue_model": "Mag-vary depende sa napiling pathway",
             "growth_potential": "Dependent sa market size at adoption rate"
         }
         
         analysis["funding_recommendations"] = [
-            "Mag-explore ng government grants para sa R&D activities",
-            "Consider ang angel investors o VCs para sa high-growth potential",
-            "Mag-apply sa innovation competitions at startup programs",
-            "Mag-look into strategic partnerships na may funding component"
+            "💰 Mag-explore ng government grants para sa R&D activities",
+            "🏢 Consider ang angel investors o VCs para sa high-growth potential",
+            "🏆 Mag-apply sa innovation competitions at startup programs",
+            "🤝 Mag-look into strategic partnerships na may funding component"
         ]
     else:
         analysis["investment_requirements"] = {
-            "initial_investment": get_pathway_investment_estimate(recommended_pathway),
+            "initial_investment": "Varies by pathway - Direct Sale (High), Licensing (Low-Medium), Startup (High)",
             "ongoing_costs": "Monthly operational costs varying by scale and complexity",
-            "risk_level": pathway_info["risk_level"] if pathway_info else "Medium",
-            "roi_timeline": "Typically 2-5 years depending on market conditions"
+            "risk_level": "Medium to High depending on chosen pathway"
         }
         
         analysis["revenue_projections"] = {
-            "timeline_to_revenue": get_pathway_timeline_estimate(recommended_pathway),
-            "revenue_model": get_pathway_revenue_model(recommended_pathway, language),
+            "timeline_to_revenue": "6-36 months depending on pathway and market conditions",
+            "revenue_model": "Varies based on selected commercialization pathway",
             "growth_potential": "Dependent on market size, adoption rate, and competitive positioning"
         }
         
-        analysis["break_even_analysis"] = {
-            "estimated_timeline": "18-36 months for most pathways",
-            "key_factors": "Customer acquisition costs, pricing strategy, operational efficiency",
-            "sensitivity": "High sensitivity to market adoption and competitive response"
-        }
-        
         analysis["funding_recommendations"] = [
-            "Explore government grants and R&D tax incentives",
-            "Consider angel investors or VCs for high-growth potential technologies",
-            "Apply to innovation competitions and startup accelerator programs",
-            "Investigate strategic partnerships with established companies",
-            "Consider crowdfunding for consumer-oriented technologies"
+            "💰 Explore government grants and R&D tax incentives",
+            "🏢 Consider angel investors or VCs for high-growth potential technologies",
+            "🏆 Apply to innovation competitions and startup accelerator programs",
+            "🤝 Investigate strategic partnerships with established companies"
         ]
     
     return analysis
-
-def get_pathway_revenue_model(pathway, language):
-    """Get revenue model description for pathway"""
-    if language == "filipino":
-        models = {
-            "Direct Sale": "Direct revenue from product sales sa customers",
-            "Licensing": "Licensing fees, royalties, at milestone payments",
-            "Startup/Spin-out": "Product sales, services, at potential equity value",
-            "Assignment": "One-time payment para sa technology rights",
-            "Research Collaboration": "Shared IP value at research funding",
-            "Open Source": "Service-based revenue at support contracts",
-            "Government Procurement": "Contract-based revenue from government agencies"
-        }
-    else:
-        models = {
-            "Direct Sale": "Direct revenue from product sales to end customers",
-            "Licensing": "Licensing fees, royalties, and milestone payments from partners",
-            "Startup/Spin-out": "Product sales, services revenue, and potential equity value",
-            "Assignment": "One-time payment for technology rights transfer",
-            "Research Collaboration": "Shared intellectual property value and research funding",
-            "Open Source": "Service-based revenue, support contracts, and consulting",
-            "Government Procurement": "Contract-based revenue from government agencies and public sector"
-        }
-    
-    return models.get(pathway, "Mixed revenue streams depending on implementation")
 
 def generate_tcp_partnership_recommendations(recommended_pathway, dimension_scores, language):
     """Generate partnership recommendations"""
@@ -2668,91 +2519,90 @@ def generate_tcp_partnership_recommendations(recommended_pathway, dimension_scor
         "strategic_partners": [],
         "technology_partners": [],
         "distribution_partners": [],
-        "funding_partners": [],
-        "partnership_strategy": []
+        "funding_partners": []
     }
     
     if language == "filipino":
         # Strategic partners based on pathway
         if recommended_pathway == "Direct Sale":
             recommendations["strategic_partners"] = [
-                "Industry leaders na may established customer base",
-                "Technology integrators na pwedeng mag-incorporate ng solution",
-                "Channel partners na may distribution networks"
+                "🏢 Industry leaders na may established customer base",
+                "🔧 Technology integrators na pwedeng mag-incorporate ng solution",
+                "📦 Channel partners na may distribution networks"
             ]
         elif recommended_pathway == "Licensing":
             recommendations["strategic_partners"] = [
-                "Large corporations na may complementary products",
-                "International companies na nag-hahanap ng innovation",
-                "Industry consortiums para sa standard setting"
+                "🏭 Large corporations na may complementary products",
+                "🌐 International companies na nag-hahanap ng innovation",
+                "🏛️ Industry consortiums para sa standard setting"
             ]
         elif recommended_pathway == "Startup/Spin-out":
             recommendations["strategic_partners"] = [
-                "Accelerators at incubators na specialized sa technology",
-                "Angel investors at VCs na may sector expertise",
-                "Industry mentors na may successful track record"
+                "🚀 Accelerators at incubators na specialized sa technology",
+                "👼 Angel investors at VCs na may sector expertise",
+                "👨‍🏫 Industry mentors na may successful track record"
             ]
         
-        recommendations["partnership_strategy"] = [
-            "Mag-identify ng partners na may complementary strengths",
-            "Mag-establish ng clear partnership agreements at expectations",
-            "Mag-maintain ng regular communication at collaboration",
-            "Mag-measure ng partnership success through defined metrics"
+        recommendations["technology_partners"] = [
+            "🏫 Research institutions na may complementary capabilities",
+            "🔧 Technology suppliers para sa critical components",
+            "💻 Software/platform providers para sa integration needs"
+        ]
+        
+        recommendations["distribution_partners"] = [
+            "🌏 Regional distributors na may market knowledge",
+            "💻 Online platforms para sa digital distribution",
+            "🏪 Retail partners para sa direct customer access"
+        ]
+        
+        recommendations["funding_partners"] = [
+            "🏛️ Government innovation programs at grants",
+            "💼 Industry-specific VCs at strategic investors",
+            "👥 Crowdfunding platforms para sa consumer technologies"
         ]
     else:
         # Strategic partners based on pathway
         if recommended_pathway == "Direct Sale":
             recommendations["strategic_partners"] = [
-                "Industry leaders with established customer relationships",
-                "Technology integrators who can incorporate solution into offerings",
-                "Channel partners with distribution networks and market access"
+                "🏢 Industry leaders with established customer relationships",
+                "🔧 Technology integrators who can incorporate solution into offerings",
+                "📦 Channel partners with distribution networks and market access"
             ]
         elif recommended_pathway == "Licensing":
             recommendations["strategic_partners"] = [
-                "Large corporations with complementary product portfolios",
-                "International companies seeking innovative technologies",
-                "Industry consortiums and standard-setting organizations"
+                "🏭 Large corporations with complementary product portfolios",
+                "🌐 International companies seeking innovative technologies",
+                "🏛️ Industry consortiums and standard-setting organizations"
             ]
         elif recommended_pathway == "Startup/Spin-out":
             recommendations["strategic_partners"] = [
-                "Technology-focused accelerators and incubators",
-                "Angel investors and VCs with relevant sector expertise",
-                "Industry mentors with successful commercialization experience"
+                "🚀 Technology-focused accelerators and incubators",
+                "👼 Angel investors and VCs with relevant sector expertise",
+                "👨‍🏫 Industry mentors with successful commercialization experience"
             ]
         elif recommended_pathway == "Government Procurement":
             recommendations["strategic_partners"] = [
-                "Established government contractors and system integrators",
-                "Public sector consulting firms with agency relationships",
-                "Compliance and regulatory specialists"
+                "🏛️ Established government contractors and system integrators",
+                "🏢 Public sector consulting firms with agency relationships",
+                "📋 Compliance and regulatory specialists"
             ]
         
-        # Technology partners
         recommendations["technology_partners"] = [
-            "Research institutions with complementary capabilities",
-            "Technology suppliers for critical components",
-            "Software/platform providers for integration needs"
+            "🏫 Research institutions with complementary capabilities",
+            "🔧 Technology suppliers for critical components",
+            "💻 Software/platform providers for integration needs"
         ]
         
-        # Distribution partners
         recommendations["distribution_partners"] = [
-            "Regional distributors with market knowledge",
-            "Online platforms for digital distribution",
-            "Retail partners for direct customer access"
+            "🌏 Regional distributors with market knowledge",
+            "💻 Online platforms for digital distribution",
+            "🏪 Retail partners for direct customer access"
         ]
         
-        # Funding partners
         recommendations["funding_partners"] = [
-            "Government innovation programs and grants",
-            "Industry-specific VCs and strategic investors",
-            "Crowdfunding platforms for consumer technologies"
-        ]
-        
-        recommendations["partnership_strategy"] = [
-            "Identify partners with complementary strengths and capabilities",
-            "Establish clear partnership agreements with defined roles and expectations",
-            "Maintain regular communication and collaborative working relationships",
-            "Measure partnership success through defined metrics and KPIs",
-            "Build long-term strategic relationships rather than transactional arrangements"
+            "🏛️ Government innovation programs and grants",
+            "💼 Industry-specific VCs and strategic investors",
+            "👥 Crowdfunding platforms for consumer technologies"
         ]
     
     return recommendations
@@ -2773,8 +2623,7 @@ def generate_detailed_pathway_analysis(tcp_data, recommended_pathway, language):
         "risk_level": pathway_info.get("risk_level", ""),
         "success_factors": pathway_info.get("criteria", []),
         "advantages": [],
-        "challenges": [],
-        "success_examples": []
+        "challenges": []
     }
     
     # Add pathway-specific advantages and challenges
@@ -2782,38 +2631,38 @@ def generate_detailed_pathway_analysis(tcp_data, recommended_pathway, language):
         pathway_details = {
             "Direct Sale": {
                 "advantages": [
-                    "Full control sa customer relationship at brand",
-                    "Higher profit margins through direct sales",
-                    "Direct feedback from customers para sa improvement"
+                    "✅ Full control sa customer relationship at brand",
+                    "💰 Higher profit margins through direct sales",
+                    "📊 Direct feedback from customers para sa improvement"
                 ],
                 "challenges": [
-                    "Kailangan ng malaking investment sa sales at marketing",
-                    "Need ng comprehensive customer support infrastructure",
-                    "High competition sa direct market"
+                    "💸 Kailangan ng malaking investment sa sales at marketing",
+                    "📞 Need ng comprehensive customer support infrastructure",
+                    "⚔️ High competition sa direct market"
                 ]
             },
             "Licensing": {
                 "advantages": [
-                    "Lower investment requirements para sa commercialization",
-                    "Access sa established distribution networks ng partners",
-                    "Reduced operational complexity"
+                    "💰 Lower investment requirements para sa commercialization",
+                    "📦 Access sa established distribution networks ng partners",
+                    "🔧 Reduced operational complexity"
                 ],
                 "challenges": [
-                    "Limited control sa market execution",
-                    "Dependency sa performance ng licensing partners",
-                    "Potential conflicts over strategy at priorities"
+                    "⚖️ Limited control sa market execution",
+                    "🤝 Dependency sa performance ng licensing partners",
+                    "⚔️ Potential conflicts over strategy at priorities"
                 ]
             },
             "Startup/Spin-out": {
                 "advantages": [
-                    "Maximum potential returns from successful commercialization",
-                    "Complete control over strategy at execution",
-                    "Ability to attract top talent through equity"
+                    "🚀 Maximum potential returns from successful commercialization",
+                    "✅ Complete control over strategy at execution",
+                    "👥 Ability to attract top talent through equity"
                 ],
                 "challenges": [
-                    "High risk of failure at significant resource requirements",
-                    "Need for entrepreneurial skills at experience",
-                    "Intense competition for funding at market share"
+                    "⚠️ High risk of failure at significant resource requirements",
+                    "👨‍💼 Need for entrepreneurial skills at experience",
+                    "💰 Intense competition for funding at market share"
                 ]
             }
         }
@@ -2821,50 +2670,50 @@ def generate_detailed_pathway_analysis(tcp_data, recommended_pathway, language):
         pathway_details = {
             "Direct Sale": {
                 "advantages": [
-                    "Full control over customer relationships and brand positioning",
-                    "Higher profit margins through direct customer sales",
-                    "Direct customer feedback for continuous improvement"
+                    "✅ Full control over customer relationships and brand positioning",
+                    "💰 Higher profit margins through direct customer sales",
+                    "📊 Direct customer feedback for continuous improvement"
                 ],
                 "challenges": [
-                    "Requires significant investment in sales and marketing infrastructure",
-                    "Need for comprehensive customer support and service capabilities",
-                    "High competition in direct-to-customer markets"
+                    "💸 Requires significant investment in sales and marketing infrastructure",
+                    "📞 Need for comprehensive customer support and service capabilities",
+                    "⚔️ High competition in direct-to-customer markets"
                 ]
             },
             "Licensing": {
                 "advantages": [
-                    "Lower investment requirements for commercialization",
-                    "Access to established distribution networks and customer relationships",
-                    "Reduced operational complexity and resource requirements"
+                    "💰 Lower investment requirements for commercialization",
+                    "📦 Access to established distribution networks and customer relationships",
+                    "🔧 Reduced operational complexity and resource requirements"
                 ],
                 "challenges": [
-                    "Limited control over market execution and customer experience",
-                    "Dependency on licensing partner performance and commitment",
-                    "Potential conflicts over strategic direction and priorities"
+                    "⚖️ Limited control over market execution and customer experience",
+                    "🤝 Dependency on licensing partner performance and commitment",
+                    "⚔️ Potential conflicts over strategic direction and priorities"
                 ]
             },
             "Startup/Spin-out": {
                 "advantages": [
-                    "Maximum potential returns from successful commercialization",
-                    "Complete control over strategic direction and execution",
-                    "Ability to attract top talent through equity participation"
+                    "🚀 Maximum potential returns from successful commercialization",
+                    "✅ Complete control over strategic direction and execution",
+                    "👥 Ability to attract top talent through equity participation"
                 ],
                 "challenges": [
-                    "High risk of failure with significant resource requirements",
-                    "Need for entrepreneurial skills and startup experience",
-                    "Intense competition for funding and market share"
+                    "⚠️ High risk of failure with significant resource requirements",
+                    "👨‍💼 Need for entrepreneurial skills and startup experience",
+                    "💰 Intense competition for funding and market share"
                 ]
             },
             "Government Procurement": {
                 "advantages": [
-                    "Large contract values and stable, long-term relationships",
-                    "Less price sensitivity for innovative solutions",
-                    "Opportunity to shape public sector standards"
+                    "🏛️ Large contract values and stable, long-term relationships",
+                    "💰 Less price sensitivity for innovative solutions",
+                    "📋 Opportunity to shape public sector standards"
                 ],
                 "challenges": [
-                    "Complex procurement processes with lengthy timelines",
-                    "Strict compliance and regulatory requirements",
-                    "Political and budgetary uncertainties"
+                    "📋 Complex procurement processes with lengthy timelines",
+                    "✅ Strict compliance and regulatory requirements",
+                    "🏛️ Political and budgetary uncertainties"
                 ]
             }
         }
@@ -2925,3 +2774,26 @@ def generate_tcp_enhanced_explanation(pathway_scores, recommended_pathway, detai
     else:
         text = f"📊 **Enhanced Technology Commercialization Analysis**\n\n"
         text += f"Based on comprehensive multi-dimensional assessment, the **most recommended commercialization pathway** for your technology is **{recommended_pathway}** (confidence level: {confidence}%).\n\n"
+        
+        if second_alt:
+            text += f"Your **second-best alternative** is {second_alt[0]} with a score of {second_alt[1]}. This serves as a viable backup strategy should challenges arise with the primary recommendation.\n\n"
+        
+        text += f"**Overall Commercialization Readiness:** {overall_readiness}\n\n"
+        text += f"This comprehensive assessment evaluates your technology across six critical dimensions and provides data-driven recommendations to support strategic decision-making for successful technology commercialization."
+    
+    return text
+
+@app.route("/api/generate_pdf", methods=["POST"])
+def generate_pdf():
+    try:
+        data = request.json
+        print(f"📄 Enhanced PDF Generation - Mode: {data.get('mode', 'Unknown')}")
+        
+        if not data or 'mode' not in data:
+            return jsonify({"error": "Invalid data provided"}), 400
+        
+        # Generate enhanced PDF
+        buf = create_enhanced_pdf(data)
+        
+        # Generate filename
+        now = datetime.now()
