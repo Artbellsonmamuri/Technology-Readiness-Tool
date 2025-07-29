@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMSU Assessment Tool - PDF Archive</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>MMSU Technology Assessment Tool</h1>
+            <h2>PDF Reports Archive</h2>
+            <div class="admin-nav">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">← Back to Assessment Tool</a>
+                <a href="{{ url_for('admin_statistics') }}" class="btn btn-secondary">📊 Statistics</a>
+                <a href="{{ url_for('overview') }}" class="btn btn-secondary">📋 Overview</a>
+            </div>
+        </header>
+
+        <!-- PDF Archive -->
+        <div class="pdf-archive">
+            <div class="archive-header">
+                <h3>All Generated PDF Reports</h3>
+                <p>Total PDFs: <strong>{{ pdfs|length }}</strong></p>
+                <p class="archive-note">📧 All PDFs are automatically emailed to admin and stored in database for backup.</p>
+            </div>
+
+            {% if pdfs and pdfs|length > 0 %}
+            <div class="pdf-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Technology Title</th>
+                            <th>Assessment Type</th>
+                            <th>Result/Pathway</th>
+                            <th>Language</th>
+                            <th>Filename</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pdf in pdfs %}
+                        <tr>
+                            <td>{{ pdf.timestamp.strftime('%Y-%m-%d %H:%M') if pdf.timestamp else 'N/A' }}</td>
+                            <td title="{{ pdf.technology_title or 'Unknown' }}">
+                                {{ (pdf.technology_title or 'Unknown')[:30] }}{% if (pdf.technology_title or '')|length > 30 %}...{% endif %}
+                            </td>
+                            <td><span class="assessment-type {{ pdf.assessment_type.lower() }}">{{ pdf.assessment_type }}</span></td>
+                            <td>
+                                {% if pdf.assessment_type == 'TCP' %}
+                                    {{ pdf.recommended_pathway or 'N/A' }}
+                                {% else %}
+                                    Level {{ pdf.level_achieved or 'N/A' }}
+                                {% endif %}
+                            </td>
+                            <td>{{ pdf.language or 'N/A' }}</td>
+                            <td class="filename">{{ pdf.pdf_filename or 'N/A' }}</td>
+                            <td>
+                                <a href="{{ url_for('download_pdf', assessment_id=pdf.id) }}" 
+                                   class="btn btn-primary btn-small" 
+                                   title="Download PDF Report">📄 Download</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Download All Button -->
+            <div class="bulk-actions">
+                <p class="bulk-note">💡 <strong>Tip:</strong> Individual PDFs can be downloaded by clicking the "📄 Download" button for each report.</p>
+            </div>
+
+            {% else %}
+            <div class="no-pdfs">
+                <div class="no-pdfs-icon">📄</div>
+                <h3>No PDFs Found</h3>
+                <p>PDF reports will appear here as users complete assessments.</p>
+                <p class="no-pdfs-note">Both <strong>database storage</strong> and <strong>email collection</strong> are active.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Start First Assessment</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Collection Methods Info -->
+        <div class="collection-info">
+            <h3>📥 PDF Collection Methods Active</h3>
+            <div class="collection-methods">
+                <div class="method-card">
+                    <div class="method-icon">🗄️</div>
+                    <h4>Database Storage</h4>
+                    <p>All PDFs are automatically stored in the PostgreSQL database for secure access and backup.</p>
+                    <span class="status-badge active">✅ Active</span>
+                </div>
+                <div class="method-card">
+                    <div class="method-icon">📧</div>
+                    <h4>Email Collection</h4>
+                    <p>PDFs are automatically emailed to the admin address with assessment details.</p>
+                    <span class="status-badge {{ 'active' if admin_email else 'inactive' }}">
+                        {% if admin_email %}✅ Active{% else %}❌ Configure Email{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .pdf-archive {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .archive-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .archive-header h3 {
+            color: #065f46;
+            margin-bottom: 10px;
+        }
+
+        .archive-note {
+            color: #10b981;
+            font-weight: 500;
+            background: #f0fdf4;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #10b981;
+        }
+
+        .pdf-table {
+            overflow-x: auto;
+        }
+
+        .pdf-table table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .pdf-table th,
+        .pdf-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .pdf-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+            position: sticky;
+            top: 0;
+        }
+
+        .filename {
+            font-family: monospace;
+            font-size: 0.8rem;
+            background: #f3f4f6;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+
+        .bulk-actions {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .bulk-note {
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .no-pdfs {
+            text-align: center;
+            padding: 80px 20px;
+            color: #666;
+        }
+
+        .no-pdfs-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .no-pdfs h3 {
+            color: #374151;
+            margin-bottom: 15px;
+        }
+
+        .no-pdfs-note {
+            background: #f0fdf4;
+            color: #10b981;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: 500;
+            margin: 20px 0;
+        }
+
+        .collection-info {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .collection-info h3 {
+            color: #065f46;
+            margin-bottom: 20px;
+        }
+
+        .collection-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .method-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .method-card:hover {
+            border-color: #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+        }
+
+        .method-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .method-card h4 {
+            color: #065f46;
+            margin-bottom: 10px;
+        }
+
+        .method-card p {
+            color: #6b7280;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.inactive {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        @media (max-width: 768px) {
+            .pdf-table th,
+            .pdf-table td {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+            
+            .collection-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</body>
+</html>
