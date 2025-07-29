@@ -15,6 +15,11 @@ from collections import defaultdict
 import psycopg
 from psycopg.rows import dict_row
 from dotenv import load_dotenv
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+import threading
 
 # Load environment variables
 load_dotenv()
@@ -873,7 +878,7 @@ def init_database():
     
     try:
         with conn.cursor() as cur:
-            # Create assessments table
+            # Create assessments table with PDF storage columns
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS assessments (
                     id SERIAL PRIMARY KEY,
@@ -890,8 +895,17 @@ def init_database():
                     user_agent TEXT,
                     consent_given BOOLEAN DEFAULT TRUE,
                     completed BOOLEAN DEFAULT TRUE,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    pdf_data BYTEA,
+                    pdf_filename VARCHAR(255)
                 )
+            ''')
+            
+            # Add PDF columns to existing table if they don't exist
+            cur.execute('''
+                ALTER TABLE assessments 
+                ADD COLUMN IF NOT EXISTS pdf_data BYTEA,
+                ADD COLUMN IF NOT EXISTS pdf_filename VARCHAR(255)
             ''')
             
             # Create assessment_answers table
@@ -923,6 +937,7 @@ def init_database():
             cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_type ON assessments(assessment_type)')
             cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_completed ON assessments(completed)')
             cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_created_at ON assessments(created_at)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_pdf ON assessments(pdf_data)')
             
             conn.commit()
             print("Database initialized successfully!")
@@ -1053,6 +1068,79 @@ class GoogleDriveManager:
 # Initialize Google Drive Manager
 drive_manager = GoogleDriveManager()
 
+# Email Configuration and Functions
+class EmailManager:
+    def __init__(self):
+        self.smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+        self.smtp_port = int(os.getenv('SMTP_PORT', '587'))
+        self.email_user = os.getenv('EMAIL_USER')  # Your email address
+        self.email_password = os.getenv('EMAIL_PASSWORD')  # App password for Gmail
+        self.admin_email = os.getenv('ADMIN_EMAIL')  # Where to send PDFs
+        
+        # Debug email configuration
+        print(f"Email configuration:")
+        print(f"SMTP Server: {self.smtp_server}")
+        print(f"SMTP Port: {self.smtp_port}")
+        print(f"Email User: {self.email_user}")
+        print(f"Admin Email: {self.admin_email}")
+        print(f"Email Password: {'***' if self.email_password else 'None'}")
+    
+    def send_pdf_email(self, pdf_buffer, filename, assessment_data):
+        """Send PDF via email to admin"""
+        if not all([self.email_user, self.email_password, self.admin_email]):
+            print("Email configuration incomplete - skipping email send")
+            return False
+        
+        try:
+            # Create message
+            msg = MIMEMultipart()
+            msg['From'] = self.email_user
+            msg['To'] = self.admin_email
+            msg['Subject'] = f"New Assessment Report: {filename}"
+            
+            # Email body
+            body = f"""
+New Technology Assessment Report Generated
+
+Assessment Details:
+- Technology: {assessment_data.get('technology_title', 'N/A')}
+- Type: {assessment_data.get('mode', 'N/A')}
+- Language: {assessment_data.get('language', 'N/A')}
+- Result: {assessment_data.get('level', assessment_data.get('recommended_pathway', 'N/A'))}
+- Date: {assessment_data.get('timestamp', 'N/A')}
+- IP Address: {assessment_data.get('ip_address', 'N/A')}
+
+Please find the complete assessment report attached.
+
+---
+MMSU Technology Assessment Tool
+Innovation and Technology Support Office
+            """
+            
+            msg.attach(MIMEText(body, 'plain'))
+            
+            # Attach PDF
+            pdf_buffer.seek(0)  # Reset buffer position
+            pdf_attachment = MIMEApplication(pdf_buffer.read(), _subtype='pdf')
+            pdf_attachment.add_header('Content-Disposition', 'attachment', filename=filename)
+            msg.attach(pdf_attachment)
+            
+            # Send email
+            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                server.starttls()
+                server.login(self.email_user, self.email_password)
+                server.send_message(msg)
+            
+            print(f"PDF emailed successfully to {self.admin_email}: {filename}")
+            return True
+            
+        except Exception as e:
+            print(f"Error sending email: {e}")
+            return False
+
+# Initialize Email Manager
+email_manager = EmailManager()
+
 # IP Address Helper Function
 def get_client_ip_address(assessment_data):
     """Extract the client's IP address from request data"""
@@ -1076,6 +1164,77 @@ def get_client_ip_address(assessment_data):
     except Exception as e:
         print(f"Error processing IP address: {e}")
         return None
+
+# PDF Storage Functions
+def save_pdf_to_db(pdf_buffer, filename, assessment_id):
+    """Save PDF binary data to database"""
+    conn = get_db_connection()
+    if not conn:
+        return None
+    
+    try:
+        with conn.cursor() as cur:
+            # Store PDF as binary data
+            pdf_data = pdf_buffer.getvalue()
+            cur.execute('''
+                UPDATE assessments 
+                SET pdf_data = %s, pdf_filename = %s 
+                WHERE id = %s
+            ''', (pdf_data, filename, assessment_id))
+            conn.commit()
+            print(f"PDF saved to database: {filename}")
+            return True
+    except Exception as e:
+        print(f"Error saving PDF to database: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+def get_all_pdfs():
+    """Get all PDFs from database for admin view"""
+    conn = get_db_connection()
+    if not conn:
+        return []
+    
+    try:
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute('''
+                SELECT id, technology_title, assessment_type, pdf_filename, 
+                       timestamp, language, level_achieved, recommended_pathway
+                FROM assessments 
+                WHERE pdf_data IS NOT NULL 
+                ORDER BY timestamp DESC
+            ''')
+            return [dict(row) for row in cur.fetchall()]
+    except Exception as e:
+        print(f"Error getting PDFs: {e}")
+        return []
+    finally:
+        conn.close()
+
+def get_pdf_by_id(assessment_id):
+    """Get specific PDF from database"""
+    conn = get_db_connection()
+    if not conn:
+        return None, None
+    
+    try:
+        with conn.cursor() as cur:
+            cur.execute('''
+                SELECT pdf_data, pdf_filename 
+                FROM assessments 
+                WHERE id = %s AND pdf_data IS NOT NULL
+            ''', (assessment_id,))
+            result = cur.fetchone()
+            if result:
+                return result[0], result[1]  # pdf_data, filename
+            return None, None
+    except Exception as e:
+        print(f"Error getting PDF by ID: {e}")
+        return None, None
+    finally:
+        conn.close()
 
 # Statistics Functions (Updated for psycopg3)
 def get_statistics():
@@ -1350,6 +1509,34 @@ def admin_statistics():
         }
         return render_template("admin_statistics.html", stats=empty_stats)
 
+@app.route("/admin/pdfs")
+def admin_pdfs():
+    """Admin page to view all collected PDFs"""
+    try:
+        pdfs = get_all_pdfs()
+        return render_template("admin_pdfs.html", pdfs=pdfs)
+    except Exception as e:
+        print(f"Error in admin_pdfs route: {e}")
+        return render_template("admin_pdfs.html", pdfs=[])
+
+@app.route("/admin/pdf/<int:assessment_id>")
+def download_pdf(assessment_id):
+    """Download specific PDF by assessment ID"""
+    try:
+        pdf_data, filename = get_pdf_by_id(assessment_id)
+        if pdf_data and filename:
+            return send_file(
+                io.BytesIO(pdf_data),
+                mimetype="application/pdf",
+                as_attachment=True,
+                download_name=filename
+            )
+        else:
+            return "PDF not found", 404
+    except Exception as e:
+        print(f"Error downloading PDF: {e}")
+        return "Error downloading PDF", 500
+
 @app.route("/api/statistics")
 def api_statistics():
     try:
@@ -1592,7 +1779,7 @@ def generate_mrl_next_steps(level_achieved, language):
                 "Complete comprehensive competitive analysis",
                 "Define unique value proposition",
                 "Develop competitive positioning strategy",
-                "Analyze models"
+                "Analyze pricing models"
             ],
             5: [
                 "Create detailed go-to-market plan",
@@ -1983,14 +2170,6 @@ def generate_pdf():
         tech_title = data.get('technology_title', 'Assessment').replace(' ', '_').replace('/', '_')
         filename = f"{date_str}_{tech_title}.pdf"
         
-        # Upload to Google Drive
-        google_drive_link = None
-        buf_copy = io.BytesIO(buf.getvalue())
-        if drive_manager.service:
-            google_drive_link = drive_manager.upload_pdf(
-                buf_copy, filename, data['mode'], now
-            )
-        
         # Fixed IP address handling
         def get_client_ip():
             """Get client IP address, handling multiple IPs in X-Forwarded-For"""
@@ -2000,7 +2179,7 @@ def generate_pdf():
                 return x_forwarded_for.split(',')[0].strip()
             return request.environ.get('REMOTE_ADDR')
         
-        # Save to PostgreSQL database
+        # Save to PostgreSQL database FIRST
         assessment_data = {
             'session_id': data.get('session_id'),
             'mode': data['mode'],
@@ -2010,16 +2189,42 @@ def generate_pdf():
             'recommended_pathway': data.get('recommended_pathway'),
             'language': data.get('language', 'english'),
             'timestamp': now.isoformat(),
-            'ip_address': get_client_ip(),  # Fixed IP handling
+            'ip_address': get_client_ip(),
             'user_agent': request.headers.get('User-Agent'),
             'consent_given': data.get('consent_given', True),
             'tcp_data': data.get('tcp_data'),
             'answers': data.get('answers')
         }
         
-        save_assessment_to_db(assessment_data, data.get('answers', []), google_drive_link)
+        # Save assessment and get ID
+        assessment_id = save_assessment_to_db(assessment_data, data.get('answers', []))
+        
+        # Create PDF copy for database storage
+        buf_for_db = io.BytesIO(buf.getvalue())
+        
+        # Save PDF to database
+        if assessment_id:
+            save_pdf_to_db(buf_for_db, filename, assessment_id)
+        
+        # Create PDF copy for email
+        buf_for_email = io.BytesIO(buf.getvalue())
+        
+        # Send PDF via email in background thread (non-blocking)
+        def send_email_async():
+            try:
+                email_manager.send_pdf_email(buf_for_email, filename, assessment_data)
+            except Exception as e:
+                print(f"Background email sending failed: {e}")
+        
+        # Start email sending in background
+        email_thread = threading.Thread(target=send_email_async)
+        email_thread.daemon = True
+        email_thread.start()
         
         print(f"PDF Generation - Successfully generated and saved: {filename}")
+        
+        # Reset buffer position for download
+        buf.seek(0)
         
         return send_file(
             buf, 
