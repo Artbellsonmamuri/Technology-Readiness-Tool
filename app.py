@@ -234,7 +234,7 @@ TRL_QUESTIONS = {
     ]
 }
 
-# Complete IRL Questions Database (1-9) - keeping as is
+# Complete IRL Questions Database (1-9)
 IRL_QUESTIONS = {
     "english": [
         {
@@ -440,7 +440,7 @@ IRL_QUESTIONS = {
     ]
 }
 
-# Market Readiness Level (MRL) Questions Database (1-9) - keeping as is
+# Market Readiness Level (MRL) Questions Database (1-9)
 MRL_QUESTIONS = {
     "english": [
         {
@@ -673,7 +673,7 @@ TCP_QUESTIONS = {
             {
                 "name": "Regulatory & Policy",
                 "questions": [
-                    "How significant are the regulatory hurdles for your technology?",
+                    "How manageable are the regulatory hurdles for your technology?",
                     "How supportive is the policy environment for your commercialization?"
                 ]
             },
@@ -787,7 +787,7 @@ TCP_QUESTIONS = {
             {
                 "name": "Regulatory at Policy",
                 "questions": [
-                    "Gaano ka-significant ang mga regulatory hurdles para sa inyong teknolohiya?",
+                    "Gaano ka-manageable ang mga regulatory hurdles para sa inyong teknolohiya?",
                     "Gaano ka-supportive ang policy environment para sa inyong commercialization?"
                 ]
             },
@@ -874,7 +874,7 @@ TCP_QUESTIONS = {
     }
 }
 
-# Database connection and initialization (keeping existing)
+# Database connection and initialization
 def get_db_connection():
     """Get PostgreSQL database connection using psycopg3"""
     try:
@@ -970,7 +970,7 @@ def init_database():
 
 init_database()
 
-# Email Manager (keeping existing)
+# Email Manager
 class EmailManager:
     def __init__(self):
         self.smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
@@ -1030,7 +1030,7 @@ Innovation and Technology Support Office
 
 email_manager = EmailManager()
 
-# Helper functions (keeping existing ones)
+# Helper functions
 def get_client_ip_address():
     """Get client IP address"""
     try:
@@ -1456,7 +1456,7 @@ def generate_mode_specific_recommendations(level_achieved, mode, language):
             if level_achieved < 3:
                 recommendations = [
                     "Mag-focus sa fundamental research at proof-of-concept development",
-                    "Mag-establish ng clear technical requirements at specifications", 
+                    "Mag-establish ng clear technical requirements at specifications",
                     "Mag-conduct ng literature review at prior art analysis",
                     "Mag-develop ng theoretical models at simulations"
                 ]
@@ -1658,7 +1658,7 @@ def generate_timeline_estimate(level_achieved, mode):
             }
         elif level_achieved < 6:
             timelines = {
-                "next_level": "12-18 months", 
+                "next_level": "12-18 months",
                 "commercial_readiness": "2-3 years",
                 "full_deployment": "3-4 years"
             }
@@ -1678,7 +1678,7 @@ def generate_timeline_estimate(level_achieved, mode):
         elif level_achieved < 6:
             timelines = {
                 "next_level": "6-12 months",
-                "investment_ready": "12-18 months", 
+                "investment_ready": "12-18 months",
                 "commercial_launch": "18-24 months"
             }
         else:
@@ -1766,7 +1766,7 @@ def generate_standard_risk_assessment(level_achieved, mode, language):
                 risks["high_risks"] = ["Intense market competition", "Commercial viability pressures"]
                 risks["medium_risks"] = ["Technology adoption rate", "Supply chain disruptions"]
                 risks["mitigation_strategies"] = [
-                    "Establish strong competitive market position", 
+                    "Establish strong competitive market position",
                     "Develop robust and diversified supply chain",
                     "Continuously monitor technology and market trends"
                 ]
@@ -2251,7 +2251,7 @@ def generate_tcp_success_strategies(dimension_scores, recommended_pathway, langu
                 strategies["pathway_specific"] = [
                     "Build direct sales team with industry experience and networks",
                     "Establish customer support and service infrastructure",
-                    "Develop competitive pricing strategy based on market analysis", 
+                    "Develop competitive pricing strategy based on market analysis",
                     "Create comprehensive marketing materials and sales tools"
                 ]
             elif recommended_pathway == "Licensing":
@@ -2320,7 +2320,7 @@ def generate_tcp_risk_assessment(dimension_scores, recommended_pathway, language
                 risks["high_risks"].append({
                     "area": dim_name,
                     "risk": f"Very low capability in {dim_name} may cause project failure",
-                    "impact": "Critical", 
+                    "impact": "Critical",
                     "probability": "High"
                 })
         elif percentage < 50:
@@ -2350,7 +2350,7 @@ def generate_tcp_risk_assessment(dimension_scores, recommended_pathway, language
             })
         elif recommended_pathway == "Licensing":
             risks["medium_risks"].append({
-                "area": "Partner Dependency", 
+                "area": "Partner Dependency",
                 "risk": "Success ay dependent sa performance ng licensing partners",
                 "impact": "Medium",
                 "probability": "Medium"
@@ -2388,7 +2388,7 @@ def generate_tcp_risk_assessment(dimension_scores, recommended_pathway, language
             risks["medium_risks"].append({
                 "area": "Partner Dependency",
                 "risk": "Success depends heavily on licensing partner performance and commitment",
-                "impact": "Medium", 
+                "impact": "Medium",
                 "probability": "Medium"
             })
         elif recommended_pathway == "Startup/Spin-out":
@@ -2441,7 +2441,7 @@ def generate_tcp_implementation_plan(recommended_pathway, dimension_scores, lang
         # Phase 2: Development
         plan["phase_2"]["activities"] = [
             "Mag-implement ng pathway-specific strategies",
-            "Mag-build ng necessary capabilities at infrastructure", 
+            "Mag-build ng necessary capabilities at infrastructure",
             "Mag-establish ng key partnerships"
         ]
         plan["phase_2"]["milestones"] = [
@@ -2911,4 +2911,17 @@ def generate_tcp_enhanced_explanation(pathway_scores, recommended_pathway, detai
     """Generate enhanced explanation for TCP results"""
     confidence = detailed_analysis.get("confidence_score", 0)
     second_alt = detailed_analysis.get("second_alternative")
-    overall_readiness = detaile
+    overall_readiness = detailed_analysis.get("overall_readiness", "Good")
+    
+    if language == "filipino":
+        text = f"📊 **Enhanced Technology Commercialization Analysis**\n\n"
+        text += f"Batay sa comprehensive multi-dimensional assessment, ang **pinakarekomendadong commercialization pathway** para sa inyong teknolohiya ay ang **{recommended_pathway}** (confidence level: {confidence}%).\n\n"
+        
+        if second_alt:
+            text += f"Ang inyong **second-best alternative** ay ang {second_alt[0]} na may score na {second_alt[1]}. Ito ay viable backup strategy kung may challenges sa primary recommendation.\n\n"
+        
+        text += f"**Overall Commercialization Readiness:** {overall_readiness}\n\n"
+        text += f"Ang comprehensive assessment na ito ay nag-evaluate ng inyong teknolohiya sa anim na kritikong dimensyon at nagbigay ng data-driven recommendation na makakatulong sa strategic decision-making para sa successful technology commercialization."
+    else:
+        text = f"📊 **Enhanced Technology Commercialization Analysis**\n\n"
+        text += f"Based on comprehensive multi-dimensional assessment, the **most recommended commercialization pathway** for your technology is **{recommended_pathway}** (confidence level: {confidence}%).\n\n"
