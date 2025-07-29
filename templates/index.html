@@ -14,7 +14,7 @@
                 <h2>Innovation and Technology Support Office</h2>
                 <h3>Technology Assessment Tool</h3>
             </div>
-            <p>Comprehensive Technology Readiness Level (TRL), Investment Readiness Level (IRL), and Technology Commercialization Pathway (TCP) Assessment</p>
+            <p>Comprehensive Technology Readiness Level (TRL), Investment Readiness Level (IRL), Market Readiness Level (MRL), and Technology Commercialization Pathway (TCP) Assessment</p>
         </header>
 
         <!-- Language Selection -->
@@ -38,6 +38,11 @@
                 <button onclick="selectMode('IRL')" class="btn btn-secondary">
                     <strong>IRL</strong>
                     <span id="irl-description">Investment Readiness Level</span>
+                    <small>Levels 1-9 Assessment</small>
+                </button>
+                <button onclick="selectMode('MRL')" class="btn btn-secondary">
+                    <strong>MRL</strong>
+                    <span id="mrl-description">Market Readiness Level</span>
                     <small>Levels 1-9 Assessment</small>
                 </button>
                 <button onclick="selectMode('TCP')" class="btn btn-secondary">
@@ -64,7 +69,7 @@
             </form>
         </div>
 
-        <!-- Questions (TRL/IRL) -->
+        <!-- Questions (TRL/IRL/MRL) -->
         <div id="questions" class="step">
             <h2 id="questions-title">Assessment Questions</h2>
             <div id="question-container">
