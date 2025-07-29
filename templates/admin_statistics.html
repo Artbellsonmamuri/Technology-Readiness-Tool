@@ -215,4 +215,125 @@
                     const found = monthlyData.find(item => item.month === month && item.assessment_type === type);
                     return found ? found.count : 0;
                 }),
-                borderColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF
+                borderColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'][index],
+                backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'][index] + '20',
+                tension: 0.4
+            }));
+
+            new Chart(monthlyCtx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } else {
+            monthlyCtx.canvas.parentElement.innerHTML = '<p style="text-align: center; color: #666;">No monthly data available</p>';
+        }
+
+        // Success Rates
+        const successCtx = document.getElementById('successRatesChart').getContext('2d');
+        const successData = stats.success_rates || [];
+        
+        if (successData.length > 0) {
+            new Chart(successCtx, {
+                type: 'radar',
+                data: {
+                    labels: successData.map(item => item.assessment_type),
+                    datasets: [{
+                        label: 'Average Level Achieved',
+                        data: successData.map(item => item.avg_level || 0),
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(16, 185, 129, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 9
+                        }
+                    }
+                }
+            });
+        } else {
+            successCtx.canvas.parentElement.innerHTML = '<p style="text-align: center; color: #666;">No success rate data available</p>';
+        }
+
+        // TCP Pathways (if data exists)
+        {% if stats.tcp_pathways %}
+        const tcpCtx = document.getElementById('tcpPathwaysChart').getContext('2d');
+        const tcpData = {{ stats.tcp_pathways | tojson | safe }};
+        
+        if (tcpData.length > 0) {
+            new Chart(tcpCtx, {
+                type: 'pie',
+                data: {
+                    labels: tcpData.map(item => item.recommended_pathway),
+                    datasets: [{
+                        data: tcpData.map(item => item.count),
+                        backgroundColor: [
+                            '#10B981', '#3B82F6', '#F59E0B', '#EF4444',
+                            '#8B5CF6', '#F97316', '#06B6D4'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        {% endif %}
+
+        // Export function
+        function exportStatistics() {
+            fetch('/api/statistics')
+                .then(response => response.json())
+                .then(data => {
+                    const blob = new Blob([JSON.stringify(data, null, 2)], {
+                        type: 'application/json'
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `mmsu_assessment_statistics_${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error('Export failed:', error);
+                    alert('Export failed. Please try again.');
+                });
+        }
+
+        // Auto-refresh every 5 minutes
+        setInterval(() => {
+            location.reload();
+        }, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
