@@ -1673,8 +1673,8 @@ def assess_tcp(data):
     pathway_scores = calculate_pathway_scores(answers, tcp_data)
     recommended_pathway = max(pathway_scores, key=pathway_scores.get)
     
-    # Generate detailed analysis
-    detailed_analysis = generate_tcp_detailed_analysis(answers, tcp_data, pathway_scores, recommended_pathway, language)
+    # Generate detailed analysis (ENHANCED)
+    detailed_analysis = generate_tcp_enhanced_analysis(answers, tcp_data, pathway_scores, recommended_pathway, language)
     
     result = {
         "mode": "TCP",
@@ -1685,7 +1685,7 @@ def assess_tcp(data):
         "tcp_data": tcp_data,
         "pathway_scores": pathway_scores,
         "recommended_pathway": recommended_pathway,
-        "explanation": generate_tcp_explanation(pathway_scores, recommended_pathway, language),
+        "explanation": generate_tcp_enhanced_explanation(pathway_scores, recommended_pathway, detailed_analysis, language),
         "detailed_analysis": detailed_analysis,
         "timestamp": datetime.utcnow().isoformat(),
         # Add these for PDF compatibility
@@ -1717,9 +1717,12 @@ def calculate_pathway_scores(answers, tcp_data):
     
     return pathways
 
-def generate_tcp_detailed_analysis(answers, tcp_data, pathway_scores, recommended_pathway, language):
-    """Generate detailed analysis for TCP assessment"""
+def generate_tcp_enhanced_analysis(answers, tcp_data, pathway_scores, recommended_pathway, language):
+    """Generate comprehensive enhanced analysis for TCP assessment"""
     analysis = {}
+    
+    # Input Summary - Show what they actually answered
+    input_summary = generate_input_summary(answers, tcp_data, language)
     
     # Dimension scores analysis
     dimension_scores = {}
@@ -1734,46 +1737,435 @@ def generate_tcp_detailed_analysis(answers, tcp_data, pathway_scores, recommende
             "score": dim_score,
             "max_score": max_score,
             "percentage": percentage,
-            "level": "High" if percentage >= 75 else "Medium" if percentage >= 50 else "Low"
+            "level": "High" if percentage >= 75 else "Medium" if percentage >= 50 else "Low",
+            "individual_answers": dim_answers
         }
         answer_idx += len(dimension["questions"])
     
-    # Pathway analysis
+    # Pathway analysis with detailed scoring
     sorted_pathways = sorted(pathway_scores.items(), key=lambda x: x[1], reverse=True)
-    top_3 = sorted_pathways[:3]
+    top_pathways = sorted_pathways[:3]
+    second_alternative = sorted_pathways[1] if len(sorted_pathways) > 1 else None
     
-    # Strengths and weaknesses
-    strengths = []
-    weaknesses = []
+    # Comprehensive insights based on patterns
+    insights = generate_comprehensive_insights(dimension_scores, pathway_scores, recommended_pathway, language)
     
-    for dim_name, dim_data in dimension_scores.items():
-        if dim_data["percentage"] >= 75:
-            strengths.append(dim_name)
-        elif dim_data["percentage"] < 50:
-            weaknesses.append(dim_name)
+    # Success strategies - actionable recommendations
+    success_strategies = generate_success_strategies(dimension_scores, recommended_pathway, second_alternative, language)
+    
+    # Risk assessment and mitigation
+    risk_assessment = generate_risk_assessment(dimension_scores, recommended_pathway, language)
+    
+    # Market positioning recommendations
+    market_positioning = generate_market_positioning_advice(dimension_scores, recommended_pathway, language)
+    
+    # Timeline and milestones
+    implementation_roadmap = generate_implementation_roadmap(dimension_scores, recommended_pathway, language)
+    
+    # Overall readiness and confidence score
+    overall_readiness = calculate_overall_readiness(dimension_scores)
+    confidence_score = calculate_confidence_score(pathway_scores, dimension_scores)
     
     analysis = {
+        "input_summary": input_summary,
         "dimension_scores": dimension_scores,
-        "top_pathways": top_3,
-        "strengths": strengths,
-        "weaknesses": weaknesses,
-        "overall_readiness": calculate_overall_readiness(dimension_scores),
-        "recommendations": generate_pathway_specific_recommendations(recommended_pathway, dimension_scores, language)
+        "top_pathways": top_pathways,
+        "recommended_pathway": recommended_pathway,
+        "second_alternative": second_alternative,
+        "overall_readiness": overall_readiness,
+        "confidence_score": confidence_score,
+        "insights": insights,
+        "success_strategies": success_strategies,
+        "risk_assessment": risk_assessment,
+        "market_positioning": market_positioning,
+        "implementation_roadmap": implementation_roadmap
     }
     
     return analysis
+
+def generate_input_summary(answers, tcp_data, language):
+    """Generate a summary of user inputs across all dimensions"""
+    summary = {
+        "total_questions": len(answers),
+        "average_score": round(sum(answers) / len(answers), 2),
+        "dimension_breakdown": []
+    }
+    
+    answer_idx = 0
+    for dimension in tcp_data["dimensions"]:
+        dim_answers = answers[answer_idx:answer_idx + len(dimension["questions"])]
+        dim_avg = sum(dim_answers) / len(dim_answers) if dim_answers else 0
+        
+        summary["dimension_breakdown"].append({
+            "dimension": dimension["name"],
+            "average_score": round(dim_avg, 2),
+            "scores": dim_answers,
+            "strength_level": "High" if dim_avg >= 2.5 else "Medium" if dim_avg >= 2.0 else "Low"
+        })
+        answer_idx += len(dimension["questions"])
+    
+    return summary
+
+def generate_comprehensive_insights(dimension_scores, pathway_scores, recommended_pathway, language):
+    """Generate deep insights based on assessment patterns"""
+    insights = []
+    
+    if language == "filipino":
+        # Analyze patterns and provide insights in Filipino
+        strong_dimensions = [dim for dim, data in dimension_scores.items() if data["percentage"] >= 75]
+        weak_dimensions = [dim for dim, data in dimension_scores.items() if data["percentage"] < 50]
+        
+        if strong_dimensions:
+            insights.append(f"Ang inyong mga strength ay nasa: {', '.join(strong_dimensions)}. Gamitin ang mga ito bilang competitive advantage.")
+        
+        if weak_dimensions:
+            insights.append(f"Mga area na kailangan ng improvement: {', '.join(weak_dimensions)}. Mga ito ang dapat bigyang priority sa development plan.")
+        
+        # Pathway-specific insights
+        if recommended_pathway == "Direct Sale":
+            insights.append("Ang Direct Sale ay nangangailangan ng malakas na internal capabilities. Siguraduhing may sufficient resources para sa marketing at sales.")
+        elif recommended_pathway == "Licensing":
+            insights.append("Ang Licensing strategy ay ideal para sa mga technology na may strong IP protection pero limited internal resources para sa commercialization.")
+        elif recommended_pathway == "Startup/Spin-out":
+            insights.append("Ang Startup approach ay magbibigay ng maximum control at potential returns, pero may mataas din na risk at resource requirements.")
+        
+        # Technology readiness insight
+        tech_readiness = dimension_scores.get("Technology at Product Readiness", {}).get("percentage", 0)
+        if tech_readiness < 60:
+            insights.append("Ang technology readiness ay medyo mababa pa. Consider na mag-focus muna sa product development bago mag-commercialize.")
+    else:
+        # English insights
+        strong_dimensions = [dim for dim, data in dimension_scores.items() if data["percentage"] >= 75]
+        weak_dimensions = [dim for dim, data in dimension_scores.items() if data["percentage"] < 50]
+        
+        if strong_dimensions:
+            insights.append(f"Your strongest capabilities are in: {', '.join(strong_dimensions)}. Leverage these as your competitive advantages.")
+        
+        if weak_dimensions:
+            insights.append(f"Areas requiring immediate attention: {', '.join(weak_dimensions)}. These should be prioritized in your development roadmap.")
+        
+        # Pathway-specific insights
+        if recommended_pathway == "Direct Sale":
+            insights.append("Direct Sale requires strong internal capabilities across technology, marketing, and sales. Ensure you have sufficient resources before pursuing this path.")
+        elif recommended_pathway == "Licensing":
+            insights.append("Licensing is ideal for technologies with strong IP protection but limited internal commercialization resources. Focus on building strategic partnerships.")
+        elif recommended_pathway == "Startup/Spin-out":
+            insights.append("The startup approach offers maximum control and potential returns but requires significant resources and carries higher risks.")
+        
+        # Technology readiness insight
+        tech_readiness = dimension_scores.get("Technology & Product Readiness", {}).get("percentage", 0)
+        if tech_readiness < 60:
+            insights.append("Technology readiness appears to be below optimal levels. Consider focusing on product development before aggressive commercialization.")
+        
+        # Market analysis insight
+        market_strength = dimension_scores.get("Market & Customer", {}).get("percentage", 0)
+        if market_strength >= 75:
+            insights.append("Strong market positioning detected. This is a significant advantage for any commercialization pathway.")
+        elif market_strength < 50:
+            insights.append("Market validation needs strengthening. Conduct additional customer discovery and market research.")
+    
+    return insights
+
+def generate_success_strategies(dimension_scores, recommended_pathway, second_alternative, language):
+    """Generate specific strategies to increase commercialization success"""
+    strategies = {
+        "immediate_actions": [],
+        "short_term_goals": [],
+        "long_term_strategies": [],
+        "alternative_pathway_preparation": []
+    }
+    
+    if language == "filipino":
+        # Primary pathway strategies
+        if recommended_pathway == "Direct Sale":
+            strategies["immediate_actions"] = [
+                "Mag-conduct ng market validation study",
+                "Mag-develop ng minimum viable product (MVP)",
+                "Mag-establish ng sales at marketing team"
+            ]
+            strategies["short_term_goals"] = [
+                "Mag-secure ng initial customers o pilot users",
+                "Mag-develop ng comprehensive business plan",
+                "Mag-establish ng production capabilities"
+            ]
+        elif recommended_pathway == "Licensing":
+            strategies["immediate_actions"] = [
+                "Mag-strengthen ng IP protection (patents, trademarks)",
+                "Mag-identify ng potential licensee companies",
+                "Mag-prepare ng licensing packages at proposals"
+            ]
+            strategies["short_term_goals"] = [
+                "Mag-negotiate ng licensing agreements",
+                "Mag-establish ng ongoing support systems",
+                "Mag-develop ng technology transfer protocols"
+            ]
+        elif recommended_pathway == "Startup/Spin-out":
+            strategies["immediate_actions"] = [
+                "Mag-assemble ng core founding team",
+                "Mag-develop ng detailed business model",
+                "Mag-secure ng initial funding o investment"
+            ]
+            strategies["short_term_goals"] = [
+                "Mag-establish ng legal entity at corporate structure",
+                "Mag-develop ng go-to-market strategy",
+                "Mag-build ng advisory board"
+            ]
+        
+        # Long-term strategies (common)
+        strategies["long_term_strategies"] = [
+            "Mag-establish ng sustainable competitive advantage",
+            "Mag-expand sa adjacent markets o applications",
+            "Mag-develop ng strategic partnerships",
+            "Mag-build ng brand recognition at market presence"
+        ]
+        
+        # Alternative pathway preparation
+        if second_alternative:
+            alt_name = second_alternative[0]
+            strategies["alternative_pathway_preparation"] = [
+                f"Mag-monitor ng opportunities para sa {alt_name}",
+                "Mag-maintain ng flexibility sa business model",
+                "Mag-develop ng capabilities na applicable sa multiple pathways"
+            ]
+    else:
+        # English strategies
+        if recommended_pathway == "Direct Sale":
+            strategies["immediate_actions"] = [
+                "Conduct comprehensive market validation study",
+                "Develop minimum viable product (MVP) for market testing",
+                "Establish dedicated sales and marketing team"
+            ]
+            strategies["short_term_goals"] = [
+                "Secure initial customers or pilot users",
+                "Develop comprehensive business and financial plan",
+                "Establish production and distribution capabilities"
+            ]
+        elif recommended_pathway == "Licensing":
+            strategies["immediate_actions"] = [
+                "Strengthen IP protection through patents and trademarks",
+                "Identify and research potential licensee companies",
+                "Prepare comprehensive licensing packages and proposals"
+            ]
+            strategies["short_term_goals"] = [
+                "Negotiate and execute licensing agreements",
+                "Establish ongoing technical support systems",
+                "Develop technology transfer and knowledge sharing protocols"
+            ]
+        elif recommended_pathway == "Startup/Spin-out":
+            strategies["immediate_actions"] = [
+                "Assemble experienced founding team with complementary skills",
+                "Develop detailed business model and value proposition",
+                "Secure initial funding through grants, angels, or VCs"
+            ]
+            strategies["short_term_goals"] = [
+                "Establish legal entity and corporate governance structure",
+                "Develop and execute go-to-market strategy",
+                "Build advisory board with industry expertise"
+            ]
+        
+        # Long-term strategies (common)
+        strategies["long_term_strategies"] = [
+            "Establish sustainable competitive advantage through continuous innovation",
+            "Expand into adjacent markets and new applications",
+            "Develop strategic partnerships and alliances",
+            "Build strong brand recognition and market presence"
+        ]
+        
+        # Alternative pathway preparation
+        if second_alternative:
+            alt_name = second_alternative[0]
+            strategies["alternative_pathway_preparation"] = [
+                f"Monitor market conditions for potential shift to {alt_name}",
+                "Maintain flexibility in business model and strategy",
+                "Develop capabilities applicable across multiple commercialization pathways"
+            ]
+    
+    return strategies
+
+def generate_risk_assessment(dimension_scores, recommended_pathway, language):
+    """Generate risk assessment and mitigation strategies"""
+    risks = {
+        "high_risk_areas": [],
+        "medium_risk_areas": [],
+        "mitigation_strategies": []
+    }
+    
+    # Identify risks based on dimension weaknesses
+    for dim_name, dim_data in dimension_scores.items():
+        if dim_data["percentage"] < 40:
+            risks["high_risk_areas"].append(dim_name)
+        elif dim_data["percentage"] < 65:
+            risks["medium_risk_areas"].append(dim_name)
+    
+    if language == "filipino":
+        # Pathway-specific risks
+        if recommended_pathway == "Direct Sale":
+            risks["mitigation_strategies"] = [
+                "Mag-secure ng adequate funding para sa marketing at sales",
+                "Mag-develop ng strong customer support systems",
+                "Mag-establish ng competitive pricing strategy"
+            ]
+        elif recommended_pathway == "Licensing":
+            risks["mitigation_strategies"] = [
+                "Mag-ensure ng strong IP protection",
+                "Mag-establish ng clear performance milestones",
+                "Mag-maintain ng ongoing technology support"
+            ]
+        elif recommended_pathway == "Startup/Spin-out":
+            risks["mitigation_strategies"] = [
+                "Mag-diversify ng funding sources",
+                "Mag-build ng experienced management team",
+                "Mag-establish ng clear exit strategies"
+            ]
+    else:
+        # English mitigation strategies
+        if recommended_pathway == "Direct Sale":
+            risks["mitigation_strategies"] = [
+                "Secure adequate funding for sustained marketing and sales efforts",
+                "Develop robust customer support and service systems",
+                "Establish competitive yet sustainable pricing strategy"
+            ]
+        elif recommended_pathway == "Licensing":
+            risks["mitigation_strategies"] = [
+                "Ensure comprehensive IP protection and enforcement",
+                "Establish clear performance milestones and metrics",
+                "Maintain ongoing technical support and relationship management"
+            ]
+        elif recommended_pathway == "Startup/Spin-out":
+            risks["mitigation_strategies"] = [
+                "Diversify funding sources and maintain cash flow runway",
+                "Build experienced management team with proven track record",
+                "Establish clear exit strategies and performance benchmarks"
+            ]
+    
+    return risks
+
+def generate_market_positioning_advice(dimension_scores, recommended_pathway, language):
+    """Generate market positioning and competitive strategy advice"""
+    positioning = {}
+    
+    market_strength = dimension_scores.get("Market & Customer", {}).get("percentage", 0)
+    tech_strength = dimension_scores.get("Technology & Product Readiness", {}).get("percentage", 0)
+    
+    if language == "filipino":
+        if market_strength >= 75 and tech_strength >= 75:
+            positioning["strategy"] = "Market Leader"
+            positioning["advice"] = "Malakas ang position ninyo sa market at technology. Focus sa aggressive market expansion at brand building."
+        elif market_strength >= 60 and tech_strength >= 60:
+            positioning["strategy"] = "Fast Follower"
+            positioning["advice"] = "Magandang position para maging competitive. Focus sa differentiation at customer satisfaction."
+        else:
+            positioning["strategy"] = "Niche Player"
+            positioning["advice"] = "Mag-focus sa specific market segment kung saan kayo may advantage. Build expertise at reputation doon muna."
+        
+        positioning["key_differentiators"] = [
+            "Unique technology features o capabilities",
+            "Superior customer service o support",
+            "Cost advantage o competitive pricing",
+            "Strategic partnerships o alliances"
+        ]
+    else:
+        if market_strength >= 75 and tech_strength >= 75:
+            positioning["strategy"] = "Market Leader"
+            positioning["advice"] = "Strong position in both market and technology. Focus on aggressive market expansion and brand leadership."
+        elif market_strength >= 60 and tech_strength >= 60:
+            positioning["strategy"] = "Fast Follower"
+            positioning["advice"] = "Good positioning for competitive play. Focus on differentiation and superior customer experience."
+        else:
+            positioning["strategy"] = "Niche Player"
+            positioning["advice"] = "Focus on specific market segments where you have unique advantages. Build expertise and reputation first."
+        
+        positioning["key_differentiators"] = [
+            "Unique technology features or capabilities",
+            "Superior customer service and support",
+            "Cost advantage or competitive pricing",
+            "Strategic partnerships and alliances"
+        ]
+    
+    return positioning
+
+def generate_implementation_roadmap(dimension_scores, recommended_pathway, language):
+    """Generate implementation timeline and milestones"""
+    roadmap = {
+        "phase_1": {"timeframe": "0-6 months", "milestones": []},
+        "phase_2": {"timeframe": "6-12 months", "milestones": []},
+        "phase_3": {"timeframe": "12-24 months", "milestones": []}
+    }
+    
+    if language == "filipino":
+        # Phase 1: Foundation
+        roadmap["phase_1"]["milestones"] = [
+            "Kumpletuhin ang product development at testing",
+            "Mag-secure ng initial funding o investment",
+            "Mag-establish ng core team at organizational structure"
+        ]
+        
+        # Phase 2: Launch
+        roadmap["phase_2"]["milestones"] = [
+            "Mag-launch ng pilot program o beta testing",
+            "Mag-establish ng initial customer base",
+            "Mag-refine ng business model based sa market feedback"
+        ]
+        
+        # Phase 3: Scale
+        roadmap["phase_3"]["milestones"] = [
+            "Mag-achieve ng sustainable revenue growth",
+            "Mag-expand sa new markets o customer segments",
+            "Mag-establish ng long-term strategic partnerships"
+        ]
+    else:
+        # Phase 1: Foundation
+        roadmap["phase_1"]["milestones"] = [
+            "Complete product development and comprehensive testing",
+            "Secure initial funding and investment commitments",
+            "Establish core team and organizational structure"
+        ]
+        
+        # Phase 2: Launch
+        roadmap["phase_2"]["milestones"] = [
+            "Launch pilot program and beta testing with target customers",
+            "Establish initial customer base and validate product-market fit",
+            "Refine business model based on market feedback and data"
+        ]
+        
+        # Phase 3: Scale
+        roadmap["phase_3"]["milestones"] = [
+            "Achieve sustainable revenue growth and positive cash flow",
+            "Expand into new markets and customer segments",
+            "Establish long-term strategic partnerships and alliances"
+        ]
+    
+    return roadmap
+
+def calculate_confidence_score(pathway_scores, dimension_scores):
+    """Calculate confidence score for the recommendation"""
+    max_score = max(pathway_scores.values())
+    second_score = sorted(pathway_scores.values(), reverse=True)[1]
+    
+    # Higher confidence if there's a clear winner
+    score_gap = max_score - second_score
+    
+    # Factor in overall readiness
+    avg_dimension_score = sum(dim["percentage"] for dim in dimension_scores.values()) / len(dimension_scores)
+    
+    # Calculate confidence (0-100)
+    confidence = min(100, (score_gap * 10) + (avg_dimension_score * 0.5))
+    
+    return round(confidence, 1)
 
 def calculate_overall_readiness(dimension_scores):
     """Calculate overall commercialization readiness"""
     total_percentage = sum(dim["percentage"] for dim in dimension_scores.values())
     avg_percentage = total_percentage / len(dimension_scores)
     
-    if avg_percentage >= 75:
-        return "High"
+    if avg_percentage >= 80:
+        return "Excellent"
+    elif avg_percentage >= 65:
+        return "Good"
     elif avg_percentage >= 50:
-        return "Medium"
+        return "Fair"
     else:
-        return "Low"
+        return "Needs Development"
 
 def generate_pathway_specific_recommendations(pathway, dimension_scores, language):
     """Generate specific recommendations based on pathway and scores"""
@@ -1854,17 +2246,54 @@ def generate_pathway_specific_recommendations(pathway, dimension_scores, languag
     
     return recommendations
 
-def generate_tcp_explanation(pathway_scores, recommended_pathway, language):
+def generate_tcp_enhanced_explanation(pathway_scores, recommended_pathway, detailed_analysis, language):
+    """Generate enhanced explanation with comprehensive insights"""
     if language == "filipino":
-        text = f"Batay sa comprehensive assessment, ang pinakarekomendadong commercialization pathway para sa inyong teknolohiya ay ang {recommended_pathway}. "
-        text += f"Ang pathway na ito ay nakakuha ng pinakamataas na score sa multi-dimensional evaluation. "
-        text += "Ang assessment ay nag-evaluate ng inyong teknolohiya sa anim na kritikong dimensyon: Technology & Product Readiness, Market & Customer factors, Business & Financial capabilities, Regulatory & Policy environment, Organizational & Team strengths, at Strategic Fit. "
-        text += "Ang resulta ay nagbibigay ng data-driven recommendation na makakatulong sa inyong strategic decision-making para sa technology commercialization."
+        # Get confidence score and second alternative
+        confidence = detailed_analysis.get("confidence_score", 0)
+        second_alt = detailed_analysis.get("second_alternative")
+        overall_readiness = detailed_analysis.get("overall_readiness", "Fair")
+        
+        text = f"Batay sa comprehensive multi-dimensional assessment, ang pinakarekomendadong commercialization pathway para sa inyong teknolohiya ay ang **{recommended_pathway}** (confidence level: {confidence}%).\n\n"
+        
+        # Add second alternative
+        if second_alt:
+            text += f"Ang inyong **second-best option** ay ang {second_alt[0]} na may score na {second_alt[1]}. Ito ay pwedeng alternative strategy kung may mga challenges sa primary recommendation.\n\n"
+        
+        # Add overall readiness assessment
+        text += f"Ang inyong **overall commercialization readiness** ay {overall_readiness}. "
+        
+        # Add key insights
+        insights = detailed_analysis.get("insights", [])
+        if insights:
+            text += f"Mga key insights:\n"
+            for insight in insights[:3]:  # Limit to top 3 insights
+                text += f"• {insight}\n"
+        
+        text += f"\nAng assessment na ito ay nag-evaluate ng inyong teknolohiya sa anim na kritikong dimensyon at nagbigay ng data-driven recommendation na makakatulong sa strategic decision-making para sa technology commercialization."
     else:
-        text = f"Based on comprehensive assessment, the most recommended commercialization pathway for your technology is {recommended_pathway}. "
-        text += f"This pathway scored highest in the multi-dimensional evaluation framework. "
-        text += "The assessment evaluated your technology across six critical dimensions: Technology & Product Readiness, Market & Customer factors, Business & Financial capabilities, Regulatory & Policy environment, Organizational & Team strengths, and Strategic Fit. "
-        text += "The results provide a data-driven recommendation to guide your strategic decision-making for technology commercialization."
+        # Get confidence score and second alternative
+        confidence = detailed_analysis.get("confidence_score", 0)
+        second_alt = detailed_analysis.get("second_alternative")
+        overall_readiness = detailed_analysis.get("overall_readiness", "Fair")
+        
+        text = f"Based on comprehensive multi-dimensional assessment, the **most recommended commercialization pathway** for your technology is **{recommended_pathway}** (confidence level: {confidence}%).\n\n"
+        
+        # Add second alternative
+        if second_alt:
+            text += f"Your **second-best option** is {second_alt[0]} with a score of {second_alt[1]}. This serves as a viable alternative strategy should challenges arise with the primary recommendation.\n\n"
+        
+        # Add overall readiness assessment
+        text += f"Your **overall commercialization readiness** is assessed as {overall_readiness}. "
+        
+        # Add key insights
+        insights = detailed_analysis.get("insights", [])
+        if insights:
+            text += f"Key insights from your assessment:\n"
+            for insight in insights[:3]:  # Limit to top 3 insights
+                text += f"• {insight}\n"
+        
+        text += f"\nThis assessment evaluated your technology across six critical dimensions and provides data-driven recommendations to guide your strategic decision-making for successful technology commercialization."
     
     return text
 
@@ -1977,6 +2406,11 @@ def generate_pdf():
         
         if data['mode'] == 'TCP':
             tech_info.append(["Recommended Pathway:", data.get('recommended_pathway', 'N/A')])
+            # Add second alternative if available
+            detailed_analysis = data.get('detailed_analysis', {})
+            second_alt = detailed_analysis.get('second_alternative')
+            if second_alt:
+                tech_info.append(["Alternative Pathway:", f"{second_alt[0]} (Score: {second_alt[1]})"])
         else:
             tech_info.append(["Assessment Result:", f"{data['mode']} Level {data.get('level', 'N/A')}"])
 
@@ -1997,6 +2431,35 @@ def generate_pdf():
         doc_elements.append(Paragraph("Assessment Summary", heading_style))
         doc_elements.append(Paragraph(data.get("explanation", "No explanation available."), sty["Normal"]))
         doc_elements.append(Spacer(1, 14))
+
+        # Enhanced content for TCP assessments
+        if data['mode'] == 'TCP' and 'detailed_analysis' in data:
+            detailed_analysis = data['detailed_analysis']
+            
+            # Input Summary
+            if 'input_summary' in detailed_analysis:
+                doc_elements.append(Paragraph("Input Summary", heading_style))
+                input_summary = detailed_analysis['input_summary']
+                doc_elements.append(Paragraph(f"Average Score: {input_summary.get('average_score', 'N/A')}/3.0", sty["Normal"]))
+                doc_elements.append(Spacer(1, 10))
+            
+            # Key Insights
+            if 'insights' in detailed_analysis and detailed_analysis['insights']:
+                doc_elements.append(Paragraph("Key Insights", heading_style))
+                for insight in detailed_analysis['insights'][:3]:
+                    doc_elements.append(Paragraph(f"• {insight}", sty["Normal"]))
+                doc_elements.append(Spacer(1, 10))
+            
+            # Success Strategies
+            if 'success_strategies' in detailed_analysis:
+                strategies = detailed_analysis['success_strategies']
+                doc_elements.append(Paragraph("Recommended Success Strategies", heading_style))
+                
+                if strategies.get('immediate_actions'):
+                    doc_elements.append(Paragraph("Immediate Actions:", sty["Heading3"]))
+                    for action in strategies['immediate_actions'][:3]:
+                        doc_elements.append(Paragraph(f"• {action}", sty["Normal"]))
+                    doc_elements.append(Spacer(1, 8))
 
         # Basic content for all modes
         doc_elements.append(Paragraph("Assessment Details", heading_style))
