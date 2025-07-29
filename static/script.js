@@ -18,6 +18,7 @@ class AssessmentApp {
                 select_mode: "Select Assessment Mode",
                 trl_desc: "Technology Readiness Level",
                 irl_desc: "Investment Readiness Level",
+                mrl_desc: "Market Readiness Level",
                 tcp_desc: "Technology Commercialization Pathway",
                 tech_info: "Technology Information",
                 title_lbl: "Technology Title:",
@@ -36,6 +37,7 @@ class AssessmentApp {
                 select_mode: "Pumili ng Uri ng Assessment",
                 trl_desc: "Technology Readiness Level",
                 irl_desc: "Investment Readiness Level",
+                mrl_desc: "Market Readiness Level",
                 tcp_desc: "Technology Commercialization Pathway",
                 tech_info: "Impormasyon ng Teknolohiya",
                 title_lbl: "Pamagat ng Teknolohiya:",
@@ -79,6 +81,7 @@ class AssessmentApp {
         this.setText("mode-title", t.select_mode);
         this.setText("trl-description", t.trl_desc);
         this.setText("irl-description", t.irl_desc);
+        this.setText("mrl-description", t.mrl_desc);
         this.setText("tcp-description", t.tcp_desc);
         this.setText("tech-info-title", t.tech_info);
         this.setText("title-label", t.title_lbl);
@@ -114,6 +117,7 @@ class AssessmentApp {
                 console.log("TCP Questions loaded:", this.tcpQuestions);
             } else {
                 this.questions = await res.json();
+                console.log(`${this.mode} Questions loaded:`, this.questions);
             }
         } catch (error) {
             console.error('Error loading questions:', error);
@@ -282,7 +286,7 @@ class AssessmentApp {
         this.showStep("results");
     }
 
-    // Regular TRL/IRL Assessment Methods
+    // Regular Assessment Methods (TRL/IRL/MRL)
     present() {
         this.lix = 0;
         this.cix = 0;
@@ -355,11 +359,29 @@ class AssessmentApp {
             }
             
             this.result = await res.json();
+            console.log(`${this.mode} assessment result:`, this.result);
 
             this.setText("result-level",
                 `${this.result.mode} ${(this.lang === "english") ? "Level" : "Antas"} ${this.result.level}`);
             this.setText("tech-title-display", this.result.technology_title);
-            this.setText("result-explanation", this.result.explanation);
+            
+            // Enhanced explanation for MRL
+            let explanation = this.result.explanation;
+            if (this.mode === "MRL" && this.result.detailed_analysis) {
+                const analysis = this.result.detailed_analysis;
+                explanation += `\n\nMarket Readiness: ${analysis.market_readiness}`;
+                explanation += `\nOverall Progress: ${analysis.overall_progress.toFixed(1)}%`;
+                
+                if (analysis.strengths && analysis.strengths.length > 0) {
+                    explanation += `\n\nKey Strengths: ${analysis.strengths.join(", ")}`;
+                }
+                
+                if (analysis.areas_for_improvement && analysis.areas_for_improvement.length > 0) {
+                    explanation += `\n\nAreas for Improvement: ${analysis.areas_for_improvement.join(", ")}`;
+                }
+            }
+            
+            this.setText("result-explanation", explanation);
 
             const badge = document.getElementById("result-badge");
             if (badge) {
