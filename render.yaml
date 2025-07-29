@@ -13,16 +13,6 @@ services:
         value: 10000
       - key: SECRET_KEY
         generateValue: true
-      - key: DATABASE_HOST
-        value: dpg-d247nip5pdvs7380r3lg-a.oregon-postgres.render.com
-      - key: DATABASE_NAME
-        value: mmsu_assessments
-      - key: DATABASE_USER
-        value: mmsu_user
-      - key: DATABASE_PASSWORD
-        value: kulsmZ8dbrLeCccOy8h1C5eFB37l0JsJ
-      - key: DATABASE_PORT
-        value: 5432
 
 databases:
   - name: mmsu-assessment-db
