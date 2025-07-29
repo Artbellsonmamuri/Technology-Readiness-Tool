@@ -9,9 +9,7 @@ import io
 import traceback
 import json
 import os
-from threading import Lock
 import uuid
-from collections import defaultdict
 import psycopg
 from psycopg.rows import dict_row
 from dotenv import load_dotenv
@@ -19,20 +17,9 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
-import threading
 
 # Load environment variables
 load_dotenv()
-
-# Google Drive Integration
-try:
-    from googleapiclient.discovery import build
-    from google.oauth2.service_account import Credentials
-    from googleapiclient.http import MediaIoBaseUpload
-    GOOGLE_DRIVE_AVAILABLE = True
-except ImportError:
-    GOOGLE_DRIVE_AVAILABLE = False
-    print("Google Drive libraries not installed. Install with: pip install google-api-python-client google-auth")
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
@@ -835,20 +822,11 @@ TCP_QUESTIONS = {
 def get_db_connection():
     """Get PostgreSQL database connection using psycopg3"""
     try:
-        # Get environment variables
         host = os.getenv('DATABASE_HOST')
         dbname = os.getenv('DATABASE_NAME')
         user = os.getenv('DATABASE_USER')
         password = os.getenv('DATABASE_PASSWORD')
         port = int(os.getenv('DATABASE_PORT', 5432))
-        
-        # Debug logging (remove password from logs)
-        print(f"Attempting to connect to database:")
-        print(f"Host: {host}")
-        print(f"Database: {dbname}")
-        print(f"User: {user}")
-        print(f"Port: {port}")
-        print(f"Password: {'***' if password else 'None'}")
         
         if not all([host, dbname, user, password]):
             print("Missing required database environment variables!")
@@ -878,7 +856,7 @@ def init_database():
     
     try:
         with conn.cursor() as cur:
-            # Create assessments table with PDF storage columns
+            # Create assessments table with PDF storage columns (NO Google Drive)
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS assessments (
                     id SERIAL PRIMARY KEY,
@@ -890,7 +868,6 @@ def init_database():
                     recommended_pathway VARCHAR(100),
                     language VARCHAR(10),
                     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    google_drive_link VARCHAR(1000),
                     ip_address INET,
                     user_agent TEXT,
                     consent_given BOOLEAN DEFAULT TRUE,
@@ -901,15 +878,12 @@ def init_database():
                 )
             ''')
             
-            # Add PDF columns to existing table if they don't exist
-            cur.execute('''
-                ALTER TABLE assessments 
-                ADD COLUMN IF NOT EXISTS pdf_data BYTEA,
-                ADD COLUMN IF NOT EXISTS pdf_filename VARCHAR(255)
-            ''')
+            # Remove Google Drive column if it exists
+            cur.execute('ALTER TABLE assessments DROP COLUMN IF EXISTS google_drive_link')
             
-            # Drop the problematic index if it exists
-            cur.execute('DROP INDEX IF EXISTS idx_assessments_pdf')
+            # Add PDF columns if they don't exist
+            cur.execute('ALTER TABLE assessments ADD COLUMN IF NOT EXISTS pdf_data BYTEA')
+            cur.execute('ALTER TABLE assessments ADD COLUMN IF NOT EXISTS pdf_filename VARCHAR(255)')
             
             # Create assessment_answers table
             cur.execute('''
@@ -953,134 +927,16 @@ def init_database():
 # Initialize database on startup
 init_database()
 
-# Google Drive Manager with Your Folder Configuration
-class GoogleDriveManager:
-    def __init__(self):
-        self.service = None
-        self.root_folder_id = "1dYLWBAq9IKMzY_L8x0ihS-6Egt1Gl6UV"  # Your specific folder ID
-        self._initialize_service()
-    
-    def _initialize_service(self):
-        if not GOOGLE_DRIVE_AVAILABLE:
-            print("Google Drive integration disabled - missing dependencies")
-            return
-            
-        try:
-            if os.path.exists('google-drive-credentials.json'):
-                credentials = Credentials.from_service_account_file(
-                    'google-drive-credentials.json',
-                    scopes=['https://www.googleapis.com/auth/drive']
-                )
-                self.service = build('drive', 'v3', credentials=credentials)
-                print("Google Drive integration initialized successfully")
-                print(f"Using existing folder ID: {self.root_folder_id}")
-                
-                # Verify folder exists and is accessible
-                try:
-                    folder_info = self.service.files().get(fileId=self.root_folder_id).execute()
-                    print(f"Connected to folder: {folder_info.get('name', 'Unknown')}")
-                except Exception as e:
-                    print(f"Warning: Could not access folder {self.root_folder_id}: {e}")
-                    
-            else:
-                print("Google Drive credentials file not found")
-        except Exception as e:
-            print(f"Failed to initialize Google Drive: {str(e)}")
-    
-    def _get_or_create_folder(self, parent_folder_id, folder_name):
-        if not self.service:
-            return None
-            
-        try:
-            # Check if folder exists
-            folders = self.service.files().list(
-                q=f"name='{folder_name}' and '{parent_folder_id}' in parents and mimeType='application/vnd.google-apps.folder'",
-                fields="files(id, name)"
-            ).execute().get('files', [])
-            
-            if folders:
-                return folders[0]['id']
-            else:
-                # Create folder
-                folder_metadata = {
-                    'name': folder_name,
-                    'mimeType': 'application/vnd.google-apps.folder',
-                    'parents': [parent_folder_id]
-                }
-                folder = self.service.files().create(body=folder_metadata, fields='id').execute()
-                return folder.get('id')
-                
-        except Exception as e:
-            print(f"Error creating folder {folder_name}: {str(e)}")
-            return None
-    
-    def upload_pdf(self, pdf_buffer, filename, assessment_type, timestamp):
-        if not self.service or not self.root_folder_id:
-            return None
-            
-        try:
-            # Create folder structure: Year/Month/AssessmentType
-            year = timestamp.strftime('%Y')
-            month = timestamp.strftime('%B')
-            
-            year_folder_id = self._get_or_create_folder(self.root_folder_id, year)
-            if not year_folder_id:
-                return None
-                
-            month_folder_id = self._get_or_create_folder(year_folder_id, month)
-            if not month_folder_id:
-                return None
-                
-            type_folder_id = self._get_or_create_folder(month_folder_id, assessment_type.upper())
-            if not type_folder_id:
-                return None
-            
-            # Upload file
-            media = MediaIoBaseUpload(pdf_buffer, mimetype='application/pdf')
-            file_metadata = {
-                'name': filename,
-                'parents': [type_folder_id]
-            }
-            
-            file = self.service.files().create(
-                body=file_metadata,
-                media_body=media,
-                fields='id,webViewLink'
-            ).execute()
-            
-            # Make file publicly viewable
-            permission = {
-                'type': 'anyone',
-                'role': 'reader'
-            }
-            self.service.permissions().create(
-                fileId=file.get('id'),
-                body=permission
-            ).execute()
-            
-            return file.get('webViewLink')
-            
-        except Exception as e:
-            print(f"Error uploading to Google Drive: {str(e)}")
-            return None
-    
-    def get_public_folder_link(self):
-        return "https://drive.google.com/drive/folders/1dYLWBAq9IKMzY_L8x0ihS-6Egt1Gl6UV?usp=sharing"
-
-# Initialize Google Drive Manager
-drive_manager = GoogleDriveManager()
-
 # Email Configuration and Functions
 class EmailManager:
     def __init__(self):
         self.smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
-        self.smtp_port = int(os.getenv('SMTP_PORT', '587'))
-        self.email_user = os.getenv('EMAIL_USER')  # Your email address
-        self.email_password = os.getenv('EMAIL_PASSWORD')  # App password for Gmail
-        self.admin_email = os.getenv('ADMIN_EMAIL')  # Where to send PDFs
+        self.smtp_port = int(os.getenv('SMTP_PORT', 587))
+        self.email_user = os.getenv('EMAIL_USER')
+        self.email_password = os.getenv('EMAIL_PASSWORD')
+        self.admin_email = os.getenv('ADMIN_EMAIL')
         
-        # Debug email configuration
-        print(f"Email configuration:")
+        print("Email configuration:")
         print(f"SMTP Server: {self.smtp_server}")
         print(f"SMTP Port: {self.smtp_port}")
         print(f"Email User: {self.email_user}")
@@ -1088,34 +944,36 @@ class EmailManager:
         print(f"Email Password: {'***' if self.email_password else 'None'}")
     
     def send_pdf_email(self, pdf_buffer, filename, assessment_data):
-        """Send PDF via email to admin"""
+        """Send PDF via email to admin (SYNCHRONOUS)"""
         if not all([self.email_user, self.email_password, self.admin_email]):
-            print("Email configuration incomplete - skipping email send")
+            print("❌ Email configuration incomplete - skipping email send")
+            print(f"Missing: EMAIL_USER={bool(self.email_user)}, EMAIL_PASSWORD={bool(self.email_password)}, ADMIN_EMAIL={bool(self.admin_email)}")
             return False
         
+        print(f"📧 Attempting to send email to {self.admin_email}...")
         try:
             # Create message
             msg = MIMEMultipart()
             msg['From'] = self.email_user
             msg['To'] = self.admin_email
-            msg['Subject'] = f"New Assessment Report: {filename}"
+            msg['Subject'] = f"📄 New Assessment Report: {filename}"
             
             # Email body
             body = f"""
-New Technology Assessment Report Generated
+🔬 NEW TECHNOLOGY ASSESSMENT REPORT
 
-Assessment Details:
-- Technology: {assessment_data.get('technology_title', 'N/A')}
-- Type: {assessment_data.get('mode', 'N/A')}
-- Language: {assessment_data.get('language', 'N/A')}
-- Result: {assessment_data.get('level', assessment_data.get('recommended_pathway', 'N/A'))}
-- Date: {assessment_data.get('timestamp', 'N/A')}
-- IP Address: {assessment_data.get('ip_address', 'N/A')}
+📋 Assessment Details:
+• Technology: {assessment_data.get('technology_title', 'N/A')}
+• Assessment Type: {assessment_data.get('mode', 'N/A')}
+• Language: {assessment_data.get('language', 'N/A')}
+• Result: {assessment_data.get('level', assessment_data.get('recommended_pathway', 'N/A'))}
+• Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+• IP Address: {assessment_data.get('ip_address', 'N/A')}
 
-Please find the complete assessment report attached.
+📎 The complete PDF assessment report is attached to this email.
 
 ---
-MMSU Technology Assessment Tool
+🏫 MMSU Technology Assessment Tool
 Innovation and Technology Support Office
             """
             
@@ -1128,41 +986,35 @@ Innovation and Technology Support Office
             msg.attach(pdf_attachment)
             
             # Send email
+            print(f"🔗 Connecting to {self.smtp_server}:{self.smtp_port}...")
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                print("🔐 Starting TLS...")
                 server.starttls()
+                print(f"🔑 Logging in as {self.email_user}...")
                 server.login(self.email_user, self.email_password)
+                print("📤 Sending email...")
                 server.send_message(msg)
             
-            print(f"PDF emailed successfully to {self.admin_email}: {filename}")
+            print(f"✅ Email sent successfully to {self.admin_email}")
+            print(f"📄 Attachment: {filename}")
             return True
             
         except Exception as e:
-            print(f"Error sending email: {e}")
+            print(f"❌ Error sending email: {e}")
+            print(f"Full error details: {traceback.format_exc()}")
             return False
 
 # Initialize Email Manager
 email_manager = EmailManager()
 
 # IP Address Helper Function
-def get_client_ip_address(assessment_data):
-    """Extract the client's IP address from request data"""
+def get_client_ip_address():
+    """Get client IP address, handling multiple IPs in X-Forwarded-For"""
     try:
-        # Get the IP address from assessment_data
-        ip_address = assessment_data.get('ip_address')
-        
-        if not ip_address:
-            return None
-            
-        # If it's a comma-separated list (from X-Forwarded-For), take the first one
-        if ',' in ip_address:
-            ip_address = ip_address.split(',')[0].strip()
-        
-        # Basic validation - ensure it's not empty
-        if not ip_address or ip_address == 'None':
-            return None
-            
-        return ip_address
-        
+        x_forwarded_for = request.environ.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            return x_forwarded_for.split(',')[0].strip()
+        return request.environ.get('REMOTE_ADDR')
     except Exception as e:
         print(f"Error processing IP address: {e}")
         return None
@@ -1176,7 +1028,6 @@ def save_pdf_to_db(pdf_buffer, filename, assessment_id):
     
     try:
         with conn.cursor() as cur:
-            # Store PDF as binary data
             pdf_data = pdf_buffer.getvalue()
             cur.execute('''
                 UPDATE assessments 
@@ -1184,7 +1035,7 @@ def save_pdf_to_db(pdf_buffer, filename, assessment_id):
                 WHERE id = %s
             ''', (pdf_data, filename, assessment_id))
             conn.commit()
-            print(f"PDF saved to database: {filename}")
+            print(f"💾 PDF saved to database: {filename}")
             return True
     except Exception as e:
         print(f"Error saving PDF to database: {e}")
@@ -1238,7 +1089,7 @@ def get_pdf_by_id(assessment_id):
     finally:
         conn.close()
 
-# Statistics Functions (Updated for psycopg3)
+# Statistics Functions
 def get_statistics():
     """Get comprehensive statistics from PostgreSQL database"""
     conn = get_db_connection()
@@ -1391,7 +1242,7 @@ def get_statistics():
     finally:
         conn.close()
 
-def save_assessment_to_db(assessment_data, answers_data, google_drive_link=None):
+def save_assessment_to_db(assessment_data, answers_data):
     """Save assessment data to PostgreSQL database"""
     conn = get_db_connection()
     if not conn:
@@ -1400,13 +1251,13 @@ def save_assessment_to_db(assessment_data, answers_data, google_drive_link=None)
     
     try:
         with conn.cursor() as cur:
-            # Insert main assessment record
+            # Insert main assessment record (NO Google Drive)
             cur.execute('''
                 INSERT INTO assessments (
                     session_id, assessment_type, technology_title, description,
                     level_achieved, recommended_pathway, language, timestamp,
-                    google_drive_link, ip_address, user_agent, consent_given, completed
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ip_address, user_agent, consent_given, completed
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             ''', (
                 assessment_data.get('session_id'),
@@ -1417,8 +1268,7 @@ def save_assessment_to_db(assessment_data, answers_data, google_drive_link=None)
                 assessment_data.get('recommended_pathway'),
                 assessment_data.get('language'),
                 assessment_data.get('timestamp'),
-                google_drive_link,
-                get_client_ip_address(assessment_data),  # Fixed IP handling
+                assessment_data.get('ip_address'),
                 assessment_data.get('user_agent'),
                 assessment_data.get('consent_given', True),
                 True
@@ -1475,17 +1325,15 @@ def index():
 def overview():
     try:
         stats = get_statistics()
-        public_folder_link = drive_manager.get_public_folder_link()
-        return render_template("overview.html", stats=stats, public_folder_link=public_folder_link)
+        return render_template("overview.html", stats=stats)
     except Exception as e:
         print(f"Error in overview route: {e}")
-        # Return basic page even if stats fail
         empty_stats = {
             'total_assessments': 0,
             'assessments_by_type': [],
             'completion_rate': 0
         }
-        return render_template("overview.html", stats=empty_stats, public_folder_link=None)
+        return render_template("overview.html", stats=empty_stats)
 
 @app.route("/admin/statistics")
 def admin_statistics():
@@ -1496,7 +1344,6 @@ def admin_statistics():
     except Exception as e:
         print(f"Error in admin_statistics route: {e}")
         print(f"Traceback: {traceback.format_exc()}")
-        # Return empty stats if there's an error
         empty_stats = {
             'total_assessments': 0,
             'assessments_by_type': [],
@@ -2091,7 +1938,7 @@ def generate_explanation(lvl, mode, lang, qset):
 def generate_pdf():
     try:
         data = request.json
-        print(f"PDF Generation - Received data for mode: {data.get('mode', 'Unknown')}")
+        print(f"📄 PDF Generation - Received data for mode: {data.get('mode', 'Unknown')}")
         
         if not data or 'mode' not in data:
             return jsonify({"error": "Invalid data provided"}), 400
@@ -2173,15 +2020,6 @@ def generate_pdf():
         tech_title = data.get('technology_title', 'Assessment').replace(' ', '_').replace('/', '_')
         filename = f"{date_str}_{tech_title}.pdf"
         
-        # Fixed IP address handling
-        def get_client_ip():
-            """Get client IP address, handling multiple IPs in X-Forwarded-For"""
-            x_forwarded_for = request.environ.get('HTTP_X_FORWARDED_FOR')
-            if x_forwarded_for:
-                # Take the first IP address (client's real IP)
-                return x_forwarded_for.split(',')[0].strip()
-            return request.environ.get('REMOTE_ADDR')
-        
         # Save to PostgreSQL database FIRST
         assessment_data = {
             'session_id': data.get('session_id'),
@@ -2192,7 +2030,7 @@ def generate_pdf():
             'recommended_pathway': data.get('recommended_pathway'),
             'language': data.get('language', 'english'),
             'timestamp': now.isoformat(),
-            'ip_address': get_client_ip(),
+            'ip_address': get_client_ip_address(),
             'user_agent': request.headers.get('User-Agent'),
             'consent_given': data.get('consent_given', True),
             'tcp_data': data.get('tcp_data'),
@@ -2209,22 +2047,16 @@ def generate_pdf():
         if assessment_id:
             save_pdf_to_db(buf_for_db, filename, assessment_id)
         
-        # Create PDF copy for email
+        # Create PDF copy for email - SEND SYNCHRONOUSLY (this guarantees delivery)
         buf_for_email = io.BytesIO(buf.getvalue())
+        email_success = email_manager.send_pdf_email(buf_for_email, filename, assessment_data)
         
-        # Send PDF via email in background thread (non-blocking)
-        def send_email_async():
-            try:
-                email_manager.send_pdf_email(buf_for_email, filename, assessment_data)
-            except Exception as e:
-                print(f"Background email sending failed: {e}")
+        if email_success:
+            print("✅ Email sent successfully!")
+        else:
+            print("❌ Email sending failed!")
         
-        # Start email sending in background
-        email_thread = threading.Thread(target=send_email_async)
-        email_thread.daemon = True
-        email_thread.start()
-        
-        print(f"PDF Generation - Successfully generated and saved: {filename}")
+        print(f"📄 PDF Generation - Successfully generated and saved: {filename}")
         
         # Reset buffer position for download
         buf.seek(0)
@@ -2237,7 +2069,7 @@ def generate_pdf():
         )
         
     except Exception as e:
-        print(f"PDF Generation Error: {str(e)}")
+        print(f"❌ PDF Generation Error: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
         return jsonify({"error": f"PDF generation failed: {str(e)}"}), 500
 
