@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMSU Assessment Tool - Overview</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="mmsu-brand">
+                <h1>MARANO MARCOS STATE UNIVERSITY</h1>
+                <h2>Innovation and Technology Support Office</h2>
+                <h3>Technology Assessment Tool - Overview</h3>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <div class="navigation" style="text-align: center; margin: 20px 0;">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">← Back to Assessment Tool</a>
+            <a href="{{ url_for('admin_statistics') }}" class="btn btn-primary">📊 Admin Statistics</a>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div class="statistics-overview">
+            <h2>Assessment Tool Usage Overview</h2>
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.total_assessments or 0 }}</div>
+                    <div class="stat-label">Total Assessments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ "%.1f"|format(stats.completion_rate or 0) }}%</div>
+                    <div class="stat-label">Completion Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Assessment Tools</div>
+                </div>
+            </div>
+            
+            <!-- Assessment Type Distribution Chart -->
+            {% if stats.assessments_by_type and stats.assessments_by_type|length > 0 %}
+            <div class="chart-container" style="max-width: 600px; margin: 30px auto;">
+                <canvas id="assessmentDistributionChart"></canvas>
+            </div>
+            {% else %}
+            <div class="no-data-message" style="text-align: center; padding: 40px; color: #666;">
+                <h3>No Data Available Yet</h3>
+                <p>Complete some assessments to see usage statistics here.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Start First Assessment</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Public Google Drive Archive -->
+        {% if public_folder_link %}
+        <div class="public-reports">
+            <h3>📁 Public Reports Archive</h3>
+            <p>All assessment reports are automatically saved to our public Google Drive folder for transparency and accessibility.</p>
+            <a href="{{ public_folder_link }}" target="_blank" class="btn btn-secondary">
+                View Public Reports Archive
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Assessment Types Information -->
+        <div class="assessment-info">
+            <h2>Available Assessment Types</h2>
+            <div class="assessment-types-grid">
+                <div class="assessment-type-card">
+                    <h3>TRL - Technology Readiness Level</h3>
+                    <p>Assess your technology's development stage from basic principles (Level 0) to full commercial deployment (Level 9).</p>
+                    <span class="badge">Levels 0-9</span>
+                </div>
+                <div class="assessment-type-card">
+                    <h3>IRL - Investment Readiness Level</h3>
+                    <p>Evaluate your startup's readiness for investment from initial concept to market leadership.</p>
+                    <span class="badge">Levels 1-9</span>
+                </div>
+                <div class="assessment-type-card">
+                    <h3>MRL - Market Readiness Level</h3>
+                    <p>Determine your technology's market preparedness from need identification to full adoption.</p>
+                    <span class="badge">Levels 1-9</span>
+                </div>
+                <div class="assessment-type-card">
+                    <h3>TCP - Technology Commercialization Pathway</h3>
+                    <p>Get personalized recommendations for the best commercialization strategy for your technology.</p>
+                    <span class="badge">Pathway Analysis</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Initialization -->
+    {% if stats.assessments_by_type and stats.assessments_by_type|length > 0 %}
+    <script>
+        // Initialize assessment distribution chart
+        const ctx = document.getElementById('assessmentDistributionChart').getContext('2d');
+        const assessmentData = {{ stats.assessments_by_type | tojson | safe }};
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: assessmentData.map(item => item.assessment_type),
+                datasets: [{
+                    data: assessmentData.map(item => item.count),
+                    backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Assessment Type Distribution',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    {% endif %}
+
+    <style>
+        .statistics-overview {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .chart-container {
+            height: 400px;
+            position: relative;
+        }
+
+        .public-reports {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .assessment-info {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .assessment-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .assessment-type-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .assessment-type-card:hover {
+            border-color: #10B981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+        }
+
+        .assessment-type-card h3 {
+            color: #065f46;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #10B981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .navigation {
+            margin: 20px 0;
+        }
+
+        .navigation .btn {
+            margin: 0 10px;
+        }
+
+        .no-data-message {
+            background: #f9fafb;
+            border: 2px dashed #d1d5db;
+            border-radius: 10px;
+        }
+    </style>
+</body>
+</html>
