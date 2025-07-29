@@ -1959,13 +1959,10 @@ def generate_pdf():
         doc_elements.append(Paragraph(data.get("explanation", "No explanation available."), sty["Normal"]))
         doc_elements.append(Spacer(1, 14))
 
-        # Mode-specific content
-        if data["mode"] == "TCP":
-            generate_tcp_pdf_content(doc_elements, data, sty, heading_style)
-        elif data["mode"] == "MRL":
-            generate_mrl_pdf_content(doc_elements, data, sty, heading_style)
-        else:
-            generate_standard_pdf_content(doc_elements, data, sty, heading_style)
+        # Basic content for all modes
+        doc_elements.append(Paragraph("Assessment Details", heading_style))
+        doc_elements.append(Paragraph(f"This {data['mode']} assessment was completed on {datetime.utcnow().strftime('%Y-%m-%d')} for the technology: {data.get('technology_title', 'N/A')}", sty["Normal"]))
+        doc_elements.append(Spacer(1, 10))
 
         # Footer
         doc_elements.append(Spacer(1, 14))
@@ -2014,4 +2011,17 @@ def generate_pdf():
         print(f"PDF Generation - Successfully generated and saved: {filename}")
         
         return send_file(
-            buf
+            buf, 
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        print(f"PDF Generation Error: {str(e)}")
+        print(f"Traceback: {traceback.format_exc()}")
+        return jsonify({"error": f"PDF generation failed: {str(e)}"}), 500
+
+if __name__ == "__main__":
+    port = int(os.getenv('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
