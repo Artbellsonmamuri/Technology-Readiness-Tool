@@ -31,6 +31,8 @@ services:
         fromDatabase:
           name: mmsu-assessment-db
           property: password
+      - key: DATABASE_PORT
+        value: 5432
 
 databases:
   - name: mmsu-assessment-db
