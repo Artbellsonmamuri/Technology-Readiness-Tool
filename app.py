@@ -1053,6 +1053,30 @@ class GoogleDriveManager:
 # Initialize Google Drive Manager
 drive_manager = GoogleDriveManager()
 
+# IP Address Helper Function
+def get_client_ip_address(assessment_data):
+    """Extract the client's IP address from request data"""
+    try:
+        # Get the IP address from assessment_data
+        ip_address = assessment_data.get('ip_address')
+        
+        if not ip_address:
+            return None
+            
+        # If it's a comma-separated list (from X-Forwarded-For), take the first one
+        if ',' in ip_address:
+            ip_address = ip_address.split(',')[0].strip()
+        
+        # Basic validation - ensure it's not empty
+        if not ip_address or ip_address == 'None':
+            return None
+            
+        return ip_address
+        
+    except Exception as e:
+        print(f"Error processing IP address: {e}")
+        return None
+
 # Statistics Functions (Updated for psycopg3)
 def get_statistics():
     """Get comprehensive statistics from PostgreSQL database"""
@@ -1233,7 +1257,7 @@ def save_assessment_to_db(assessment_data, answers_data, google_drive_link=None)
                 assessment_data.get('language'),
                 assessment_data.get('timestamp'),
                 google_drive_link,
-                assessment_data.get('ip_address'),
+                get_client_ip_address(assessment_data),  # Fixed IP handling
                 assessment_data.get('user_agent'),
                 assessment_data.get('consent_given', True),
                 True
@@ -1281,18 +1305,26 @@ def save_assessment_to_db(assessment_data, answers_data, google_drive_link=None)
 @app.route("/")
 def index():
     try:
-        stats = get_statistics()
-        public_folder_link = drive_manager.get_public_folder_link()
-        return render_template("index.html", stats=stats, public_folder_link=public_folder_link)
+        return render_template("index.html")
     except Exception as e:
         print(f"Error in index route: {e}")
+        return render_template("index.html")
+
+@app.route("/overview")
+def overview():
+    try:
+        stats = get_statistics()
+        public_folder_link = drive_manager.get_public_folder_link()
+        return render_template("overview.html", stats=stats, public_folder_link=public_folder_link)
+    except Exception as e:
+        print(f"Error in overview route: {e}")
         # Return basic page even if stats fail
         empty_stats = {
             'total_assessments': 0,
             'assessments_by_type': [],
             'completion_rate': 0
         }
-        return render_template("index.html", stats=empty_stats, public_folder_link=None)
+        return render_template("overview.html", stats=empty_stats, public_folder_link=None)
 
 @app.route("/admin/statistics")
 def admin_statistics():
@@ -1560,7 +1592,7 @@ def generate_mrl_next_steps(level_achieved, language):
                 "Complete comprehensive competitive analysis",
                 "Define unique value proposition",
                 "Develop competitive positioning strategy",
-                "Analyze pricing models"
+                "Analyze models"
             ],
             5: [
                 "Create detailed go-to-market plan",
@@ -1959,6 +1991,15 @@ def generate_pdf():
                 buf_copy, filename, data['mode'], now
             )
         
+        # Fixed IP address handling
+        def get_client_ip():
+            """Get client IP address, handling multiple IPs in X-Forwarded-For"""
+            x_forwarded_for = request.environ.get('HTTP_X_FORWARDED_FOR')
+            if x_forwarded_for:
+                # Take the first IP address (client's real IP)
+                return x_forwarded_for.split(',')[0].strip()
+            return request.environ.get('REMOTE_ADDR')
+        
         # Save to PostgreSQL database
         assessment_data = {
             'session_id': data.get('session_id'),
@@ -1969,7 +2010,7 @@ def generate_pdf():
             'recommended_pathway': data.get('recommended_pathway'),
             'language': data.get('language', 'english'),
             'timestamp': now.isoformat(),
-            'ip_address': request.environ.get('HTTP_X_FORWARDED_FOR', request.environ.get('REMOTE_ADDR')),
+            'ip_address': get_client_ip(),  # Fixed IP handling
             'user_agent': request.headers.get('User-Agent'),
             'consent_given': data.get('consent_given', True),
             'tcp_data': data.get('tcp_data'),
