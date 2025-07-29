@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMSU Assessment Tool - Admin Statistics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>MMSU Technology Assessment Tool</h1>
+            <h2>Administrator Statistics Dashboard</h2>
+            <div class="admin-nav">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">← Back to Assessment Tool</a>
+                <button onclick="exportStatistics()" class="btn btn-primary">Export Data</button>
+            </div>
+        </header>
+
+        <!-- Overview Cards -->
+        <div class="stats-grid">
+            <div class="stat-card-large">
+                <div class="stat-number">{{ stats.total_assessments or 0 }}</div>
+                <div class="stat-label">Total Completed Assessments</div>
+                <div class="stat-change">{{ "%.1f"|format(stats.completion_rate or 0) }}% completion rate</div>
+            </div>
+            <div class="stat-card-large">
+                <div class="stat-number">{{ stats.total_started or 0 }}</div>
+                <div class="stat-label">Total Started Assessments</div>
+                <div class="stat-change">{{ (stats.total_started or 0) - (stats.total_assessments or 0) }} abandoned</div>
+            </div>
+            <div class="stat-card-large">
+                <div class="stat-number">{{ (stats.assessments_by_type or []) | length }}</div>
+                <div class="stat-label">Active Assessment Types</div>
+                <div class="stat-change">TRL, IRL, MRL, TCP</div>
+            </div>
+        </div>
+
+        <!-- Assessment Type Distribution -->
+        <div class="chart-section">
+            <h3>Assessment Type Distribution</h3>
+            <div class="chart-container">
+                <canvas id="typeDistributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Monthly Trends -->
+        <div class="chart-section">
+            <h3>Monthly Usage Trends</h3>
+            <div class="chart-container">
+                <canvas id="monthlyTrendsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Success Rates -->
+        <div class="chart-section">
+            <h3>Average Success Rates by Assessment Type</h3>
+            <div class="chart-container">
+                <canvas id="successRatesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- TCP Pathway Distribution -->
+        {% if stats.tcp_pathways %}
+        <div class="chart-section">
+            <h3>TCP Commercialization Pathway Distribution</h3>
+            <div class="chart-container">
+                <canvas id="tcpPathwaysChart"></canvas>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Geographic Distribution -->
+        {% if stats.geographic_distribution %}
+        <div class="chart-section">
+            <h3>Geographic Distribution (Top Regions)</h3>
+            <div class="geographic-stats">
+                {% for region in stats.geographic_distribution %}
+                <div class="region-stat">
+                    <span class="region-name">{{ region.ip_address or 'Unknown' }}</span>
+                    <span class="region-count">{{ region.count }} assessments</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <h3>Recent Assessment Activity</h3>
+            <div class="activity-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Technology (Anonymized)</th>
+                            <th>Level/Result</th>
+                            <th>Language</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for activity in stats.recent_activity %}
+                        <tr>
+                            <td><span class="assessment-type {{ activity.assessment_type.lower() }}">{{ activity.assessment_type }}</span></td>
+                            <td>{{ (activity.technology_title or 'Unknown')[:20] }}{% if (activity.technology_title or '')|length > 20 %}...{% endif %}</td>
+                            <td>
+                                {% if activity.assessment_type == 'TCP' %}
+                                    {{ activity.recommended_pathway or 'N/A' }}
+                                {% else %}
+                                    Level {{ activity.level_achieved or 'N/A' }}
+                                {% endif %}
+                            </td>
+                            <td>{{ activity.language or 'N/A' }}</td>
+                            <td>{{ (activity.timestamp or '')[:16] }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not stats.recent_activity %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #666;">No recent activity found</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Detailed Statistics Tables -->
+        <div class="detailed-stats">
+            <div class="stats-table">
+                <h3>Assessment Type Breakdown</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Total Count</th>
+                            <th>Average Level</th>
+                            <th>Success Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for type_stat in stats.assessments_by_type %}
+                        <tr>
+                            <td><span class="assessment-type {{ type_stat.assessment_type.lower() }}">{{ type_stat.assessment_type }}</span></td>
+                            <td>{{ type_stat.count }}</td>
+                            <td>
+                                {% for success in stats.success_rates %}
+                                    {% if success.assessment_type == type_stat.assessment_type %}
+                                        {{ "%.1f"|format(success.avg_level or 0) }}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ "%.1f"|format(((type_stat.count / (stats.total_assessments or 1)) * 100)) }}%</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not stats.assessments_by_type %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #666;">No assessment data found</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Initialization Scripts -->
+    <script>
+        const stats = {{ stats | tojson | safe }};
+        
+        // Assessment Type Distribution
+        const typeCtx = document.getElementById('typeDistributionChart').getContext('2d');
+        const typeData = stats.assessments_by_type || [];
+        
+        if (typeData.length > 0) {
+            new Chart(typeCtx, {
+                type: 'bar',
+                data: {
+                    labels: typeData.map(item => item.assessment_type),
+                    datasets: [{
+                        label: 'Number of Assessments',
+                        data: typeData.map(item => item.count),
+                        backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } else {
+            typeCtx.canvas.parentElement.innerHTML = '<p style="text-align: center; color: #666;">No data available for chart</p>';
+        }
+
+        // Monthly Trends
+        const monthlyCtx = document.getElementById('monthlyTrendsChart').getContext('2d');
+        const monthlyData = stats.monthly_statistics || [];
+        
+        if (monthlyData.length > 0) {
+            // Process monthly data
+            const months = [...new Set(monthlyData.map(item => item.month))].sort();
+            const assessmentTypes = [...new Set(monthlyData.map(item => item.assessment_type))];
+            
+            const datasets = assessmentTypes.map((type, index) => ({
+                label: type,
+                data: months.map(month => {
+                    const found = monthlyData.find(item => item.month === month && item.assessment_type === type);
+                    return found ? found.count : 0;
+                }),
+                borderColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF
