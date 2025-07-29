@@ -487,4 +487,1460 @@ MRL_QUESTIONS = {
             "level": 4,
             "title": "Market Segmentation and Sizing",
             "checks": [
-                "Have distinct market segments been identified and priorit
+                "Have distinct market segments been identified and prioritized based on data?",
+                "Is there quantitative analysis of Total Addressable Market (TAM) and Serviceable Available Market (SAM)?",
+                "Have early adopter segments been identified with specific characteristics?",
+                "Is there analysis of market penetration potential and adoption barriers?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Competitive Analysis and Positioning",
+            "checks": [
+                "Has a comprehensive competitive landscape analysis been completed?",
+                "Are direct and indirect competitors identified with their strengths and weaknesses?",
+                "Is there clear differentiation and unique value proposition compared to existing solutions?",
+                "Have competitive pricing models and market positioning strategies been analyzed?",
+                "Is there understanding of competitive response scenarios?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Go-to-Market Strategy Development",
+            "checks": [
+                "Has a comprehensive go-to-market strategy been developed and documented?",
+                "Are distribution channels and sales strategies clearly defined?",
+                "Is there a marketing and customer acquisition plan with defined tactics?",
+                "Have partnerships and strategic alliances been identified and approached?",
+                "Is there a pricing strategy based on market research and competitive analysis?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "Market Testing and Pilot Programs",
+            "checks": [
+                "Have pilot programs or market tests been conducted with real customers?",
+                "Is there validated customer adoption and usage data from controlled market tests?",
+                "Have key performance indicators for market success been defined and measured?",
+                "Is there evidence of customer satisfaction and willingness to pay?",
+                "Have market test results been used to refine the value proposition and strategy?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "Market Launch Preparation",
+            "checks": [
+                "Are all market launch preparations completed including sales materials and training?",
+                "Have launch partnerships and distribution agreements been secured?",
+                "Is there established customer support and service infrastructure?",
+                "Are marketing campaigns and launch activities planned and ready for execution?",
+                "Have success metrics and monitoring systems been established for market launch?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Market Adoption and Scale",
+            "checks": [
+                "Has the technology achieved measurable market adoption with growing customer base?",
+                "Are there established market channels generating consistent demand?",
+                "Is there evidence of market acceptance and positive customer testimonials?",
+                "Have expansion opportunities into adjacent markets been identified and planned?",
+                "Is there a track record of successful market performance and growth?"
+            ]
+        }
+    ],
+    "filipino": [
+        {
+            "level": 1,
+            "title": "Pagkilala sa Pangangailangan ng Market",
+            "checks": [
+                "Malinaw bang natukoy ang specific na problema o hindi natutugunang pangangailangan sa market?",
+                "May paunang ebidensya ba na ang natukoyang pangangailangan ay malaki at malawakang naranasan?",
+                "Nadokumento na ba ang initial market pain points sa pamamagitan ng obserbasyon o informal na diskusyon?",
+                "May kamalayan ba sa existing solutions at ang kanilang mga limitasyon sa pagtugunan ng natukoyang pangangailangan?"
+            ]
+        },
+        {
+            "level": 2,
+            "title": "Market Research at Analysis",
+            "checks": [
+                "Nagsagawa na ba ng formal market research upang ma-validate ang natukoyang market need?",
+                "May nakadokumentong analysis ba ng market size, growth trends, at dynamics?",
+                "Paunang natukoy at na-characterize na ba ang target customer segments?",
+                "May pag-unawa ba sa market drivers, barriers, at key success factors?",
+                "Nakolekta at na-analyze na ba ang relevant industry reports, studies, o expert opinions?"
+            ]
+        },
+        {
+            "level": 3,
+            "title": "Customer Discovery at Validation",
+            "checks": [
+                "Nagsagawa na ba ng direct interviews o surveys sa mga potential customers?",
+                "May na-validate na ebidensya ba na naranasan ng customers ang natukoyang problema?",
+                "Nabuo na ba ang customer personas at use cases batay sa tunay na feedback?",
+                "May nakadokumentong willingness ba mula sa customers na isaalang-alang ang alternative solutions?",
+                "Natukoy na ba ang customer requirements at decision-making criteria?"
+            ]
+        },
+        {
+            "level": 4,
+            "title": "Market Segmentation at Sizing",
+            "checks": [
+                "Natukoy at na-prioritize na ba ang distinct market segments batay sa datos?",
+                "May quantitative analysis ba ng Total Addressable Market (TAM) at Serviceable Available Market (SAM)?",
+                "Natukoy na ba ang early adopter segments na may specific na karakteristika?",
+                "May analysis ba ng market penetration potential at adoption barriers?"
+            ]
+        },
+        {
+            "level": 5,
+            "title": "Competitive Analysis at Positioning",
+            "checks": [
+                "Nakumpleto na ba ang comprehensive competitive landscape analysis?",
+                "Natukoy na ba ang direct at indirect competitors kasama ang kanilang mga strengths at weaknesses?",
+                "May malinaw na differentiation at unique value proposition ba kumpara sa existing solutions?",
+                "Na-analyze na ba ang competitive pricing models at market positioning strategies?",
+                "May pag-unawa ba sa competitive response scenarios?"
+            ]
+        },
+        {
+            "level": 6,
+            "title": "Go-to-Market Strategy Development",
+            "checks": [
+                "Nabuo at nadokumento na ba ang comprehensive go-to-market strategy?",
+                "Malinaw bang natukoy ang distribution channels at sales strategies?",
+                "May marketing at customer acquisition plan ba na may defined tactics?",
+                "Natukoy at na-approach na ba ang partnerships at strategic alliances?",
+                "May pricing strategy ba batay sa market research at competitive analysis?"
+            ]
+        },
+        {
+            "level": 7,
+            "title": "Market Testing at Pilot Programs",
+            "checks": [
+                "Nagsagawa na ba ng pilot programs o market tests kasama ang tunay na customers?",
+                "May na-validate na customer adoption at usage data ba mula sa controlled market tests?",
+                "Natukoy at nasukat na ba ang key performance indicators para sa market success?",
+                "May ebidensya ba ng customer satisfaction at willingness to pay?",
+                "Ginamit na ba ang market test results upang i-refine ang value proposition at strategy?"
+            ]
+        },
+        {
+            "level": 8,
+            "title": "Market Launch Preparation",
+            "checks": [
+                "Nakumpleto na ba ang lahat ng market launch preparations kasama ang sales materials at training?",
+                "Na-secure na ba ang launch partnerships at distribution agreements?",
+                "May naitatag na customer support at service infrastructure ba?",
+                "Naplano at handa na ba ang marketing campaigns at launch activities para sa execution?",
+                "Naitatag na ba ang success metrics at monitoring systems para sa market launch?"
+            ]
+        },
+        {
+            "level": 9,
+            "title": "Market Adoption at Scale",
+            "checks": [
+                "Nakamit na ba ng teknolohiya ang measurable market adoption na may lumalaking customer base?",
+                "May naitatagang market channels ba na gumagawa ng consistent demand?",
+                "May ebidensya ba ng market acceptance at positive customer testimonials?",
+                "Natukoy at naplano na ba ang expansion opportunities sa adjacent markets?",
+                "May track record ba ng successful market performance at growth?"
+            ]
+        }
+    ]
+}
+
+# TCP Questions Database
+TCP_QUESTIONS = {
+    "english": {
+        "dimensions": [
+            {
+                "name": "Technology & Product Readiness",
+                "questions": [
+                    "Is the technology fully developed and ready for market deployment?",
+                    "Does it have a clear, unique value proposition compared to existing solutions?",
+                    "Is the technology protected by IP (patents, copyrights, trade secrets)?"
+                ]
+            },
+            {
+                "name": "Market & Customer",
+                "questions": [
+                    "Is there a well-defined target market with demonstrated demand?",
+                    "Are there existing competitors, and how strong is the competitive advantage?",
+                    "Is the market size sufficient for the pathway (e.g., niche vs. mass market)?"
+                ]
+            },
+            {
+                "name": "Business & Financial",
+                "questions": [
+                    "Does your organization have the resources to manufacture, market, and sell directly?",
+                    "Is external investment required, and is it accessible?",
+                    "Are there established channels for reaching customers (direct, partners, government)?"
+                ]
+            },
+            {
+                "name": "Regulatory & Policy",
+                "questions": [
+                    "Are there significant regulatory hurdles for this technology?",
+                    "Is the policy environment supportive or restrictive for commercialization?"
+                ]
+            },
+            {
+                "name": "Organizational & Team",
+                "questions": [
+                    "Does your team have experience in product development, sales, and scaling?",
+                    "Is there interest or capacity to form a new company (for spin-out/startup)?"
+                ]
+            },
+            {
+                "name": "Strategic Fit",
+                "questions": [
+                    "Is the technology core to your organization's mission, or better suited for external partners?",
+                    "Would open-source release accelerate adoption or create value through services?"
+                ]
+            }
+        ],
+        "pathways": [
+            {
+                "name": "Direct Sale",
+                "description": "Selling the technology directly to end users or customers",
+                "criteria": ["High technology readiness", "Strong internal resources", "Established market channels"]
+            },
+            {
+                "name": "Licensing",
+                "description": "Licensing the technology to other companies for commercialization",
+                "criteria": ["Strong IP protection", "Market demand", "Limited internal resources"]
+            },
+            {
+                "name": "Startup/Spin-out",
+                "description": "Creating a new company to commercialize the technology",
+                "criteria": ["High innovation potential", "Entrepreneurial team", "Growth market"]
+            },
+            {
+                "name": "Assignment",
+                "description": "Selling or transferring technology rights to another organization",
+                "criteria": ["Valuable IP", "Low internal interest", "Better suited for others"]
+            },
+            {
+                "name": "Research Collaboration",
+                "description": "Partnering with other organizations for further development",
+                "criteria": ["Early-stage technology", "Need for development", "Research partnerships"]
+            },
+            {
+                "name": "Open Source",
+                "description": "Releasing technology as open source for broad adoption",
+                "criteria": ["Broad adoption potential", "Service-based value", "Community building"]
+            },
+            {
+                "name": "Government Procurement",
+                "description": "Targeting government agencies as primary customers",
+                "criteria": ["Public sector relevance", "Regulatory compliance", "Government needs"]
+            }
+        ]
+    },
+    "filipino": {
+        "dimensions": [
+            {
+                "name": "Technology at Product Readiness",
+                "questions": [
+                    "Handa na ba ang teknolohiya para sa market deployment?",
+                    "May malinaw at natatanging value proposition ba kumpara sa mga existing solutions?",
+                    "Protektado ba ng IP ang teknolohiya (patents, copyrights, trade secrets)?"
+                ]
+            },
+            {
+                "name": "Market at Customer",
+                "questions": [
+                    "May well-defined target market ba na may demonstrated demand?",
+                    "May existing competitors ba, at gaano kalakas ang competitive advantage?",
+                    "Sapat ba ang market size para sa pathway (hal. niche vs. mass market)?"
+                ]
+            },
+            {
+                "name": "Business at Financial",
+                "questions": [
+                    "May resources ba ang inyong organisasyon para mag-manufacture, mag-market, at mag-sell directly?",
+                    "Kailangan ba ng external investment, at accessible ba ito?",
+                    "May established channels ba para maabot ang customers (direct, partners, government)?"
+                ]
+            },
+            {
+                "name": "Regulatory at Policy",
+                "questions": [
+                    "May significant regulatory hurdles ba para sa teknolohiyang ito?",
+                    "Supportive ba o restrictive ang policy environment para sa commercialization?"
+                ]
+            },
+            {
+                "name": "Organizational at Team",
+                "questions": [
+                    "May experience ba ang inyong team sa product development, sales, at scaling?",
+                    "May interest o capacity ba na bumuo ng bagong company (para sa spin-out/startup)?"
+                ]
+            },
+            {
+                "name": "Strategic Fit",
+                "questions": [
+                    "Core ba ang teknolohiya sa mission ng inyong organisasyon, o mas bagay sa external partners?",
+                    "Makakatulong ba ang open-source release sa adoption o makakagawa ng value through services?"
+                ]
+            }
+        ],
+        "pathways": [
+            {
+                "name": "Direct Sale",
+                "description": "Direktang pagbenta ng teknolohiya sa end users o customers",
+                "criteria": ["Mataas na technology readiness", "Malakas na internal resources", "Established market channels"]
+            },
+            {
+                "name": "Licensing",
+                "description": "Pag-license ng teknolohiya sa ibang companies para sa commercialization",
+                "criteria": ["Malakas na IP protection", "Market demand", "Limited internal resources"]
+            },
+            {
+                "name": "Startup/Spin-out",
+                "description": "Paggawa ng bagong company para i-commercialize ang teknolohiya",
+                "criteria": ["Mataas na innovation potential", "Entrepreneurial team", "Growth market"]
+            },
+            {
+                "name": "Assignment",
+                "description": "Pagbenta o paglilipat ng technology rights sa ibang organisasyon",
+                "criteria": ["Valuable IP", "Mababang internal interest", "Mas bagay sa iba"]
+            },
+            {
+                "name": "Research Collaboration",
+                "description": "Pakikipag-partner sa ibang organisasyon para sa further development",
+                "criteria": ["Early-stage technology", "Pangangailangan ng development", "Research partnerships"]
+            },
+            {
+                "name": "Open Source",
+                "description": "Pag-release ng teknolohiya bilang open source para sa broad adoption",
+                "criteria": ["Broad adoption potential", "Service-based value", "Community building"]
+            },
+            {
+                "name": "Government Procurement",
+                "description": "Pag-target sa government agencies bilang primary customers",
+                "criteria": ["Public sector relevance", "Regulatory compliance", "Government needs"]
+            }
+        ]
+    }
+}
+
+# Database connection
+def get_db_connection():
+    """Get PostgreSQL database connection"""
+    try:
+        conn = psycopg2.connect(
+            host=os.getenv('DATABASE_HOST'),
+            database=os.getenv('DATABASE_NAME'),
+            user=os.getenv('DATABASE_USER'),
+            password=os.getenv('DATABASE_PASSWORD'),
+            port=os.getenv('DATABASE_PORT', 5432)
+        )
+        return conn
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        return None
+
+# Database initialization
+def init_database():
+    """Initialize PostgreSQL database with required tables"""
+    conn = get_db_connection()
+    if not conn:
+        print("Failed to connect to database!")
+        return
+    
+    try:
+        with conn.cursor() as cur:
+            # Create assessments table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS assessments (
+                    id SERIAL PRIMARY KEY,
+                    session_id VARCHAR(255),
+                    assessment_type VARCHAR(10),
+                    technology_title VARCHAR(500),
+                    description TEXT,
+                    level_achieved INTEGER,
+                    recommended_pathway VARCHAR(100),
+                    language VARCHAR(10),
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    google_drive_link VARCHAR(1000),
+                    ip_address INET,
+                    user_agent TEXT,
+                    consent_given BOOLEAN DEFAULT TRUE,
+                    completed BOOLEAN DEFAULT TRUE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Create assessment_answers table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS assessment_answers (
+                    id SERIAL PRIMARY KEY,
+                    assessment_id INTEGER REFERENCES assessments(id) ON DELETE CASCADE,
+                    level_number INTEGER,
+                    question_index INTEGER,
+                    answer BOOLEAN,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Create tcp_answers table
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS tcp_answers (
+                    id SERIAL PRIMARY KEY,
+                    assessment_id INTEGER REFERENCES assessments(id) ON DELETE CASCADE,
+                    dimension_name VARCHAR(100),
+                    question_index INTEGER,
+                    score INTEGER,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Create indexes for better performance
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_timestamp ON assessments(timestamp)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_type ON assessments(assessment_type)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_completed ON assessments(completed)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_assessments_created_at ON assessments(created_at)')
+            
+            conn.commit()
+            print("Database initialized successfully!")
+            
+    except Exception as e:
+        print(f"Database initialization error: {e}")
+        conn.rollback()
+    finally:
+        conn.close()
+
+# Initialize database on startup
+init_database()
+
+# Google Drive Manager
+class GoogleDriveManager:
+    def __init__(self):
+        self.service = None
+        self.root_folder_id = None
+        self._initialize_service()
+    
+    def _initialize_service(self):
+        if not GOOGLE_DRIVE_AVAILABLE:
+            print("Google Drive integration disabled - missing dependencies")
+            return
+            
+        try:
+            if os.path.exists('google-drive-credentials.json'):
+                credentials = Credentials.from_service_account_file(
+                    'google-drive-credentials.json',
+                    scopes=['https://www.googleapis.com/auth/drive']
+                )
+                self.service = build('drive', 'v3', credentials=credentials)
+                self._setup_folder_structure()
+                print("Google Drive integration initialized successfully")
+            else:
+                print("Google Drive credentials file not found")
+        except Exception as e:
+            print(f"Failed to initialize Google Drive: {str(e)}")
+    
+    def _setup_folder_structure(self):
+        if not self.service:
+            return
+            
+        try:
+            # Find or create root folder
+            root_folder_name = "MMSU Technology Assessment Reports"
+            folders = self.service.files().list(
+                q=f"name='{root_folder_name}' and mimeType='application/vnd.google-apps.folder'",
+                fields="files(id, name)"
+            ).execute().get('files', [])
+            
+            if folders:
+                self.root_folder_id = folders[0]['id']
+            else:
+                # Create root folder
+                folder_metadata = {
+                    'name': root_folder_name,
+                    'mimeType': 'application/vnd.google-apps.folder'
+                }
+                folder = self.service.files().create(body=folder_metadata, fields='id').execute()
+                self.root_folder_id = folder.get('id')
+                
+                # Make folder publicly viewable
+                permission = {
+                    'type': 'anyone',
+                    'role': 'reader'
+                }
+                self.service.permissions().create(
+                    fileId=self.root_folder_id,
+                    body=permission
+                ).execute()
+                
+        except Exception as e:
+            print(f"Error setting up folder structure: {str(e)}")
+    
+    def _get_or_create_folder(self, parent_folder_id, folder_name):
+        if not self.service:
+            return None
+            
+        try:
+            # Check if folder exists
+            folders = self.service.files().list(
+                q=f"name='{folder_name}' and '{parent_folder_id}' in parents and mimeType='application/vnd.google-apps.folder'",
+                fields="files(id, name)"
+            ).execute().get('files', [])
+            
+            if folders:
+                return folders[0]['id']
+            else:
+                # Create folder
+                folder_metadata = {
+                    'name': folder_name,
+                    'mimeType': 'application/vnd.google-apps.folder',
+                    'parents': [parent_folder_id]
+                }
+                folder = self.service.files().create(body=folder_metadata, fields='id').execute()
+                return folder.get('id')
+                
+        except Exception as e:
+            print(f"Error creating folder {folder_name}: {str(e)}")
+            return None
+    
+    def upload_pdf(self, pdf_buffer, filename, assessment_type, timestamp):
+        if not self.service or not self.root_folder_id:
+            return None
+            
+        try:
+            # Create folder structure: Year/Month/AssessmentType
+            year = timestamp.strftime('%Y')
+            month = timestamp.strftime('%B')
+            
+            year_folder_id = self._get_or_create_folder(self.root_folder_id, year)
+            if not year_folder_id:
+                return None
+                
+            month_folder_id = self._get_or_create_folder(year_folder_id, month)
+            if not month_folder_id:
+                return None
+                
+            type_folder_id = self._get_or_create_folder(month_folder_id, assessment_type.upper())
+            if not type_folder_id:
+                return None
+            
+            # Upload file
+            media = MediaIoBaseUpload(pdf_buffer, mimetype='application/pdf')
+            file_metadata = {
+                'name': filename,
+                'parents': [type_folder_id]
+            }
+            
+            file = self.service.files().create(
+                body=file_metadata,
+                media_body=media,
+                fields='id,webViewLink'
+            ).execute()
+            
+            # Make file publicly viewable
+            permission = {
+                'type': 'anyone',
+                'role': 'reader'
+            }
+            self.service.permissions().create(
+                fileId=file.get('id'),
+                body=permission
+            ).execute()
+            
+            return file.get('webViewLink')
+            
+        except Exception as e:
+            print(f"Error uploading to Google Drive: {str(e)}")
+            return None
+    
+    def get_public_folder_link(self):
+        if self.root_folder_id:
+            return f"https://drive.google.com/drive/folders/{self.root_folder_id}"
+        return None
+
+# Initialize Google Drive Manager
+drive_manager = GoogleDriveManager()
+
+# Statistics Functions (Updated for PostgreSQL)
+def get_statistics():
+    """Get comprehensive statistics from PostgreSQL database"""
+    conn = get_db_connection()
+    if not conn:
+        return {}
+    
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            # Total assessments
+            cur.execute('SELECT COUNT(*) as count FROM assessments WHERE completed = true')
+            total = cur.fetchone()['count']
+            
+            # Assessments by type
+            cur.execute('''
+                SELECT assessment_type, COUNT(*) as count 
+                FROM assessments 
+                WHERE completed = true 
+                GROUP BY assessment_type
+                ORDER BY count DESC
+            ''')
+            by_type = cur.fetchall()
+            
+            # Monthly statistics (last 12 months)
+            cur.execute('''
+                SELECT 
+                    TO_CHAR(timestamp, 'YYYY-MM') as month,
+                    assessment_type,
+                    COUNT(*) as count
+                FROM assessments 
+                WHERE completed = true AND timestamp >= CURRENT_DATE - INTERVAL '12 months'
+                GROUP BY TO_CHAR(timestamp, 'YYYY-MM'), assessment_type
+                ORDER BY month
+            ''')
+            monthly = cur.fetchall()
+            
+            # Success rates (average levels achieved)
+            cur.execute('''
+                SELECT 
+                    assessment_type,
+                    ROUND(AVG(level_achieved)::numeric, 2) as avg_level,
+                    COUNT(*) as count
+                FROM assessments 
+                WHERE completed = true AND level_achieved IS NOT NULL
+                GROUP BY assessment_type
+            ''')
+            success_rates = cur.fetchall()
+            
+            # TCP pathway distribution
+            cur.execute('''
+                SELECT 
+                    recommended_pathway,
+                    COUNT(*) as count
+                FROM assessments 
+                WHERE completed = true AND assessment_type = 'TCP' AND recommended_pathway IS NOT NULL
+                GROUP BY recommended_pathway
+                ORDER BY count DESC
+            ''')
+            tcp_pathways = cur.fetchall()
+            
+            # Recent activity (last 20 assessments)
+            cur.execute('''
+                SELECT 
+                    assessment_type,
+                    technology_title,
+                    level_achieved,
+                    recommended_pathway,
+                    timestamp,
+                    language
+                FROM assessments 
+                WHERE completed = true
+                ORDER BY timestamp DESC 
+                LIMIT 20
+            ''')
+            recent = cur.fetchall()
+            
+            # Completion rates
+            cur.execute('SELECT COUNT(*) as count FROM assessments')
+            total_started = cur.fetchone()['count']
+            completion_rate = (total / total_started * 100) if total_started > 0 else 0
+            
+            # Geographic distribution (by IP address)
+            cur.execute('''
+                SELECT 
+                    HOST(ip_address) as ip_address,
+                    COUNT(*) as count
+                FROM assessments 
+                WHERE completed = true AND ip_address IS NOT NULL
+                GROUP BY HOST(ip_address)
+                ORDER BY count DESC
+                LIMIT 10
+            ''')
+            geographic = cur.fetchall()
+            
+            # Daily statistics for the last 30 days
+            cur.execute('''
+                SELECT 
+                    DATE(timestamp) as date,
+                    COUNT(*) as count
+                FROM assessments 
+                WHERE completed = true AND timestamp >= CURRENT_DATE - INTERVAL '30 days'
+                GROUP BY DATE(timestamp)
+                ORDER BY date
+            ''')
+            daily_stats = cur.fetchall()
+            
+            return {
+                'total_assessments': total,
+                'assessments_by_type': [dict(row) for row in by_type],
+                'monthly_statistics': [dict(row) for row in monthly],
+                'success_rates': [dict(row) for row in success_rates],
+                'tcp_pathways': [dict(row) for row in tcp_pathways],
+                'recent_activity': [dict(row) for row in recent],
+                'completion_rate': round(completion_rate, 2),
+                'geographic_distribution': [dict(row) for row in geographic],
+                'daily_statistics': [dict(row) for row in daily_stats],
+                'total_started': total_started
+            }
+            
+    except Exception as e:
+        print(f"Error getting statistics: {e}")
+        return {}
+    finally:
+        conn.close()
+
+def save_assessment_to_db(assessment_data, answers_data, google_drive_link=None):
+    """Save assessment data to PostgreSQL database"""
+    conn = get_db_connection()
+    if not conn:
+        return None
+    
+    try:
+        with conn.cursor() as cur:
+            # Insert main assessment record
+            cur.execute('''
+                INSERT INTO assessments (
+                    session_id, assessment_type, technology_title, description,
+                    level_achieved, recommended_pathway, language, timestamp,
+                    google_drive_link, ip_address, user_agent, consent_given, completed
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+            ''', (
+                assessment_data.get('session_id'),
+                assessment_data.get('mode'),
+                assessment_data.get('technology_title'),
+                assessment_data.get('description'),
+                assessment_data.get('level'),
+                assessment_data.get('recommended_pathway'),
+                assessment_data.get('language'),
+                assessment_data.get('timestamp'),
+                google_drive_link,
+                assessment_data.get('ip_address'),
+                assessment_data.get('user_agent'),
+                assessment_data.get('consent_given', True),
+                True
+            ))
+            
+            assessment_id = cur.fetchone()[0]
+            
+            # Save answers based on assessment type
+            if assessment_data.get('mode') == 'TCP':
+                # Save TCP answers
+                tcp_data = assessment_data.get('tcp_data', {})
+                answers = assessment_data.get('answers', [])
+                answer_idx = 0
+                
+                for dimension in tcp_data.get('dimensions', []):
+                    for q_idx, question in enumerate(dimension['questions']):
+                        if answer_idx < len(answers):
+                            cur.execute('''
+                                INSERT INTO tcp_answers (assessment_id, dimension_name, question_index, score)
+                                VALUES (%s, %s, %s, %s)
+                            ''', (assessment_id, dimension['name'], q_idx, answers[answer_idx]))
+                            answer_idx += 1
+            else:
+                # Save standard assessment answers
+                answers = assessment_data.get('answers', [])
+                for level_idx, level_answers in enumerate(answers):
+                    for q_idx, answer in enumerate(level_answers):
+                        cur.execute('''
+                            INSERT INTO assessment_answers (assessment_id, level_number, question_index, answer)
+                            VALUES (%s, %s, %s, %s)
+                        ''', (assessment_id, level_idx, q_idx, answer))
+            
+            conn.commit()
+            return assessment_id
+            
+    except Exception as e:
+        print(f"Error saving to database: {e}")
+        conn.rollback()
+        return None
+    finally:
+        conn.close()
+
+# Routes
+@app.route("/")
+def index():
+    stats = get_statistics()
+    public_folder_link = drive_manager.get_public_folder_link()
+    return render_template("index.html", stats=stats, public_folder_link=public_folder_link)
+
+@app.route("/admin/statistics")
+def admin_statistics():
+    stats = get_statistics()
+    return render_template("admin_statistics.html", stats=stats)
+
+@app.route("/api/statistics")
+def api_statistics():
+    return jsonify(get_statistics())
+
+@app.route("/consent")
+def consent_page():
+    return render_template("consent.html")
+
+@app.route("/api/consent", methods=["POST"])
+def handle_consent():
+    data = request.json
+    session_id = str(uuid.uuid4())
+    return jsonify({"session_id": session_id, "consent_given": data.get("consent", False)})
+
+@app.route("/api/questions/<mode>/<language>")
+def get_questions(mode, language):
+    if mode.upper() == "TRL":
+        return jsonify(TRL_QUESTIONS.get(language.lower(), TRL_QUESTIONS["english"]))
+    elif mode.upper() == "IRL":
+        return jsonify(IRL_QUESTIONS.get(language.lower(), IRL_QUESTIONS["english"]))
+    elif mode.upper() == "MRL":
+        return jsonify(MRL_QUESTIONS.get(language.lower(), MRL_QUESTIONS["english"]))
+    elif mode.upper() == "TCP":
+        return jsonify(TCP_QUESTIONS.get(language.lower(), TCP_QUESTIONS["english"]))
+    return jsonify([])
+
+@app.route("/api/assess", methods=["POST"])
+def assess_technology():
+    data = request.json
+    mode = data["mode"]
+    
+    if mode.upper() == "TCP":
+        return assess_tcp(data)
+    else:
+        return assess_standard(data)
+
+def assess_standard(data):
+    mode = data["mode"]
+    language = data["language"]
+    answers = data["answers"]
+
+    if mode.upper() == "TRL":
+        questions = TRL_QUESTIONS[language.lower()]
+    elif mode.upper() == "IRL":
+        questions = IRL_QUESTIONS[language.lower()]
+    elif mode.upper() == "MRL":
+        questions = MRL_QUESTIONS[language.lower()]
+    else:
+        return jsonify({"error": "Invalid assessment mode"}), 400
+
+    level_achieved = -1
+    for idx, lvl in enumerate(questions):
+        if idx >= len(answers) or not all(answers[idx]):
+            break
+        level_achieved = lvl["level"]
+
+    # Generate detailed analysis for MRL
+    detailed_analysis = None
+    if mode.upper() == "MRL":
+        detailed_analysis = generate_mrl_detailed_analysis(answers, questions, level_achieved, language)
+
+    result = {
+        "mode": mode,
+        "mode_full": get_mode_full_name(mode),
+        "level": max(0 if mode.upper() == "TRL" else 1, level_achieved),
+        "technology_title": data["technology_title"],
+        "description": data["description"],
+        "answers": answers,
+        "questions": questions,
+        "explanation": generate_explanation(level_achieved, mode, language, questions),
+        "detailed_analysis": detailed_analysis,
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    return jsonify(result)
+
+def get_mode_full_name(mode):
+    mode_names = {
+        "TRL": "Technology Readiness Level",
+        "IRL": "Investment Readiness Level",
+        "MRL": "Market Readiness Level",
+        "TCP": "Technology Commercialization Pathway"
+    }
+    return mode_names.get(mode.upper(), mode)
+
+def generate_mrl_detailed_analysis(answers, questions, level_achieved, language):
+    """Generate detailed analysis for MRL assessment"""
+    analysis = {}
+    
+    # Calculate level completion percentages
+    level_scores = []
+    for idx, level in enumerate(questions):
+        if idx < len(answers):
+            level_answers = answers[idx]
+            completed = sum(1 for ans in level_answers if ans)
+            total = len(level_answers)
+            percentage = (completed / total) * 100 if total > 0 else 0
+            level_scores.append({
+                "level": level["level"],
+                "title": level["title"],
+                "completed": completed,
+                "total": total,
+                "percentage": percentage
+            })
+    
+    # Market readiness assessment
+    if level_achieved >= 7:
+        market_readiness = "High"
+    elif level_achieved >= 4:
+        market_readiness = "Medium"
+    else:
+        market_readiness = "Low"
+    
+    # Key findings
+    strengths = []
+    areas_for_improvement = []
+    
+    for score in level_scores:
+        if score["percentage"] >= 75:
+            strengths.append(score["title"])
+        elif score["percentage"] < 50:
+            areas_for_improvement.append(score["title"])
+    
+    # Next steps recommendations
+    next_steps = generate_mrl_next_steps(level_achieved, language)
+    
+    analysis = {
+        "level_scores": level_scores,
+        "market_readiness": market_readiness,
+        "strengths": strengths,
+        "areas_for_improvement": areas_for_improvement,
+        "next_steps": next_steps,
+        "overall_progress": (level_achieved + 1) / len(questions) * 100
+    }
+    
+    return analysis
+
+def generate_mrl_next_steps(level_achieved, language):
+    """Generate next steps recommendations for MRL"""
+    if language == "filipino":
+        next_steps_map = {
+            0: [
+                "Magsagawa ng comprehensive market research",
+                "Tukuyin ang specific market problems at opportunities",
+                "Makipag-ugnayan sa potential customers para sa feedback",
+                "Mag-develop ng initial market hypothesis"
+            ],
+            1: [
+                "Mag-conduct ng formal customer discovery interviews",
+                "Mag-develop ng detailed customer personas",
+                "Mag-validate ng market size at growth potential",
+                "Mag-analyze ng competitive landscape"
+            ],
+            2: [
+                "Mag-create ng customer validation surveys",
+                "Mag-test ng value proposition sa target customers",
+                "Mag-refine ng customer segments batay sa feedback",
+                "Mag-document ng customer requirements"
+            ],
+            3: [
+                "Mag-conduct ng quantitative market analysis",
+                "Mag-prioritize ng market segments",
+                "Mag-develop ng market penetration strategy",
+                "Mag-identify ng early adopter characteristics"
+            ],
+            4: [
+                "Mag-complete ng comprehensive competitive analysis",
+                "Mag-define ng unique value proposition",
+                "Mag-develop ng competitive positioning strategy",
+                "Mag-analyze ng pricing models"
+            ],
+            5: [
+                "Mag-create ng detailed go-to-market plan",
+                "Mag-identify ng distribution channels",
+                "Mag-develop ng marketing strategy",
+                "Mag-establish ng strategic partnerships"
+            ],
+            6: [
+                "Mag-launch ng pilot programs",
+                "Mag-conduct ng controlled market tests",
+                "Mag-measure ng customer adoption metrics",
+                "Mag-refine ng value proposition"
+            ],
+            7: [
+                "Mag-prepare para sa full market launch",
+                "Mag-finalize ng sales at marketing materials",
+                "Mag-establish ng customer support systems",
+                "Mag-secure ng launch partnerships"
+            ],
+            8: [
+                "Mag-focus sa market expansion",
+                "Mag-optimize ng customer acquisition",
+                "Mag-develop ng adjacent market opportunities",
+                "Mag-build ng sustainable competitive advantage"
+            ]
+        }
+    else:
+        next_steps_map = {
+            0: [
+                "Conduct comprehensive market research",
+                "Identify specific market problems and opportunities",
+                "Engage with potential customers for feedback",
+                "Develop initial market hypothesis"
+            ],
+            1: [
+                "Conduct formal customer discovery interviews",
+                "Develop detailed customer personas",
+                "Validate market size and growth potential",
+                "Analyze competitive landscape"
+            ],
+            2: [
+                "Create customer validation surveys",
+                "Test value proposition with target customers",
+                "Refine customer segments based on feedback",
+                "Document customer requirements"
+            ],
+            3: [
+                "Conduct quantitative market analysis",
+                "Prioritize market segments",
+                "Develop market penetration strategy",
+                "Identify early adopter characteristics"
+            ],
+            4: [
+                "Complete comprehensive competitive analysis",
+                "Define unique value proposition",
+                "Develop competitive positioning strategy",
+                "Analyze pricing models"
+            ],
+            5: [
+                "Create detailed go-to-market plan",
+                "Identify distribution channels",
+                "Develop marketing strategy",
+                "Establish strategic partnerships"
+            ],
+            6: [
+                "Launch pilot programs",
+                "Conduct controlled market tests",
+                "Measure customer adoption metrics",
+                "Refine value proposition"
+            ],
+            7: [
+                "Prepare for full market launch",
+                "Finalize sales and marketing materials",
+                "Establish customer support systems",
+                "Secure launch partnerships"
+            ],
+            8: [
+                "Focus on market expansion",
+                "Optimize customer acquisition",
+                "Develop adjacent market opportunities",
+                "Build sustainable competitive advantage"
+            ]
+        }
+    
+    return next_steps_map.get(level_achieved, next_steps_map[8])
+
+def assess_tcp(data):
+    language = data["language"]
+    answers = data["answers"]
+    tcp_data = TCP_QUESTIONS[language.lower()]
+    
+    # Ensure we have exactly 15 answers
+    if len(answers) < 15:
+        answers = answers + [1] * (15 - len(answers))
+    elif len(answers) > 15:
+        answers = answers[:15]
+    
+    pathway_scores = calculate_pathway_scores(answers, tcp_data)
+    recommended_pathway = max(pathway_scores, key=pathway_scores.get)
+    
+    # Generate detailed analysis
+    detailed_analysis = generate_tcp_detailed_analysis(answers, tcp_data, pathway_scores, recommended_pathway, language)
+    
+    result = {
+        "mode": "TCP",
+        "mode_full": "Technology Commercialization Pathway",
+        "technology_title": data["technology_title"],
+        "description": data["description"],
+        "answers": answers,
+        "tcp_data": tcp_data,
+        "pathway_scores": pathway_scores,
+        "recommended_pathway": recommended_pathway,
+        "explanation": generate_tcp_explanation(pathway_scores, recommended_pathway, language),
+        "detailed_analysis": detailed_analysis,
+        "timestamp": datetime.utcnow().isoformat(),
+        # Add these for PDF compatibility
+        "level": None,
+        "questions": None
+    }
+    return jsonify(result)
+
+def calculate_pathway_scores(answers, tcp_data):
+    """Calculate scores for each commercialization pathway"""
+    pathways = {pathway["name"]: 0 for pathway in tcp_data["pathways"]}
+    
+    # Calculate dimension scores
+    tech_score = sum(answers[0:3])          # Technology & Product Readiness
+    market_score = sum(answers[3:6])        # Market & Customer
+    business_score = sum(answers[6:9])      # Business & Financial
+    regulatory_score = sum(answers[9:11])   # Regulatory & Policy
+    team_score = sum(answers[11:13])        # Organizational & Team
+    strategic_score = sum(answers[13:15])   # Strategic Fit
+    
+    # Calculate pathway scores based on relevant dimensions
+    pathways["Direct Sale"] = tech_score + business_score + market_score
+    pathways["Licensing"] = tech_score + market_score + (6 - business_score) + regulatory_score
+    pathways["Startup/Spin-out"] = tech_score + team_score + market_score + strategic_score
+    pathways["Assignment"] = tech_score + (6 - strategic_score) + (6 - business_score)
+    pathways["Research Collaboration"] = (9 - tech_score) + team_score + strategic_score + market_score
+    pathways["Open Source"] = strategic_score + market_score + (6 - regulatory_score) + team_score
+    pathways["Government Procurement"] = tech_score + regulatory_score + market_score + business_score
+    
+    return pathways
+
+def generate_tcp_detailed_analysis(answers, tcp_data, pathway_scores, recommended_pathway, language):
+    """Generate detailed analysis for TCP assessment"""
+    analysis = {}
+    
+    # Dimension scores analysis
+    dimension_scores = {}
+    answer_idx = 0
+    for dimension in tcp_data["dimensions"]:
+        dim_answers = answers[answer_idx:answer_idx + len(dimension["questions"])]
+        dim_score = sum(dim_answers)
+        max_score = len(dimension["questions"]) * 3
+        percentage = (dim_score / max_score) * 100
+        
+        dimension_scores[dimension["name"]] = {
+            "score": dim_score,
+            "max_score": max_score,
+            "percentage": percentage,
+            "level": "High" if percentage >= 75 else "Medium" if percentage >= 50 else "Low"
+        }
+        answer_idx += len(dimension["questions"])
+    
+    # Pathway analysis
+    sorted_pathways = sorted(pathway_scores.items(), key=lambda x: x[1], reverse=True)
+    top_3 = sorted_pathways[:3]
+    
+    # Strengths and weaknesses
+    strengths = []
+    weaknesses = []
+    
+    for dim_name, dim_data in dimension_scores.items():
+        if dim_data["percentage"] >= 75:
+            strengths.append(dim_name)
+        elif dim_data["percentage"] < 50:
+            weaknesses.append(dim_name)
+    
+    analysis = {
+        "dimension_scores": dimension_scores,
+        "top_pathways": top_3,
+        "strengths": strengths,
+        "weaknesses": weaknesses,
+        "overall_readiness": calculate_overall_readiness(dimension_scores),
+        "recommendations": generate_pathway_specific_recommendations(recommended_pathway, dimension_scores, language)
+    }
+    
+    return analysis
+
+def calculate_overall_readiness(dimension_scores):
+    """Calculate overall commercialization readiness"""
+    total_percentage = sum(dim["percentage"] for dim in dimension_scores.values())
+    avg_percentage = total_percentage / len(dimension_scores)
+    
+    if avg_percentage >= 75:
+        return "High"
+    elif avg_percentage >= 50:
+        return "Medium"
+    else:
+        return "Low"
+
+def generate_pathway_specific_recommendations(pathway, dimension_scores, language):
+    """Generate specific recommendations based on pathway and scores"""
+    recommendations = []
+    
+    if language == "filipino":
+        if pathway == "Direct Sale":
+            recommendations = [
+                "Palakasin ang direct sales capabilities at market channels",
+                "Mag-invest sa marketing at brand development",
+                "Siguraduhing may sapat na manufacturing capacity",
+                "Mag-develop ng customer support infrastructure"
+            ]
+        elif pathway == "Licensing":
+            recommendations = [
+                "Palakasin ang IP protection strategy",
+                "Hanapin ang mga potential licensee partners",
+                "Mag-develop ng comprehensive licensing packages",
+                "Mag-negotiate ng favorable licensing terms"
+            ]
+        elif pathway == "Startup/Spin-out":
+            recommendations = [
+                "Bumuo ng experienced management team",
+                "Mag-develop ng detailed business plan",
+                "Maghanap ng initial funding sources",
+                "Mag-establish ng proper legal structure"
+            ]
+        elif pathway == "Government Procurement":
+            recommendations = [
+                "Unawain ang government procurement processes",
+                "Siguraduhing compliant sa lahat ng regulations",
+                "Mag-develop ng government relationships",
+                "Mag-prepare para sa mahabang procurement cycles"
+            ]
+        else:
+            recommendations = [
+                "Mag-develop ng pathway-specific strategy",
+                "Konsultahin ang technology transfer experts",
+                "Mag-conduct ng market validation",
+                "Mag-establish ng strategic partnerships"
+            ]
+    else:
+        if pathway == "Direct Sale":
+            recommendations = [
+                "Strengthen direct sales capabilities and market channels",
+                "Invest in marketing and brand development",
+                "Ensure adequate manufacturing capacity",
+                "Develop customer support infrastructure"
+            ]
+        elif pathway == "Licensing":
+            recommendations = [
+                "Strengthen IP protection strategy",
+                "Identify potential licensee partners",
+                "Develop comprehensive licensing packages",
+                "Negotiate favorable licensing terms"
+            ]
+        elif pathway == "Startup/Spin-out":
+            recommendations = [
+                "Build experienced management team",
+                "Develop detailed business plan",
+                "Secure initial funding sources",
+                "Establish proper legal structure"
+            ]
+        elif pathway == "Government Procurement":
+            recommendations = [
+                "Understand government procurement processes",
+                "Ensure compliance with all regulations",
+                "Develop government relationships",
+                "Prepare for lengthy procurement cycles"
+            ]
+        else:
+            recommendations = [
+                "Develop pathway-specific strategy",
+                "Consult technology transfer experts",
+                "Conduct market validation",
+                "Establish strategic partnerships"
+            ]
+    
+    return recommendations
+
+def generate_tcp_explanation(pathway_scores, recommended_pathway, language):
+    if language == "filipino":
+        text = f"Batay sa comprehensive assessment, ang pinakarekomendadong commercialization pathway para sa inyong teknolohiya ay ang {recommended_pathway}. "
+        text += f"Ang pathway na ito ay nakakuha ng pinakamataas na score sa multi-dimensional evaluation. "
+        text += "Ang assessment ay nag-evaluate ng inyong teknolohiya sa anim na kritikong dimensyon: Technology & Product Readiness, Market & Customer factors, Business & Financial capabilities, Regulatory & Policy environment, Organizational & Team strengths, at Strategic Fit. "
+        text += "Ang resulta ay nagbibigay ng data-driven recommendation na makakatulong sa inyong strategic decision-making para sa technology commercialization."
+    else:
+        text = f"Based on comprehensive assessment, the most recommended commercialization pathway for your technology is {recommended_pathway}. "
+        text += f"This pathway scored highest in the multi-dimensional evaluation framework. "
+        text += "The assessment evaluated your technology across six critical dimensions: Technology & Product Readiness, Market & Customer factors, Business & Financial capabilities, Regulatory & Policy environment, Organizational & Team strengths, and Strategic Fit. "
+        text += "The results provide a data-driven recommendation to guide your strategic decision-making for technology commercialization."
+    
+    return text
+
+def generate_explanation(lvl, mode, lang, qset):
+    if lang == "filipino":
+        if lvl < (0 if mode == "TRL" else 1):
+            start_level = 0 if mode == "TRL" else 1
+            text = f"Hindi pa naaabot ng inyong teknolohiya ang antas {start_level} ng {mode}. Mangyaring kumpletuhin muna ang mga pangunahing requirements."
+        else:
+            text = f"Naabot ng inyong teknolohiya ang {mode} antas {lvl}. {qset[lvl if mode == 'TRL' else lvl-1]['title']} ang pinakahuling yugto na natugunan nang buo."
+        
+        if lvl + 1 < len(qset):
+            next_idx = (lvl + 1) if mode == "TRL" else lvl
+            if next_idx < len(qset):
+                nxt = qset[next_idx]
+                next_level = nxt["level"]
+                text += f" Para umusad sa susunod na antas ({next_level}), kinakailangan: {nxt['title']}."
+        
+        # Mode-specific guidance
+        if mode == "IRL":
+            if lvl < 3:
+                text += " Mag-focus sa market research at validation ng inyong business concept."
+            elif lvl < 6:
+                text += " Patuloy na i-develop ang inyong produkto at maghanap ng early customers."
+            else:
+                text += " Mag-focus sa scaling at revenue generation para sa sustainable growth."
+        elif mode == "MRL":
+            if lvl < 3:
+                text += " Mag-focus sa market research at customer discovery upang mas maintindihan ang market needs."
+            elif lvl < 6:
+                text += " Mag-develop ng comprehensive market strategy at competitive positioning."
+            else:
+                text += " Mag-prepare para sa market launch at focus sa customer acquisition."
+        
+        return text
+    
+    # English
+    start_level = 0 if mode == "TRL" else 1
+    if lvl < start_level:
+        text = f"Your technology has not yet satisfied the basic requirements for {mode} level {start_level}."
+    else:
+        level_idx = lvl if mode == "TRL" else lvl - 1
+        text = f"Your technology has achieved {mode} level {lvl} — {qset[level_idx]['title']} requirements are fully met."
+    
+    if lvl + 1 < len(qset) + (0 if mode == "TRL" else 1):
+        next_idx = (lvl + 1) if mode == "TRL" else lvl
+        if next_idx < len(qset):
+            nxt = qset[next_idx]
+            next_level = nxt["level"]
+            text += f" To advance to level {next_level}, you must complete: {nxt['title']}."
+    
+    # Mode-specific guidance
+    if mode == "IRL":
+        if lvl < 3:
+            text += " Focus on market research and validating your business concept with potential customers."
+        elif lvl < 6:
+            text += " Continue developing your product and securing early customer commitments."
+        else:
+            text += " Focus on scaling operations and demonstrating sustainable revenue growth."
+    elif mode == "MRL":
+        if lvl < 3:
+            text += " Focus on market research and customer discovery to better understand market needs."
+        elif lvl < 6:
+            text += " Develop comprehensive market strategy and competitive positioning."
+        else:
+            text += " Prepare for market launch and focus on customer acquisition strategies."
+    
+    return text
+
+@app.route("/api/generate_pdf", methods=["POST"])
+def generate_pdf():
+    try:
+        data = request.json
+        print(f"PDF Generation - Received data for mode: {data.get('mode', 'Unknown')}")
+        
+        if not data or 'mode' not in data:
+            return jsonify({"error": "Invalid data provided"}), 400
+            
+        buf = io.BytesIO()
+        doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=0.5*inch)
+        sty = getSampleStyleSheet()
+
+        # Custom styles
+        title_style = ParagraphStyle("Title", parent=sty["Heading1"], 
+                                   fontSize=16, textColor=colors.darkgreen, 
+                                   alignment=1, spaceAfter=6)
+        subtitle_style = ParagraphStyle("Subtitle", parent=sty["Normal"], 
+                                       fontSize=10, textColor=colors.darkblue, 
+                                       alignment=1, spaceAfter=12)
+        heading_style = ParagraphStyle("Heading", parent=sty["Heading2"], 
+                                      fontSize=12, textColor=colors.darkgreen)
+        
+        doc_elements = []
+
+        # Header
+        doc_elements.append(Paragraph("MARANO MARCOS STATE UNIVERSITY", title_style))
+        doc_elements.append(Paragraph("Innovation and Technology Support Office", subtitle_style))
+        doc_elements.append(Paragraph("Technology Assessment Tool", subtitle_style))
+        doc_elements.append(Spacer(1, 18))
+
+        doc_elements.append(Paragraph(f"{data.get('mode_full', data['mode'])} Assessment Report", heading_style))
+        doc_elements.append(Spacer(1, 10))
+
+        # Technology Information
+        tech_info = [
+            ["Technology Title:", data.get('technology_title', 'N/A')],
+            ["Description:", data.get('description', 'N/A')],
+            ["Assessment Date:", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')]
+        ]
+        
+        if data['mode'] == 'TCP':
+            tech_info.append(["Recommended Pathway:", data.get('recommended_pathway', 'N/A')])
+        else:
+            tech_info.append(["Assessment Result:", f"{data['mode']} Level {data.get('level', 'N/A')}"])
+
+        tech_table = Table(tech_info, colWidths=[2*inch, 4*inch])
+        tech_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        
+        doc_elements.append(tech_table)
+        doc_elements.append(Spacer(1, 16))
+
+        # Assessment Summary
+        doc_elements.append(Paragraph("Assessment Summary", heading_style))
+        doc_elements.append(Paragraph(data.get("explanation", "No explanation available."), sty["Normal"]))
+        doc_elements.append(Spacer(1, 14))
+
+        # Mode-specific content (you'll need to implement these functions)
+        if data["mode"] == "TCP":
+            generate_tcp_pdf_content(doc_elements, data, sty, heading_style)
+        elif data["mode"] == "MRL":
+            generate_mrl_pdf_content(doc_elements, data, sty, heading_style)
+        else:
+            generate_standard_pdf_content(doc_elements, data, sty, heading_style)
+
+        # Footer
+        doc_elements.append(Spacer(1, 14))
+        footer_style = ParagraphStyle("Footer", parent=sty["Normal"], 
+                                     fontSize=8, textColor=colors.grey, 
+                                     alignment=1)
+        doc_elements.append(Paragraph("Generated by MMSU Innovation and Technology Support Office", footer_style))
+        doc_elements.append(Paragraph("Technology Assessment Tool", footer_style))
+
+        doc.build(doc_elements)
+        buf.seek(0)
+        
+        # Generate filename with mmddyy format
+        now = datetime.now()
+        date_str = now.strftime('%m%d%y')
+        tech_title = data.get('technology_title', 'Assessment').replace(' ', '_').replace('/', '_')
+        filename = f"{date_str}_{tech_title}.pdf"
+        
+        # Upload to Google Drive
+        google_drive_link = None
+        buf_copy = io.BytesIO(buf.getvalue())
+        if drive_manager.service:
+            google_drive_link = drive_manager.upload_pdf(
+                buf_copy, filename, data['mode'], now
+            )
+        
+        # Save to PostgreSQL database
+        assessment_data = {
+            'session_id': data.get('session_id'),
+            'mode': data['mode'],
+            'technology_title': data.get('technology_title'),
+            'description': data.get('description'),
+            'level': data.get('level'),
+            'recommended_pathway': data.get('recommended_pathway'),
+            'language': data.get('language', 'english'),
+            'timestamp': now.isoformat(),
+            'ip_address': request.environ.get('HTTP_X_FORWARDED_FOR', request.environ.get('REMOTE_ADDR')),
+            'user_agent': request.headers.get('User-Agent'),
+            'consent_given': data.get('consent_given', True),
+            'tcp_data': data.get('tcp_data'),
+            'answers': data.get('answers')
+        }
+        
+        save_assessment_to_db(assessment_data, data.get('answers', []), google_drive_link)
+        
+        print(f"PDF Generation - Successfully generated and saved: {filename}")
+        
+        return send_file(
+            buf, 
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        print(f"PDF Generation Error: {str(e)}")
+        print(f"Traceback: {traceback.format_exc()}")
+        return jsonify({"error": f"PDF generation failed: {str(e)}"}), 500
+
+# Add the missing PDF generation functions here
+def generate_tcp_pdf_content(doc_elements, data, sty, heading_style):
+    """Generate TCP-specific PDF content - implement based on previous version"""
+    pass
+
+def generate_mrl_pdf_content(doc_elements, data, sty, heading_style):
+    """Generate MRL-specific PDF content - implement based on previous version"""
+    pass
+
+def generate_standard_pdf_content(doc_elements, data, sty, heading_style):
+    """Generate TRL/IRL-specific PDF content - implement based on previous version"""
+    pass
+
+if __name__ == "__main__":
+    port = int(os.getenv('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
