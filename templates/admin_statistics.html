@@ -186,7 +186,7 @@
                 </div>
                 <div class="status-item">
                     <span class="status-label">Last Updated:</span>
-                    <span class="status-value">{{ moment().format('YYYY-MM-DD HH:mm:ss') }}</span>
+                    <span class="status-value" id="last-updated">Loading...</span>
                 </div>
             </div>
         </div>
@@ -196,6 +196,18 @@
     <script>
         const stats = {{ stats | tojson | safe }};
         console.log('Statistics data:', stats);
+        
+        // Set last updated time
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const timeString = now.getFullYear() + '-' + 
+                             String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                             String(now.getDate()).padStart(2, '0') + ' ' + 
+                             String(now.getHours()).padStart(2, '0') + ':' + 
+                             String(now.getMinutes()).padStart(2, '0') + ':' + 
+                             String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('last-updated').textContent = timeString;
+        }
         
         // Assessment Type Distribution
         const typeCtx = document.getElementById('typeDistributionChart').getContext('2d');
@@ -369,20 +381,13 @@
                 });
         }
 
+        // Initialize last updated time
+        updateLastUpdatedTime();
+
         // Auto-refresh every 5 minutes
         setTimeout(() => {
             location.reload();
         }, 5 * 60 * 1000);
-        
-        // Update last updated time
-        document.addEventListener('DOMContentLoaded', function() {
-            const now = new Date();
-            const timeString = now.toISOString().replace('T', ' ').substring(0, 19);
-            const timeElements = document.querySelectorAll('.status-value');
-            if (timeElements.length > 2) {
-                timeElements[2].textContent = timeString;
-            }
-        });
     </script>
 </body>
 </html>
