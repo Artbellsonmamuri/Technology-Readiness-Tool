@@ -29,6 +29,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Google Drive Credentials
 google-drive-credentials.json
@@ -45,3 +46,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Virtual Environment
+venv/
+env/
+ENV/
