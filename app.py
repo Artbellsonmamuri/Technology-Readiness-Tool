@@ -12,8 +12,8 @@ import os
 from threading import Lock
 import uuid
 from collections import defaultdict
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import psycopg
+from psycopg.rows import dict_row
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -828,14 +828,14 @@ TCP_QUESTIONS = {
 
 # Database connection
 def get_db_connection():
-    """Get PostgreSQL database connection"""
+    """Get PostgreSQL database connection using psycopg3"""
     try:
-        conn = psycopg2.connect(
+        conn = psycopg.connect(
             host=os.getenv('DATABASE_HOST'),
-            database=os.getenv('DATABASE_NAME'),
+            dbname=os.getenv('DATABASE_NAME'),
             user=os.getenv('DATABASE_USER'),
             password=os.getenv('DATABASE_PASSWORD'),
-            port=os.getenv('DATABASE_PORT', 5432)
+            port=int(os.getenv('DATABASE_PORT', 5432))
         )
         return conn
     except Exception as e:
@@ -1062,15 +1062,26 @@ class GoogleDriveManager:
 # Initialize Google Drive Manager
 drive_manager = GoogleDriveManager()
 
-# Statistics Functions (Updated for PostgreSQL)
+# Statistics Functions (Updated for psycopg3)
 def get_statistics():
     """Get comprehensive statistics from PostgreSQL database"""
     conn = get_db_connection()
     if not conn:
-        return {}
+        return {
+            'total_assessments': 0,
+            'assessments_by_type': [],
+            'monthly_statistics': [],
+            'success_rates': [],
+            'tcp_pathways': [],
+            'recent_activity': [],
+            'completion_rate': 0,
+            'geographic_distribution': [],
+            'daily_statistics': [],
+            'total_started': 0
+        }
     
     try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        with conn.cursor(row_factory=dict_row) as cur:
             # Total assessments
             cur.execute('SELECT COUNT(*) as count FROM assessments WHERE completed = true')
             total = cur.fetchone()['count']
@@ -1140,7 +1151,8 @@ def get_statistics():
             
             # Completion rates
             cur.execute('SELECT COUNT(*) as count FROM assessments')
-            total_started = cur.fetchone()['count']
+            total_started_result = cur.fetchone()
+            total_started = total_started_result['count'] if total_started_result else 0
             completion_rate = (total / total_started * 100) if total_started > 0 else 0
             
             # Geographic distribution (by IP address)
@@ -1183,7 +1195,18 @@ def get_statistics():
             
     except Exception as e:
         print(f"Error getting statistics: {e}")
-        return {}
+        return {
+            'total_assessments': 0,
+            'assessments_by_type': [],
+            'monthly_statistics': [],
+            'success_rates': [],
+            'tcp_pathways': [],
+            'recent_activity': [],
+            'completion_rate': 0,
+            'geographic_distribution': [],
+            'daily_statistics': [],
+            'total_started': 0
+        }
     finally:
         conn.close()
 
@@ -1862,7 +1885,7 @@ def generate_pdf():
         doc_elements.append(Paragraph(data.get("explanation", "No explanation available."), sty["Normal"]))
         doc_elements.append(Spacer(1, 14))
 
-        # Mode-specific content (you'll need to implement these functions)
+        # Mode-specific content
         if data["mode"] == "TCP":
             generate_tcp_pdf_content(doc_elements, data, sty, heading_style)
         elif data["mode"] == "MRL":
@@ -1928,18 +1951,227 @@ def generate_pdf():
         print(f"Traceback: {traceback.format_exc()}")
         return jsonify({"error": f"PDF generation failed: {str(e)}"}), 500
 
-# Add the missing PDF generation functions here
 def generate_tcp_pdf_content(doc_elements, data, sty, heading_style):
-    """Generate TCP-specific PDF content - implement based on previous version"""
-    pass
+    """Generate TCP-specific PDF content"""
+    
+    print("Generating TCP PDF content...")
+    
+    # Overall Assessment Results
+    doc_elements.append(Paragraph("Overall Assessment Results", heading_style))
+    doc_elements.append(Spacer(1, 8))
+    
+    detailed_analysis = data.get('detailed_analysis', {})
+    overall_readiness = detailed_analysis.get('overall_readiness', 'Unknown')
+    
+    doc_elements.append(Paragraph(f"Overall Commercialization Readiness: {overall_readiness}", sty["Normal"]))
+    doc_elements.append(Spacer(1, 12))
+    
+    # Pathway Scores Table
+    doc_elements.append(Paragraph("Commercialization Pathway Scores", heading_style))
+    doc_elements.append(Spacer(1, 8))
+
+    pathway_scores = data.get('pathway_scores', {})
+    if pathway_scores:
+        score_data = [["Rank", "Pathway", "Score", "Percentage"]]
+        sorted_pathways = sorted(pathway_scores.items(), key=lambda x: x[1], reverse=True)
+        max_score = max(pathway_scores.values()) if pathway_scores else 1
+        
+        for rank, (pathway, score) in enumerate(sorted_pathways, 1):
+            percentage = f"{(score/max_score)*100:.1f}%"
+            score_data.append([f"#{rank}", pathway, str(score), percentage])
+
+        score_table = Table(score_data, colWidths=[0.6*inch, 2.4*inch, 0.8*inch, 1.2*inch])
+        score_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('ALIGN', (2, 0), (-1, -1), 'CENTER')
+        ]))
+        doc_elements.append(score_table)
+    else:
+        doc_elements.append(Paragraph("No pathway scores available.", sty["Normal"]))
+    
+    doc_elements.append(Spacer(1, 15))
+
+    # Dimension Analysis
+    doc_elements.append(Paragraph("Dimensional Analysis", heading_style))
+    doc_elements.append(Spacer(1, 8))
+    
+    dimension_scores = detailed_analysis.get('dimension_scores', {})
+    if dimension_scores:
+        dim_data = [["Dimension", "Score", "Level", "Percentage"]]
+        for dim_name, dim_info in dimension_scores.items():
+            dim_data.append([
+                dim_name,
+                f"{dim_info['score']}/{dim_info['max_score']}",
+                dim_info['level'],
+                f"{dim_info['percentage']:.1f}%"
+            ])
+        
+        dim_table = Table(dim_data, colWidths=[2.2*inch, 0.8*inch, 0.8*inch, 1.2*inch])
+        dim_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('ALIGN', (1, 0), (-1, -1), 'CENTER')
+        ]))
+        doc_elements.append(dim_table)
+    
+    doc_elements.append(Spacer(1, 15))
+
+    # Strengths and Weaknesses
+    strengths = detailed_analysis.get('strengths', [])
+    weaknesses = detailed_analysis.get('weaknesses', [])
+    
+    if strengths:
+        doc_elements.append(Paragraph("Key Strengths", heading_style))
+        for strength in strengths:
+            doc_elements.append(Paragraph(f"• {strength}", sty["Normal"]))
+        doc_elements.append(Spacer(1, 10))
+    
+    if weaknesses:
+        doc_elements.append(Paragraph("Areas for Improvement", heading_style))
+        for weakness in weaknesses:
+            doc_elements.append(Paragraph(f"• {weakness}", sty["Normal"]))
+        doc_elements.append(Spacer(1, 10))
+
+    # Strategic Recommendations
+    doc_elements.append(Paragraph("Strategic Recommendations", heading_style))
+    recommendations = detailed_analysis.get('recommendations', [])
+    if recommendations:
+        for rec in recommendations:
+            doc_elements.append(Paragraph(f"• {rec}", sty["Normal"]))
+    else:
+        recommended_pathway = data.get('recommended_pathway', '')
+        fallback_recommendations = get_pathway_recommendations(recommended_pathway)
+        doc_elements.append(Paragraph(fallback_recommendations, sty["Normal"]))
 
 def generate_mrl_pdf_content(doc_elements, data, sty, heading_style):
-    """Generate MRL-specific PDF content - implement based on previous version"""
-    pass
+    """Generate MRL-specific PDF content"""
+    
+    print("Generating MRL PDF content...")
+    
+    detailed_analysis = data.get('detailed_analysis', {})
+    
+    # Market Readiness Overview
+    doc_elements.append(Paragraph("Market Readiness Analysis", heading_style))
+    doc_elements.append(Spacer(1, 8))
+    
+    market_readiness = detailed_analysis.get('market_readiness', 'Unknown')
+    overall_progress = detailed_analysis.get('overall_progress', 0)
+    
+    doc_elements.append(Paragraph(f"Overall Market Readiness: {market_readiness}", sty["Normal"]))
+    doc_elements.append(Paragraph(f"Progress Completion: {overall_progress:.1f}%", sty["Normal"]))
+    doc_elements.append(Spacer(1, 12))
+    
+    # Level-by-Level Analysis
+    doc_elements.append(Paragraph("Level-by-Level Analysis", heading_style))
+    doc_elements.append(Spacer(1, 8))
+    
+    level_scores = detailed_analysis.get('level_scores', [])
+    if level_scores:
+        level_data = [["Level", "Title", "Progress", "Status"]]
+        for score in level_scores:
+            status = "✓ Complete" if score['percentage'] >= 75 else "◐ Partial" if score['percentage'] >= 50 else "○ Incomplete"
+            level_data.append([
+                f"MRL {score['level']}",
+                score['title'],
+                f"{score['percentage']:.1f}%",
+                status
+            ])
+        
+        level_table = Table(level_data, colWidths=[0.8*inch, 2.5*inch, 0.8*inch, 0.9*inch])
+        level_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('ALIGN', (2, 0), (-1, -1), 'CENTER')
+        ]))
+        doc_elements.append(level_table)
+    
+    doc_elements.append(Spacer(1, 15))
+
+    # Strengths and Areas for Improvement
+    strengths = detailed_analysis.get('strengths', [])
+    areas_for_improvement = detailed_analysis.get('areas_for_improvement', [])
+    
+    if strengths:
+        doc_elements.append(Paragraph("Key Strengths", heading_style))
+        for strength in strengths:
+            doc_elements.append(Paragraph(f"• {strength}", sty["Normal"]))
+        doc_elements.append(Spacer(1, 10))
+    
+    if areas_for_improvement:
+        doc_elements.append(Paragraph("Areas for Improvement", heading_style))
+        for area in areas_for_improvement:
+            doc_elements.append(Paragraph(f"• {area}", sty["Normal"]))
+        doc_elements.append(Spacer(1, 10))
+
+    # Next Steps and Recommendations
+    doc_elements.append(Paragraph("Recommended Next Steps", heading_style))
+    next_steps = detailed_analysis.get('next_steps', [])
+    if next_steps:
+        for step in next_steps:
+            doc_elements.append(Paragraph(f"• {step}", sty["Normal"]))
+    doc_elements.append(Spacer(1, 15))
+
+    # Detailed Responses
+    generate_standard_pdf_responses(doc_elements, data, sty, heading_style)
 
 def generate_standard_pdf_content(doc_elements, data, sty, heading_style):
-    """Generate TRL/IRL-specific PDF content - implement based on previous version"""
-    pass
+    """Generate TRL/IRL-specific PDF content"""
+    generate_standard_pdf_responses(doc_elements, data, sty, heading_style)
+
+def generate_standard_pdf_responses(doc_elements, data, sty, heading_style):
+    """Generate detailed responses for standard assessments (TRL/IRL/MRL)"""
+    doc_elements.append(Paragraph("Detailed Assessment Results", heading_style))
+    doc_elements.append(Spacer(1, 10))
+    
+    questions = data.get('questions', [])
+    answers = data.get('answers', [])
+    
+    if questions and answers:
+        for idx, level in enumerate(questions):
+            level_title = f"{data['mode']} Level {level['level']}: {level['title']}"
+            doc_elements.append(Paragraph(level_title, sty["Heading3"]))
+            
+            if idx < len(answers):
+                level_answers = answers[idx]
+                for q_idx, question in enumerate(level['checks']):
+                    if q_idx < len(level_answers):
+                        answer = "Yes" if level_answers[q_idx] else "No"
+                    else:
+                        answer = "Not answered"
+                    
+                    doc_elements.append(Paragraph(f"Q{q_idx+1}. {question}", sty["Normal"]))
+                    doc_elements.append(Paragraph(f"Answer: {answer}", sty["Normal"]))
+                    doc_elements.append(Spacer(1, 4))
+            doc_elements.append(Spacer(1, 8))
+    else:
+        doc_elements.append(Paragraph("No detailed assessment results available.", sty["Normal"]))
+
+def get_pathway_recommendations(pathway):
+    """Get recommendations for a specific pathway"""
+    recommendations = {
+        "Direct Sale": "Focus on developing comprehensive go-to-market strategy, establishing direct sales channels, investing in marketing and brand development, ensuring manufacturing capabilities, and securing pilot customers. Build strong customer relationships and ensure product quality meets market expectations.",
+        
+        "Licensing": "Strengthen intellectual property protection through patents and trademarks. Identify potential licensees with established market presence and complementary capabilities. Develop comprehensive licensing packages that include technical documentation, training materials, and ongoing support. Negotiate favorable terms that balance upfront payments, royalties, and milestone-based compensation.",
+        
+        "Startup/Spin-out": "Assemble an experienced management team with relevant industry expertise and entrepreneurial experience. Develop a comprehensive business plan with detailed market analysis, financial projections, and growth strategies. Secure initial funding through angel investors, venture capital, or government grants. Establish proper legal structure and intellectual property ownership arrangements.",
+        
+        "Assignment": "Conduct thorough technology valuation using multiple methodologies including cost, market, and income approaches. Identify potential acquirers with strategic interest and complementary capabilities. Prepare comprehensive technology transfer packages including all documentation, know-how, and training materials. Negotiate favorable terms that maximize value while ensuring successful technology transfer.",
+        
+        "Research Collaboration": "Identify research partners with complementary expertise, resources, and strategic objectives. Develop joint research proposals that clearly define objectives, responsibilities, and intellectual property arrangements. Secure funding through collaborative grants and partnership agreements. Establish governance structures for project management and decision-making. Plan eventual commercialization pathways.",
+        
+        "Open Source": "Develop open source licensing strategy that balances community building with commercial opportunities. Create comprehensive documentation, tutorials, and developer resources to encourage adoption. Build community engagement through forums, conferences, and collaborative development platforms. Identify service revenue opportunities including consulting, training, and premium support.",
+        
+        "Government Procurement": "Understand government procurement processes, requirements, and evaluation criteria. Ensure full compliance with relevant regulations, security standards, and certification requirements. Develop relationships with government agencies, prime contractors, and system integrators. Prepare for extended procurement timelines and bureaucratic processes. Consider government funding opportunities such as SBIR/STTR programs."
+    }
+    
+    return recommendations.get(pathway, "Develop a customized commercialization strategy based on your technology's unique characteristics, market conditions, and organizational capabilities. Consider consulting with technology transfer professionals and industry experts to optimize your approach.")
 
 if __name__ == "__main__":
     port = int(os.getenv('PORT', 5000))
